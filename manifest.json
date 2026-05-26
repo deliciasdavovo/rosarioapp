@@ -1,0 +1,28 @@
+{
+  "name": "Meu Terço",
+  "short_name": "Terço",
+  "description": "Acompanhante de oração do terço católico",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EFECE6",
+  "theme_color": "#92400e",
+  "lang": "pt-BR",
+  "categories": ["lifestyle", "religion"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
