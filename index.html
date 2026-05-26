@@ -188,41 +188,45 @@
       </div>
     </div>
 
-    <!-- Área Principal: Painel de Oração + Terço Lateral -->
-    <div class="flex flex-1 min-h-0">
+    <!-- Painel de Leitura Litúrgica Central -->
+    <main id="mainContent" class="flex-1 flex items-center justify-center min-h-0 z-10 p-4">
+      <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
+        <!-- Moldura elegante interna -->
+        <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
+        <!-- Ornamentos de Canto em Cruz -->
+        <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
 
-      <!-- Painel de Leitura Litúrgica Central (Design de Livro Antigo) -->
-      <main class="flex-1 relative flex items-center justify-center min-h-0 z-10 p-4">
-        <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
-          <!-- Moldura elegante interna -->
-          <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
-          <!-- Ornamentos de Canto em Cruz -->
-          <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-
-          <!-- Barra de progresso discreta no topo do painel -->
-          <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
-            <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width: 0%;"></div>
-          </div>
-
-          <!-- Janela de Conteúdo do Devocionário -->
-          <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in">
-            <!-- Conteúdo gerado e atualizado via JavaScript -->
-          </div>
+        <!-- Barra de progresso discreta no topo do painel -->
+        <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
+          <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width: 0%;"></div>
         </div>
-      </main>
 
-      <!-- Terço na lateral direita — coluna transparente, sem fundo -->
-      <div
-        id="beadsContainer"
-        class="flex-none flex flex-col overflow-y-auto items-center gap-2 hide-scrollbar"
-        style="width: 44px; scroll-snap-type: y mandatory;"
-      >
-        <!-- Contas do Terço injetadas dinamicamente -->
+        <!-- Janela de Conteúdo do Devocionário -->
+        <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in">
+          <!-- Conteúdo gerado e atualizado via JavaScript -->
+        </div>
       </div>
-    </div>
+    </main>
+
+    <!-- Terço: fixo na lateral direita, fora de qualquer layout flex -->
+    <div id="beadsContainer" style="
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 48px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 50;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    "></div>
 
     <!-- Scripts de Lógica Litúrgica do Rosário -->
     <script>
@@ -907,17 +911,18 @@
       // Inicializar Configurações Padrões
       setMode('meditativo');
 
-      // Define padding após o layout ser calculado, evitando problema com vh no iOS
-      function initBeadsPadding() {
-        const half = Math.round(beadsContainer.clientHeight / 2);
-        beadsContainer.style.paddingTop = half + 'px';
-        beadsContainer.style.paddingBottom = half + 'px';
+      // Posiciona o terço fixo abaixo do cabeçalho e define padding de centralização
+      function setupBeads() {
+        const mainEl = document.getElementById('mainContent');
+        const top = mainEl ? Math.round(mainEl.getBoundingClientRect().top) : 130;
+        beadsContainer.style.top = top + 'px';
+        const h = beadsContainer.clientHeight;
+        beadsContainer.style.paddingTop  = Math.round(h / 2) + 'px';
+        beadsContainer.style.paddingBottom = Math.round(h / 2) + 'px';
+        centerBead(activeBeadId);
       }
 
-      setTimeout(() => {
-        initBeadsPadding();
-        centerBead(0);
-      }, 100);
+      window.addEventListener('load', setupBeads);
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
