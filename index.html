@@ -217,7 +217,7 @@
       <!-- Terço na lateral direita — coluna transparente, sem fundo -->
       <div
         id="beadsContainer"
-        class="flex-none flex flex-col overflow-y-auto items-center py-[38vh] gap-2 hide-scrollbar"
+        class="flex-none flex flex-col overflow-y-auto items-center gap-2 hide-scrollbar"
         style="width: 44px; scroll-snap-type: y mandatory;"
       >
         <!-- Contas do Terço injetadas dinamicamente -->
@@ -945,9 +945,18 @@
 
       // Inicializar Configurações Padrões
       setMode('meditativo');
+
+      // Define padding após o layout ser calculado, evitando problema com vh no iOS
+      function initBeadsPadding() {
+        const half = Math.round(beadsContainer.clientHeight / 2);
+        beadsContainer.style.paddingTop = half + 'px';
+        beadsContainer.style.paddingBottom = half + 'px';
+      }
+
       setTimeout(() => {
+        initBeadsPadding();
         centerBead(0);
-      }, 500);
+      }, 100);
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
