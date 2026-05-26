@@ -763,111 +763,91 @@
         }, 300);
       }
 
-      // Gerar e Injetar Contas na Trilha Lateral
+      // Gerar e Injetar Contas na Lateral
       function renderBeads() {
         beadsContainer.innerHTML = '';
 
-        beadsList.forEach((bead, i) => {
-          const isCompleted = completedBeads.has(bead.id);
-          const isActive    = activeBeadId === bead.id;
+        beadsList.forEach(function(bead, i) {
+          var isCompleted = completedBeads.has(bead.id);
+          var isActive    = activeBeadId === bead.id;
+          var isBig       = bead.type === 'pai-nosso' || bead.type === 'misterio' || bead.type === 'salve-rainha';
+          var size        = bead.type === 'cruz' ? 32 : isBig ? 26 : 18;
 
-          // Tamanho da conta
-          const size = bead.type === 'cruz' ? 36
-                     : (bead.type === 'pai-nosso' || bead.type === 'misterio' || bead.type === 'salve-rainha') ? 28
-                     : 20;
+          var wrap = document.createElement('div');
+          wrap.id = 'bead-item-' + bead.id;
+          wrap.style.display        = 'flex';
+          wrap.style.flexDirection  = 'column';
+          wrap.style.alignItems     = 'center';
+          wrap.style.flexShrink     = '0';
 
-          // Cores
-          const bg     = isCompleted ? 'rgba(249,115,22,0.12)' : 'rgb(249,115,22)';
-          const border = isCompleted ? '1.5px solid rgba(249,115,22,0.35)' : 'none';
-          const shadow = isCompleted ? 'none' : '0 2px 6px rgba(234,88,12,0.45)';
-          const scale  = isActive && !isCompleted ? 'scale(1.15)' : 'scale(1)';
-          const ring   = isActive ? `0 0 0 2px #EFECE6, 0 0 0 4px ${isCompleted ? 'rgb(253,186,116)' : 'rgb(249,115,22)'}` : 'none';
+          var b = document.createElement('div');
+          b.setAttribute('data-id', String(bead.id));
+          b.style.width          = size + 'px';
+          b.style.height         = size + 'px';
+          b.style.borderRadius   = bead.type === 'cruz' ? '3px' : '50%';
+          b.style.background     = isCompleted ? 'rgba(249,115,22,0.18)' : 'rgb(249,115,22)';
+          b.style.border         = isCompleted ? '1.5px solid rgba(249,115,22,0.4)' : '1.5px solid rgba(234,88,12,0.6)';
+          b.style.outline        = isActive ? '2px solid rgb(249,115,22)' : 'none';
+          b.style.outlineOffset  = '2px';
+          b.style.boxShadow      = isCompleted ? 'none' : '0 1px 4px rgba(234,88,12,0.4)';
+          b.style.transform      = isActive && !isCompleted ? 'scale(1.2)' : 'scale(1)';
+          b.style.cursor         = 'pointer';
+          b.style.flexShrink     = '0';
+          b.style.touchAction    = 'none';
+          b.style.display        = 'flex';
+          b.style.alignItems     = 'center';
+          b.style.justifyContent = 'center';
+          b.style.transition     = 'transform 0.2s';
+          b.style.position       = 'relative';
+          b.style.overflow       = 'hidden';
 
-          // Clip da cruz
-          const clip = bead.type === 'cruz'
-            ? 'polygon(35% 0%,65% 0%,65% 30%,100% 30%,100% 50%,65% 50%,65% 100%,35% 100%,35% 50%,0% 50%,0% 30%,35% 30%)'
-            : '';
-
-          const itemDiv = document.createElement('div');
-          itemDiv.id = `bead-item-${bead.id}`;
-          itemDiv.style.cssText = 'display:flex;flex-direction:column;align-items:center;flex-shrink:0;';
-
-          const beadEl = document.createElement('div');
-          beadEl.dataset.id = bead.id;
-          beadEl.style.cssText = `
-            width:${size}px; height:${size}px;
-            background:${bg}; border:${border};
-            border-radius:${bead.type === 'cruz' ? '0' : '50%'};
-            clip-path:${clip};
-            box-shadow:${ring !== 'none' ? ring + (shadow !== 'none' ? ',' + shadow : '') : shadow};
-            transform:${scale};
-            display:flex; align-items:center; justify-content:center;
-            cursor:pointer; flex-shrink:0; touch-action:none;
-            transition:transform .3s, box-shadow .3s;
-            position:relative; overflow:hidden;
-          `;
-
-          // Conteúdo interno
           if (bead.type === 'cruz') {
-            beadEl.innerHTML = `<svg style="width:${size*0.55}px;height:${size*0.55}px;opacity:${isCompleted?0.45:1}" fill="none" stroke="${isCompleted?'rgb(249,115,22)':'white'}" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m-4-10h8"/></svg>`;
-          } else if (bead.type === 'misterio') {
-            beadEl.innerHTML = `<div style="width:6px;height:6px;border-radius:50%;background:${isCompleted?'rgba(249,115,22,0.5)':'rgba(255,255,255,0.85)'}"></div>`;
-          } else if (bead.type === 'salve-rainha') {
-            beadEl.innerHTML = `<svg style="width:${size*0.5}px;height:${size*0.5}px" viewBox="0 0 24 24" fill="${isCompleted?'rgba(249,115,22,0.5)':'rgba(255,255,255,0.85)'}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+            var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+            svg.setAttribute('viewBox','0 0 24 24');
+            svg.setAttribute('fill','none');
+            svg.setAttribute('stroke', isCompleted ? 'rgba(249,115,22,0.6)' : 'white');
+            svg.setAttribute('stroke-width','2.5');
+            svg.style.width  = '14px';
+            svg.style.height = '14px';
+            var path = document.createElementNS('http://www.w3.org/2000/svg','path');
+            path.setAttribute('stroke-linecap','round');
+            path.setAttribute('stroke-linejoin','round');
+            path.setAttribute('d','M12 4v16m-4-10h8');
+            svg.appendChild(path);
+            b.appendChild(svg);
           }
 
-          // Animação de pressão longa
-          const fill = document.createElement('div');
-          fill.className = 'progress-fill';
-          fill.style.cssText = 'position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.25);transform:scale(0);opacity:0;transition:transform .6s,opacity .6s;';
-          beadEl.appendChild(fill);
-
-          itemDiv.appendChild(beadEl);
+          wrap.appendChild(b);
 
           // Fio conector
           if (i < beadsList.length - 1) {
-            const isDecade = bead.type === 'misterio' || beadsList[i+1].type === 'misterio';
-            const thread = document.createElement('div');
-            thread.style.cssText = `width:1px;background:rgba(168,162,158,0.5);height:${isDecade ? 10 : 6}px;flex-shrink:0;`;
-            itemDiv.appendChild(thread);
+            var thread = document.createElement('div');
+            thread.style.width      = '1px';
+            thread.style.height     = bead.type === 'misterio' || beadsList[i+1].type === 'misterio' ? '10px' : '6px';
+            thread.style.background = 'rgba(168,162,158,0.55)';
+            thread.style.flexShrink = '0';
+            wrap.appendChild(thread);
           }
 
-          // Eventos de toque
-          let pressTimer = null;
-          let isPressing = false;
-
-          const startPress = (e) => {
+          var pressTimer = null;
+          b.addEventListener('pointerdown', function(e) {
             e.preventDefault();
-            isPressing = true;
             activeBeadId = bead.id;
-            if (navigator.vibrate) try { navigator.vibrate(10); } catch(e) {}
+            if (navigator.vibrate) { try { navigator.vibrate(10); } catch(er) {} }
             renderBeads();
             renderPanel();
             centerBead(bead.id);
-            if (!isCompleted) {
-              const f = document.querySelector(`[data-id="${bead.id}"] .progress-fill`);
-              if (f) { f.style.transform = 'scale(1)'; f.style.opacity = '1'; }
-            }
-            pressTimer = setTimeout(() => { if (isPressing) toggleBead(bead.id); }, 600);
-          };
+            pressTimer = setTimeout(function() { toggleBead(bead.id); }, 600);
+          });
+          function cancelTimer() { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } }
+          b.addEventListener('pointerup',     cancelTimer);
+          b.addEventListener('pointerleave',  cancelTimer);
+          b.addEventListener('pointercancel', cancelTimer);
 
-          const cancelPress = () => {
-            isPressing = false;
-            const f = document.querySelector(`[data-id="${bead.id}"] .progress-fill`);
-            if (f) { f.style.transform = 'scale(0)'; f.style.opacity = '0'; }
-            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-          };
-
-          beadEl.addEventListener('pointerdown', startPress);
-          beadEl.addEventListener('pointerup',   cancelPress);
-          beadEl.addEventListener('pointerleave', cancelPress);
-          beadEl.addEventListener('pointercancel', cancelPress);
-
-          beadsContainer.appendChild(itemDiv);
+          beadsContainer.appendChild(wrap);
         });
 
-        // Barra de progresso
-        pBarFill.style.width = `${(completedBeads.size / beadsList.length) * 100}%`;
+        pBarFill.style.width = (completedBeads.size / beadsList.length * 100) + '%';
       }
 
       function toggleBead(id) {
@@ -908,21 +888,19 @@
         }
       }
 
-      // Inicializar Configurações Padrões
+      // Inicializar
       setMode('meditativo');
 
-      // Posiciona o terço fixo abaixo do cabeçalho e define padding de centralização
-      function setupBeads() {
-        const mainEl = document.getElementById('mainContent');
-        const top = mainEl ? Math.round(mainEl.getBoundingClientRect().top) : 130;
-        beadsContainer.style.top = top + 'px';
-        const h = beadsContainer.clientHeight;
-        beadsContainer.style.paddingTop  = Math.round(h / 2) + 'px';
+      setTimeout(function() {
+        var mainEl = document.getElementById('mainContent');
+        if (mainEl) {
+          beadsContainer.style.top = Math.round(mainEl.getBoundingClientRect().top) + 'px';
+        }
+        var h = beadsContainer.clientHeight;
+        beadsContainer.style.paddingTop    = Math.round(h / 2) + 'px';
         beadsContainer.style.paddingBottom = Math.round(h / 2) + 'px';
-        centerBead(activeBeadId);
-      }
-
-      window.addEventListener('load', setupBeads);
+        centerBead(0);
+      }, 300);
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
