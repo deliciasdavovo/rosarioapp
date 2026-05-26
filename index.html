@@ -759,150 +759,111 @@
         }, 300);
       }
 
-      // Gerar e Injetar Contas na Trilha Horizontal
+      // Gerar e Injetar Contas na Trilha Lateral
       function renderBeads() {
         beadsContainer.innerHTML = '';
-        
+
         beadsList.forEach((bead, i) => {
+          const isCompleted = completedBeads.has(bead.id);
+          const isActive    = activeBeadId === bead.id;
+
+          // Tamanho da conta
+          const size = bead.type === 'cruz' ? 36
+                     : (bead.type === 'pai-nosso' || bead.type === 'misterio' || bead.type === 'salve-rainha') ? 28
+                     : 20;
+
+          // Cores
+          const bg     = isCompleted ? 'rgba(249,115,22,0.12)' : 'rgb(249,115,22)';
+          const border = isCompleted ? '1.5px solid rgba(249,115,22,0.35)' : 'none';
+          const shadow = isCompleted ? 'none' : '0 2px 6px rgba(234,88,12,0.45)';
+          const scale  = isActive && !isCompleted ? 'scale(1.15)' : 'scale(1)';
+          const ring   = isActive ? `0 0 0 2px #EFECE6, 0 0 0 4px ${isCompleted ? 'rgb(253,186,116)' : 'rgb(249,115,22)'}` : 'none';
+
+          // Clip da cruz
+          const clip = bead.type === 'cruz'
+            ? 'polygon(35% 0%,65% 0%,65% 30%,100% 30%,100% 50%,65% 50%,65% 100%,35% 100%,35% 50%,0% 50%,0% 30%,35% 30%)'
+            : '';
+
           const itemDiv = document.createElement('div');
           itemDiv.id = `bead-item-${bead.id}`;
-          itemDiv.className = 'flex flex-col items-center snap-center relative shrink-0 transition-transform duration-300';
-          
-          const isCompleted = completedBeads.has(bead.id);
-          const isActive = activeBeadId === bead.id;
+          itemDiv.style.cssText = 'display:flex;flex-direction:column;align-items:center;flex-shrink:0;';
 
-          let customClass = "relative overflow-hidden flex items-center justify-center rounded-full transition-all duration-700 cursor-pointer select-none ring-offset-2 ring-offset-[#EFECE6] p-1 ";
-          
-          if (bead.type === 'cruz') {
-            customClass = "relative overflow-hidden flex items-center justify-center clip-cross w-10 h-10 cursor-pointer select-none p-1 transition-all duration-700 ";
-            customClass += isCompleted ? 'bg-orange-500/10 border border-orange-500/30 text-orange-500/50 backdrop-blur-sm' : 'bg-orange-500 text-white shadow-sm';
-          } else {
-            if (bead.type === 'pai-nosso' || bead.type === 'misterio' || bead.type === 'salve-rainha') {
-              customClass += "w-8 h-8 ";
-            } else {
-              customClass += "w-6 h-6 ";
-            }
-
-            if (isCompleted) {
-              customClass += "bg-orange-500/10 border border-orange-500/30 backdrop-blur-sm shadow-none";
-            } else {
-              customClass += "bg-orange-500 text-orange-50 shadow-[inset_0_-2px_4px_rgba(255,255,255,0.2),0_2px_5px_rgba(234,88,12,0.4)]";
-            }
-          }
-
-          // Se for a conta ativa, destacar de forma estática pura com offset circular (Sem pulsar)
-          if (isActive) {
-            customClass += isCompleted ? ' ring-2 ring-orange-300 scale-100' : ' ring-2 ring-orange-500 scale-110 shadow-lg';
-          }
-
-          itemDiv.innerHTML = `
-            <div 
-              class="${customClass}" 
-              data-id="${bead.id}"
-              style="touch-action: none;"
-            >
-              <div class="progress-fill absolute inset-0 rounded-full bg-white/20 scale-0 opacity-0 transition-all duration-700"></div>
-              
-              <div class="relative z-10 flex items-center justify-center w-full h-full">
-                ${bead.type === 'cruz' ? `
-                  <svg class="w-5 h-5 transition-opacity duration-500 ${isCompleted ? 'opacity-50' : 'opacity-100'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m-4-10h8" />
-                  </svg>
-                ` : ''}
-                
-                ${bead.type === 'misterio' ? `
-                  <div class="w-1.5 h-1.5 rounded-full transition-colors duration-500 ${isCompleted ? 'bg-orange-500/50' : 'bg-orange-100'}"></div>
-                ` : ''}
-
-                ${bead.type === 'salve-rainha' ? `
-                  <svg class="w-4 h-4 transition-colors duration-500 ${isCompleted ? 'text-orange-500/50' : 'text-orange-100'}" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                  </svg>
-                ` : ''}
-              </div>
-            </div>
+          const beadEl = document.createElement('div');
+          beadEl.dataset.id = bead.id;
+          beadEl.style.cssText = `
+            width:${size}px; height:${size}px;
+            background:${bg}; border:${border};
+            border-radius:${bead.type === 'cruz' ? '0' : '50%'};
+            clip-path:${clip};
+            box-shadow:${ring !== 'none' ? ring + (shadow !== 'none' ? ',' + shadow : '') : shadow};
+            transform:${scale};
+            display:flex; align-items:center; justify-content:center;
+            cursor:pointer; flex-shrink:0; touch-action:none;
+            transition:transform .3s, box-shadow .3s;
+            position:relative; overflow:hidden;
           `;
 
-          // Linhas conectoras do rosário
-          const isLast = i === beadsList.length - 1;
-          if (!isLast) {
-            const thread = document.createElement('div');
-            thread.className = `w-px bg-stone-200/60 h-3 z-0 shrink-0`;
-            itemDiv.appendChild(thread);
-
-            // Espaçadores maiores entre as dezenas dos mistérios
-            if (bead.type === 'misterio' || beadsList[i+1].type === 'misterio') {
-              const gap = document.createElement('div');
-              gap.className = "h-3 shrink-0";
-              itemDiv.appendChild(gap);
-            }
+          // Conteúdo interno
+          if (bead.type === 'cruz') {
+            beadEl.innerHTML = `<svg style="width:${size*0.55}px;height:${size*0.55}px;opacity:${isCompleted?0.45:1}" fill="none" stroke="${isCompleted?'rgb(249,115,22)':'white'}" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m-4-10h8"/></svg>`;
+          } else if (bead.type === 'misterio') {
+            beadEl.innerHTML = `<div style="width:6px;height:6px;border-radius:50%;background:${isCompleted?'rgba(249,115,22,0.5)':'rgba(255,255,255,0.85)'}"></div>`;
+          } else if (bead.type === 'salve-rainha') {
+            beadEl.innerHTML = `<svg style="width:${size*0.5}px;height:${size*0.5}px" viewBox="0 0 24 24" fill="${isCompleted?'rgba(249,115,22,0.5)':'rgba(255,255,255,0.85)'}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
           }
 
-          const beadCore = itemDiv.querySelector('[data-id]');
+          // Animação de pressão longa
+          const fill = document.createElement('div');
+          fill.className = 'progress-fill';
+          fill.style.cssText = 'position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,0.25);transform:scale(0);opacity:0;transition:transform .6s,opacity .6s;';
+          beadEl.appendChild(fill);
+
+          itemDiv.appendChild(beadEl);
+
+          // Fio conector
+          if (i < beadsList.length - 1) {
+            const isDecade = bead.type === 'misterio' || beadsList[i+1].type === 'misterio';
+            const thread = document.createElement('div');
+            thread.style.cssText = `width:1px;background:rgba(168,162,158,0.5);height:${isDecade ? 10 : 6}px;flex-shrink:0;`;
+            itemDiv.appendChild(thread);
+          }
+
+          // Eventos de toque
           let pressTimer = null;
           let isPressing = false;
 
-          const triggerHaptic = (ms) => {
-            if (navigator.vibrate) {
-              try { navigator.vibrate(ms); } catch(err) {}
-            }
-          };
-
-          const handleSelection = () => {
-            activeBeadId = bead.id;
-            triggerHaptic(10);
-            renderBeads();
-            renderPanel();
-            centerBead(bead.id);
-          };
-
-          // Toque e Pressão contínua
           const startPress = (e) => {
             e.preventDefault();
             isPressing = true;
-            handleSelection();
-            beadCore.classList.add('scale-95');
-
-            if (isCompleted) return;
-
-            const fillEl = beadCore.querySelector('.progress-fill');
-            if (fillEl) {
-              fillEl.classList.remove('scale-0', 'opacity-0');
-              fillEl.classList.add('scale-100', 'opacity-100');
+            activeBeadId = bead.id;
+            if (navigator.vibrate) try { navigator.vibrate(10); } catch(e) {}
+            renderBeads();
+            renderPanel();
+            centerBead(bead.id);
+            if (!isCompleted) {
+              const f = document.querySelector(`[data-id="${bead.id}"] .progress-fill`);
+              if (f) { f.style.transform = 'scale(1)'; f.style.opacity = '1'; }
             }
-
-            pressTimer = setTimeout(() => {
-              if (isPressing) {
-                toggleBead(bead.id);
-              }
-            }, 600); // Segurar por 600ms para confirmar oração
+            pressTimer = setTimeout(() => { if (isPressing) toggleBead(bead.id); }, 600);
           };
 
           const cancelPress = () => {
             isPressing = false;
-            beadCore.classList.remove('scale-95');
-            const fillEl = beadCore.querySelector('.progress-fill');
-            if (fillEl) {
-              fillEl.classList.add('scale-0', 'opacity-0');
-              fillEl.classList.remove('scale-100', 'opacity-100');
-            }
-            if (pressTimer) {
-              clearTimeout(pressTimer);
-              pressTimer = null;
-            }
+            const f = document.querySelector(`[data-id="${bead.id}"] .progress-fill`);
+            if (f) { f.style.transform = 'scale(0)'; f.style.opacity = '0'; }
+            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
           };
 
-          beadCore.addEventListener('pointerdown', startPress);
-          beadCore.addEventListener('pointerup', cancelPress);
-          beadCore.addEventListener('pointerleave', cancelPress);
-          beadCore.addEventListener('pointercancel', cancelPress);
+          beadEl.addEventListener('pointerdown', startPress);
+          beadEl.addEventListener('pointerup',   cancelPress);
+          beadEl.addEventListener('pointerleave', cancelPress);
+          beadEl.addEventListener('pointercancel', cancelPress);
 
           beadsContainer.appendChild(itemDiv);
         });
 
-        // Atualizar barra de progresso do terço
-        const pPercentage = (completedBeads.size / beadsList.length) * 100;
-        pBarFill.style.width = `${pPercentage}%`;
+        // Barra de progresso
+        pBarFill.style.width = `${(completedBeads.size / beadsList.length) * 100}%`;
       }
 
       function toggleBead(id) {
