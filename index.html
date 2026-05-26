@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>meu terço</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS para estilização moderna e limpa -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              serif: ['Outfit', 'serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #EFECE6;
+        color: #292524;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .clip-cross {
+        clip-path: polygon(
+          35% 0%, 65% 0%, 65% 30%, 
+          100% 30%, 100% 50%, 65% 50%, 
+          65% 100%, 35% 100%, 35% 50%, 
+          0% 50%, 0% 30%, 35% 30%
+        );
+      }
+      .book-sheet-shadow {
+        box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), 0 15px 30px -5px rgba(30,20,10,0.06);
+      }
+      /* Transição de transição suave do painel de leitura */
+      .fade-transition {
+        transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+      }
+      .fade-out {
+        opacity: 0;
+        transform: translateY(-8px);
+        filter: blur(2px);
+      }
+      .fade-in {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0px);
+      }
+    </style>
+  </head>
+  <body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Barra de Cabeçalho Superior -->
+    <header class="flex-none p-4 pb-2 z-30">
+      <div class="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <h1 class="text-2xl font-serif text-amber-950 font-bold tracking-wide">meu terço</h1>
+        
+        <!-- Dropdown Seletor de Dia Litúrgico -->
+        <div class="relative">
+          <button 
+            id="daySelectorBtn"
+            class="flex items-center gap-2 bg-stone-100/50 hover:bg-stone-100/80 px-5 py-2 rounded-full transition-colors border border-stone-200/60"
+          >
+            <span id="currentDayLabel" class="text-stone-700 font-serif tracking-wide text-sm font-medium">Domingo</span>
+            <svg class="w-4 h-4 text-orange-600/70 transition-transform duration-300" id="chevronIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          <div 
+            id="dayDropdown" 
+            class="hidden absolute top-12 right-0 bg-white border border-stone-100 shadow-xl rounded-2xl p-2 w-52 origin-top z-50 flex flex-col gap-1 transition-all"
+          >
+            <!-- Injetado dinamicamente via Javascript -->
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Abas de Modos de Contemplação -->
+    <div class="flex-none max-w-xl mx-auto w-full px-4 mb-2 z-20">
+      <div class="flex justify-between bg-white rounded-2xl shadow-sm p-1.5 border border-stone-100/80 relative">
+        <!-- Indicador deslizante de aba ativa -->
+        <div id="activeTabBg" class="absolute top-1.5 bottom-1.5 left-1.5 bg-orange-50 rounded-xl transition-all duration-300 ease-out" style="width: calc(25% - 3px); left: 1.5px;"></div>
+        
+        <button onclick="setMode('curta')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-orange-900" data-mode="curta">
+          <span class="flex flex-col items-center gap-1">
+            <svg class="w-4 h-4 text-orange-600/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span class="text-[10px] font-medium tracking-wide uppercase">Curta</span>
+          </span>
+        </button>
+
+        <button onclick="setMode('oracao')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="oracao">
+          <span class="flex flex-col items-center gap-1">
+            <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span class="text-[10px] font-medium tracking-wide uppercase">Oração</span>
+          </span>
+        </button>
+
+        <button onclick="setMode('meditativo')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="meditativo">
+          <span class="flex flex-col items-center gap-1">
+            <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />
+            </svg>
+            <span class="text-[10px] font-medium tracking-wide uppercase">Meditativo</span>
+          </span>
+        </button>
+
+        <button onclick="setMode('imagem')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="imagem">
+          <span class="flex flex-col items-center gap-1">
+            <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a1 1 0 011.414 0L16 16m-2-2l1.586-1.586a1 1 0 011.414 0L21 14m-7-4a2 2 0 110-4 2 2 0 010 4z" />
+            </svg>
+            <span class="text-[10px] font-medium tracking-wide uppercase">Imagem</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Painel de Leitura Litúrgica Central (Design de Livro Antigo) -->
+    <main class="flex-1 relative flex items-center justify-center min-h-0 z-10 p-4">
+      <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
+        <!-- Moldura elegante interna -->
+        <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
+        <!-- Ornamentos de Canto em Cruz -->
+        <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+
+        <!-- Janela de Conteúdo do Devocionário -->
+        <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in">
+          <!-- Conteúdo gerado e atualizado via JavaScript -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Fita Inferior contendo a trilha do Rosário de Contas -->
+    <div class="flex-none bg-white border-t border-stone-100 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.05)] relative z-30">
+      <!-- Barra decorativa de Progresso -->
+      <div class="h-0.5 bg-stone-100 w-full relative">
+        <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width: 0%;"></div>
+      </div>
+
+      <div class="pt-4 pb-1 text-center text-[10px] font-medium text-stone-400 uppercase tracking-[0.22em]">
+        Toque para selecionar, segure para rezar
+      </div>
+
+      <!-- Trilha Horizontal do Rosário -->
+      <div 
+        id="beadsContainer"
+        class="flex overflow-x-auto items-center justify-start py-8 px-[50vw] gap-3 hide-scrollbar snap-x snap-mandatory"
+        style="scroll-snap-type: x mandatory;"
+      >
+        <!-- Contas do Terço injetadas dinamicamente -->
+      </div>
+    </div>
+
+    <!-- Scripts de Lógica Litúrgica do Rosário -->
+    <script>
+      const DAYS_OF_WEEK = [
+        'Domingo',
+        'Segunda',
+        'Terça',
+        'Quarta',
+        'Quinta',
+        'Sexta',
+        'Sábado'
+      ];
+
+      const MYSTERY_SETS = {
+        gozosos: {
+          id: 'gozosos',
+          name: 'Mistérios Gozosos',
+          fruits: [
+            'Humildade',
+            'Amor ao Próximo / Caridade',
+            'Desapego dos Bens Terrenos',
+            'Obediência e Pureza',
+            'Procura de Deus / Sabedoria'
+          ],
+          mysteries: [
+            {
+              title: 'A Anunciação do Anjo a Maria',
+              curta: 'Eis aqui a serva do Senhor, faça-se em mim segundo a tua palavra. (Lc 1, 38)',
+              imageUrl: 'https://images.unsplash.com/photo-1549721731-827fc32924b1?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à vossa humilde obediência ao Arcanjo Gabriel. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Visitação de Maria a Isabel',
+              curta: 'Bendita és tu entre as mulheres e bendito é o fruto do teu ventre! (Lc 1, 42)',
+              imageUrl: 'https://images.unsplash.com/photo-1437603568260-1950d3ca6eab?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra ao amor com que visitastes vossa prima Isabel. (${i + 1}/10)`)
+            },
+            {
+              title: 'O Nascimento de Jesus',
+              curta: 'E deu à luz seu filho primogênito, enfaixou-o e deitou-o numa manjedoura. (Lc 2, 7)',
+              imageUrl: 'https://images.unsplash.com/photo-1512402120023-ff99c43d2eb1?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra ao nascimento do Menino Jesus na gruta de Belém. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Apresentação no Templo',
+              curta: 'Levaram-no a Jerusalém para o apresentar ao Senhor. (Lc 2, 22)',
+              imageUrl: 'https://images.unsplash.com/photo-1438283173091-5dbf5c5a3206?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à apresentação de Jesus no Templo. (${i + 1}/10)`)
+            },
+            {
+              title: 'O Encontro de Jesus no Templo',
+              curta: 'Três dias depois, acharam-no no templo, sentado no meio dos doutores. (Lc 2, 46)',
+              imageUrl: 'https://images.unsplash.com/photo-1614030424754-24d0eebd4666?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à dor e alegria ao encontrar Jesus no Templo. (${i + 1}/10)`)
+            }
+          ]
+        },
+        luminosos: {
+          id: 'luminosos',
+          name: 'Mistérios Luminosos',
+          fruits: [
+            'Fidelidade à Vocação do Batismo',
+            'Confiança em Maria / Docilidade',
+            'Conversão de Coração',
+            'Desejo de Santidade e Luz',
+            'Amor Eucarístico / Vida Interior'
+          ],
+          mysteries: [
+            {
+              title: 'O Batismo no Jordão',
+              curta: 'Este é o meu Filho muito amado, no qual pus toda a minha afeição. (Mt 3, 17)',
+              imageUrl: 'https://images.unsplash.com/photo-1544627051-912f29d2b274?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra ao batismo de Nosso Senhor no Rio Jordão. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Auto-revelação nas Bodas de Caná',
+              curta: 'Sua mãe disse aos serventes: Fazei tudo o que ele vos disser. (Jo 2, 5)',
+              imageUrl: 'https://images.unsplash.com/photo-1555243896-771a80b182db?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra ao primeiro milagre de Jesus a vosso pedido. (${i + 1}/10)`)
+            },
+            {
+              title: 'O Anúncio do Reino de Deus',
+              curta: 'O tempo está cumprido e o Reino de Deus está próximo; arrependei-vos e crede no Evangelho. (Mc 1, 15)',
+              imageUrl: 'https://images.unsplash.com/photo-1438283173091-5dbf5c5a3206?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra ao chamado de Jesus à conversão. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Transfiguração',
+              curta: 'E transfigurou-se diante deles; o seu rosto resplandeceu como o sol. (Mt 17, 2)',
+              imageUrl: 'https://images.unsplash.com/photo-1521727787363-23df2a514dcb?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à glória irradiada no Monte Tabor. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Instituição da Eucaristia',
+              curta: 'Tomai e comei, isto é o meu corpo. (Mt 26, 26)',
+              imageUrl: 'https://images.unsplash.com/photo-1506548239023-dfdce434ff0b?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra ao dom infinito da Sagrada Eucaristia. (${i + 1}/10)`)
+            }
+          ]
+        },
+        dolorosos: {
+          id: 'dolorosos',
+          name: 'Mistérios Dolorosos',
+          fruits: [
+            'Contrição e Aceitação da Vontade Divina',
+            'Mortificação dos Sentidos e Pureza',
+            'Humildade de Coração e Mansidão',
+            'Paciência de Carregar a Cruz',
+            'Amor Sacrificial e Perdão'
+          ],
+          mysteries: [
+            {
+              title: 'A Agonia no Horto',
+              curta: 'Pai, se queres, afasta de mim este cálice; contudo, não se faça a minha vontade, mas a tua. (Lc 22, 42)',
+              imageUrl: 'https://images.unsplash.com/photo-1542159042-3f1bb3ceef8c?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra ao suor de sangue derramado no Horto das Oliveiras. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Flagelação',
+              curta: 'Então Pilatos mandou açoitar Jesus. (Jo 19, 1)',
+              imageUrl: 'https://images.unsplash.com/photo-1563228003-8d6bd197dc71?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra às cruéis chicotadas que feriram o corpo de Jesus. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Coroação de Espinhos',
+              curta: 'Os soldados teceram uma coroa de espinhos e puseram-na sobre a cabeça dele. (Jo 19, 2)',
+              imageUrl: 'https://images.unsplash.com/photo-1522880562306-03f478e11a22?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra aos espinhos que cravaram na sagrada cabeça de Nosso Senhor. (${i + 1}/10)`)
+            },
+            {
+              title: 'Jesus Carrega a Cruz',
+              curta: 'E ele próprio, carregando a sua cruz, saiu para o lugar chamado Calvário. (Jo 19, 17)',
+              imageUrl: 'https://images.unsplash.com/photo-1502425816999-52eaf0670ca7?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra aos passos dolorosos de Jesus a caminho do Calvário. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Crucificação e Morte',
+              curta: 'Pai, nas tuas mãos entrego o meu espírito. Dizendo isto, expirou. (Lc 23, 46)',
+              imageUrl: 'https://images.unsplash.com/photo-1544627051-912f29d2b274?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra ao sangue derramado na Cruz para nossa salvação. (${i + 1}/10)`)
+            }
+          ]
+        },
+        gloriosos: {
+          id: 'gloriosos',
+          name: 'Mistérios Gloriosos',
+          fruits: [
+            'Fé Viva e União com o Ressuscitado',
+            'Esperança Firme e Desejo do Céu',
+            'Zelo Apostólico e Caridade',
+            'Devoção Mariana e Santa Morte',
+            'Perseverança Final / Glória Celeste'
+          ],
+          mysteries: [
+            {
+              title: 'A Ressurreição',
+              curta: 'Ele não está aqui; ressuscitou, como havia dito. (Mt 28, 6)',
+              imageUrl: 'https://images.unsplash.com/photo-1498188266205-d1447cd04052?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à gloriosa ressurreição de Jesus Cristo. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Ascensão',
+              curta: 'Ficou elevado à vista deles, e uma nuvem o ocultou aos seus olhos. (At 1, 9)',
+              imageUrl: 'https://images.unsplash.com/photo-1513009778265-27f99994cba8?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à ascensão de Jesus ao Céu. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Vinda do Espírito Santo',
+              curta: 'Ficaram todos cheios do Espírito Santo. (At 2, 4)',
+              imageUrl: 'https://images.unsplash.com/photo-1519818177579-373df899faee?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à descida do Espírito Santo sobre vós e os Apóstolos. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Assunção de Maria',
+              curta: 'Apareceu em seguida um grande sinal no céu: uma Mulher revestida do sol. (Ap 12, 1)',
+              imageUrl: 'https://images.unsplash.com/photo-1537429149955-1b4e28080f55?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à vossa gloriosa Assunção ao Céu em corpo e alma. (${i + 1}/10)`)
+            },
+            {
+              title: 'A Coroação de Maria',
+              curta: 'E na cabeça uma coroa de doze estrelas. (Ap 12, 1)',
+              imageUrl: 'https://images.unsplash.com/photo-1599427303058-f04cbbaa7d3b?q=80&w=2070&auto=format&fit=crop',
+              meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à vossa coroação como Rainha do Céu e da Terra. (${i + 1}/10)`)
+            }
+          ]
+        }
+      };
+
+      const COMMON_PRAYERS = {
+        cruz: {
+          title: 'Creio em Deus Pai',
+          text: 'Creio em Deus Pai Todo-Poderoso, criador do céu e da terra. E em Jesus Cristo, seu único Filho, nosso Senhor, que foi concebido pelo poder do Espírito Santo; nasceu da Virgem Maria; padeceu sob Pôncio Pilatos, foi crucificado, morto e sepultado. Desceu à mansão dos mortos; ressuscitou ao terceiro dia, subiu aos céus; está sentado à direita de Deus Pai Todo-Poderoso, donde há de vir a julgar os vivos e os mortos. Creio no Espírito Santo; na Santa Igreja Católica; na comunhão dos santos; na remissão dos pecados; na ressurreição da carne; na vida eterna. Amém.'
+        },
+        'pai-nosso': {
+          title: 'Pai Nosso',
+          text: 'Pai Nosso que estais nos Céus, santificado seja o vosso Nome, venha a nós o vosso Reino, seja feita a vossa vontade assim na terra como no Céu. O pão nosso de cada dia nos dai hoje, perdoai-nos as nossas ofensas assim como nós perdoamos a quem nos tem ofendido, e não nos deixeis cair em tentação, mas livrai-nos do Mal. Amém.'
+        },
+        'ave-maria': {
+          title: 'Ave Maria',
+          text: 'Ave Maria, cheia de graça, o Senhor é convosco, bendita sois vós entre as mulheres e bendito é o fruto do vosso ventre, Jesus. Santa Maria, Mãe de Deus, rogai por nós pecadores, agora e na hora da nossa morte. Amém.'
+        },
+        'salve-rainha': {
+          title: 'Salve Rainha',
+          text: 'Salve Rainha, Mãe de misericórdia, vida, doçura e esperança nossa, salve! A vós bradamos, os degredados filhos de Eva; a vós suspiramos, gemendo e chorando neste vale de lágrimas. Eia, pois, advogada nossa, esses vossos olhos misericordiosos a nós volvei; e depois deste desterro nos mostrai Jesus, bendito fruto do vosso ventre, ó clemente, ó piedosa, ó doce sempre Virgem Maria. Rogai por nós, Santa Mãe de Deus, para que sejamos dignos das promessas de Cristo. Amém.'
+        }
+      };
+
+      function getMysterySetIdForDay(dayIndex) {
+        switch (dayIndex) {
+          case 0: return 'gloriosos'; // Domingo
+          case 1: return 'gozosos';    // Segunda
+          case 2: return 'dolorosos';  // Terça
+          case 3: return 'gloriosos';  // Quarta
+          case 4: return 'luminosos';  // Quinta
+          case 5: return 'dolorosos';  // Sexta
+          case 6: return 'gozosos';    // Sábado
+          default: return 'gloriosos';
+        }
+      }
+
+      // Estado Global da Aplicação
+      let selectedDay = new Date().getDay();
+      let activeMode = 'meditativo';
+      let activeBeadId = 0;
+      let completedBeads = new Set();
+      let beadsList = [];
+
+      // Sequência exata de 61 contas litúrgicas
+      function createBeads() {
+        const list = [];
+        let index = 0;
+
+        // Introdução
+        list.push({ id: index++, type: 'cruz' });
+        list.push({ id: index++, type: 'pai-nosso' });
+        list.push({ id: index++, type: 'ave-maria' }); // Fé
+        list.push({ id: index++, type: 'ave-maria' }); // Esperança
+        list.push({ id: index++, type: 'ave-maria' }); // Caridade
+
+        // 5 Dezenas de Mistérios
+        for (let m = 0; m < 5; m++) {
+          list.push({ id: index++, type: 'misterio', mysteryIndex: m }); // Mistério / Pai Nosso
+          for (let a = 0; a < 10; a++) {
+            list.push({ id: index++, type: 'ave-maria', mysteryIndex: m, beadIndex: a });
+          }
+        }
+
+        // Conclusão
+        list.push({ id: index++, type: 'salve-rainha' });
+
+        return list;
+      }
+
+      beadsList = createBeads();
+
+      // Referências de UI
+      const beadsContainer = document.getElementById('beadsContainer');
+      const panelContent = document.getElementById('panelContent');
+      const currentDayLabel = document.getElementById('currentDayLabel');
+      const dayDropdown = document.getElementById('dayDropdown');
+      const daySelectorBtn = document.getElementById('daySelectorBtn');
+      const chevronIcon = document.getElementById('chevronIcon');
+      const activeTabBg = document.getElementById('activeTabBg');
+      const pBarFill = document.getElementById('pBarFill');
+
+      // Gerenciar Estado do Dropdown de Dias
+      daySelectorBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !dayDropdown.classList.contains('hidden');
+        if (isOpen) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      });
+
+      function openDropdown() {
+        dayDropdown.classList.remove('hidden');
+        chevronIcon.classList.add('rotate-180');
+      }
+
+      function closeDropdown() {
+        dayDropdown.classList.add('hidden');
+        chevronIcon.classList.remove('rotate-180');
+      }
+
+      document.addEventListener('click', closeDropdown);
+
+      function renderDayDropdown() {
+        dayDropdown.innerHTML = '';
+        DAYS_OF_WEEK.forEach((day, idx) => {
+          const mSetId = getMysterySetIdForDay(idx);
+          const mSetName = MYSTERY_SETS[mSetId].name.replace('Mistérios ', '');
+          const isSelected = selectedDay === idx;
+          
+          const optionBtn = document.createElement('button');
+          optionBtn.className = `text-left px-4 py-2.5 rounded-xl transition-colors font-serif text-sm ${
+            isSelected ? 'bg-orange-50 text-orange-950 font-medium' : 'text-stone-600 hover:bg-stone-50'
+          }`;
+          optionBtn.innerHTML = `
+            <div>${day}</div>
+            <span class="block text-[10px] uppercase tracking-widest text-orange-400/80 mt-0.5">${mSetName}</span>
+          `;
+          optionBtn.addEventListener('click', () => {
+            selectedDay = idx;
+            currentDayLabel.innerText = day;
+            renderPanel();
+            renderDayDropdown();
+            closeDropdown();
+          });
+          dayDropdown.appendChild(optionBtn);
+        });
+      }
+
+      currentDayLabel.innerText = DAYS_OF_WEEK[selectedDay];
+      renderDayDropdown();
+
+      // Mudança de Abas / Modos
+      function setMode(mode) {
+        activeMode = mode;
+        const indexBtn = ['curta', 'oracao', 'meditativo', 'imagem'].indexOf(mode);
+        activeTabBg.style.left = `calc(${indexBtn * 25}% + 1.5px)`;
+        
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+          if (btn.getAttribute('data-mode') === mode) {
+            btn.classList.add('text-orange-900');
+            btn.classList.remove('text-stone-400', 'hover:text-stone-600');
+            const icon = btn.querySelector('svg');
+            if (icon) {
+              icon.classList.add('text-orange-600/80');
+              icon.classList.remove('text-stone-400');
+            }
+          } else {
+            btn.classList.remove('text-orange-900');
+            btn.classList.add('text-stone-400', 'hover:text-stone-600');
+            const icon = btn.querySelector('svg');
+            if (icon) {
+              icon.classList.remove('text-orange-600/80');
+              icon.classList.add('text-stone-400');
+            }
+          }
+        });
+
+        renderPanel();
+      }
+
+      // Renderizar Painel Devocional Central
+      function renderPanel() {
+        panelContent.classList.add('fade-out');
+        panelContent.classList.remove('fade-in');
+
+        setTimeout(() => {
+          const mSet = MYSTERY_SETS[getMysterySetIdForDay(selectedDay)];
+          const bead = beadsList[activeBeadId];
+          const isMystery = bead.mysteryIndex !== undefined;
+          const mystery = isMystery ? mSet.mysteries[bead.mysteryIndex] : null;
+          const fruit = (isMystery) ? mSet.fruits[bead.mysteryIndex] : '';
+
+          let layout = '';
+
+          if (activeMode === 'imagem' && isMystery && mystery) {
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-8 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[10px] tracking-[0.25em] uppercase text-orange-950/60 font-serif">
+                    Mistério ${bead.mysteryIndex + 1}
+                  </span>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
+                </div>
+
+                <div class="relative w-full max-w-xs aspect-[4/5] rounded-sm p-2 bg-stone-100/50 border border-orange-200/40 shadow-inner flex items-center justify-center my-4 overflow-hidden">
+                  <div class="absolute inset-4 border border-orange-950/10 z-20 pointer-events-none"></div>
+                  <span class="absolute top-5 left-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
+                  <span class="absolute top-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
+                  <span class="absolute bottom-5 left-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
+                  <span class="absolute bottom-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
+
+                  <img 
+                    src="${mystery.imageUrl}" 
+                    alt="${mystery.title}" 
+                    class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]"
+                    referrerpolicy="no-referrer"
+                  />
+                </div>
+
+                <div class="flex flex-col items-center space-y-1">
+                  <h3 class="text-base font-serif font-medium text-orange-950 tracking-wide">
+                    ${mystery.title}
+                  </h3>
+                  ${fruit ? `<span class="text-[11px] font-serif tracking-wider text-orange-850/70 italic">Fruto — ${fruit}</span>` : ''}
+                </div>
+              </div>
+            `;
+          } else if (activeMode === 'curta' && isMystery && mystery) {
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-2">
+                  <span class="text-[9px] tracking-[0.3em] uppercase text-orange-950/50 font-serif font-semibold">
+                    ${mSet.name}
+                  </span>
+                  <h4 class="text-xs font-serif italic tracking-wide text-orange-600/85">
+                    ${bead.mysteryIndex + 1}º Mistério
+                  </h4>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
+                </div>
+
+                <div class="max-w-md my-auto space-y-6">
+                  <h3 class="text-2xl font-serif text-orange-950 font-medium leading-snug tracking-wide">
+                    ${mystery.title}
+                  </h3>
+                  ${fruit ? `<div class="text-[11px] uppercase tracking-[0.2em] text-orange-800/80 font-serif">Fruto — <span class="font-semibold italic lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                  <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-4"></div>
+                  <p class="text-base text-stone-600 font-serif font-light leading-relaxed italic max-w-xs mx-auto">
+                    "${mystery.curta}"
+                  </p>
+                </div>
+
+                <div class="text-[9px] text-stone-400 font-serif tracking-[0.3em] uppercase">
+                  Sagrada Escritura
+                </div>
+              </div>
+            `;
+          } else if (activeMode === 'meditativo' && isMystery && mystery && bead.type === 'ave-maria') {
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/55 font-serif text-ellipsis overflow-hidden whitespace-nowrap max-w-[280px]">
+                    ${mystery.title}
+                  </span>
+                  <h4 class="text-xs font-serif italic tracking-wide text-orange-600/80 font-medium">
+                    ${bead.beadIndex + 1}ª Ave Maria
+                  </h4>
+                  <div class="text-orange-600/20 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
+                </div>
+
+                <div class="max-w-md my-auto space-y-6">
+                  <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">
+                    ${bead.beadIndex + 1}ª Dezena
+                  </span>
+                  <h3 class="text-xl font-serif font-light text-stone-800 leading-relaxed max-w-xs mx-auto">
+                    ${mystery.meditativo[bead.beadIndex]}
+                  </h3>
+                </div>
+
+                <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50"></div>
+              </div>
+            `;
+          } else if (activeMode === 'meditativo' && bead.type === 'misterio' && mystery) {
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/50 font-serif">
+                    ${mSet.name}
+                  </span>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
+                </div>
+
+                <div class="max-w-md my-auto space-y-5">
+                  <span class="text-xs uppercase tracking-[0.2em] text-orange-650/70 font-semibold block">
+                    Contemplação
+                  </span>
+                  <h3 class="text-2xl font-serif font-light text-stone-800 leading-snug">
+                    ${mystery.title}
+                  </h3>
+                  ${fruit ? `<div class="text-[11px] italic tracking-wider text-orange-850/70 font-serif">Fruto do Mistério — ${fruit}</div>` : ''}
+                  <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-4"></div>
+                  <p class="text-base text-stone-500 font-serif leading-relaxed max-w-xs mx-auto">
+                    Pai Nosso, em honra e meditação a este santo mistério.
+                  </p>
+                </div>
+
+                <div class="text-[10px] text-orange-700/60 font-serif tracking-[0.15em] uppercase">
+                  Pai Nosso
+                </div>
+              </div>
+            `;
+          } else {
+            // Layout de Fallback de Orações Completas
+            let title = '';
+            let content = '';
+            let iconHeader = '✦  ✦  ✦';
+
+            if (bead.type === 'cruz') {
+              title = COMMON_PRAYERS.cruz.title;
+              content = COMMON_PRAYERS.cruz.text;
+              iconHeader = '✥  ✥  ✥';
+            } else if (bead.type === 'pai-nosso' || bead.type === 'misterio') {
+              title = COMMON_PRAYERS['pai-nosso'].title;
+              content = COMMON_PRAYERS['pai-nosso'].text;
+            } else if (bead.type === 'ave-maria') {
+              title = COMMON_PRAYERS['ave-maria'].title;
+              content = COMMON_PRAYERS['ave-maria'].text;
+            } else if (bead.type === 'salve-rainha') {
+              title = COMMON_PRAYERS['salve-rainha'].title;
+              content = COMMON_PRAYERS['salve-rainha'].text;
+              iconHeader = '✥  ✥  ✥';
+            }
+
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.3em] uppercase text-orange-955/40 font-serif">
+                    Devocionário
+                  </span>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">${iconHeader}</div>
+                </div>
+
+                <div class="max-w-md my-auto space-y-4 max-h-[58vh] overflow-y-auto hide-scrollbar px-2">
+                  ${bead.type === 'misterio' && mystery ? `
+                    <div class="mb-4">
+                      <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 block">Mistério do Dia</span>
+                      <h4 class="text-lg font-serif font-medium text-orange-900/90 leading-snug">${mystery.title}</h4>
+                    </div>
+                  ` : ''}
+                  
+                  <h3 class="text-[13px] font-serif text-orange-850 font-medium uppercase tracking-widest mb-4">
+                    ${title}
+                  </h3>
+                  <p class="text-base sm:text-lg text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">
+                    ${content}
+                  </p>
+                </div>
+
+                <div class="text-[10px] text-orange-700/40 font-serif tracking-widest uppercase">
+                  Rezar com Devoção
+                </div>
+              </div>
+            `;
+          }
+
+          panelContent.innerHTML = layout;
+          panelContent.classList.remove('fade-out');
+          panelContent.classList.add('fade-in');
+        }, 300);
+      }
+
+      // Gerar e Injetar Contas na Trilha Horizontal
+      function renderBeads() {
+        beadsContainer.innerHTML = '';
+        
+        beadsList.forEach((bead, i) => {
+          const itemDiv = document.createElement('div');
+          itemDiv.id = `bead-item-${bead.id}`;
+          itemDiv.className = 'flex items-center snap-center relative shrink-0 transition-transform duration-300';
+          
+          const isCompleted = completedBeads.has(bead.id);
+          const isActive = activeBeadId === bead.id;
+
+          let customClass = "relative overflow-hidden flex items-center justify-center rounded-full transition-all duration-700 cursor-pointer select-none ring-offset-2 ring-offset-[#EFECE6] p-1 ";
+          
+          if (bead.type === 'cruz') {
+            customClass = "relative overflow-hidden flex items-center justify-center clip-cross w-10 h-10 cursor-pointer select-none p-1 transition-all duration-700 ";
+            customClass += isCompleted ? 'bg-orange-500/10 border border-orange-500/30 text-orange-500/50 backdrop-blur-sm' : 'bg-orange-500 text-white shadow-sm';
+          } else {
+            if (bead.type === 'pai-nosso' || bead.type === 'misterio' || bead.type === 'salve-rainha') {
+              customClass += "w-8 h-8 ";
+            } else {
+              customClass += "w-6 h-6 ";
+            }
+
+            if (isCompleted) {
+              customClass += "bg-orange-500/10 border border-orange-500/30 backdrop-blur-sm shadow-none";
+            } else {
+              customClass += "bg-orange-500 text-orange-50 shadow-[inset_0_-2px_4px_rgba(255,255,255,0.2),0_2px_5px_rgba(234,88,12,0.4)]";
+            }
+          }
+
+          // Se for a conta ativa, destacar de forma estática pura com offset circular (Sem pulsar)
+          if (isActive) {
+            customClass += isCompleted ? ' ring-2 ring-orange-300 scale-100' : ' ring-2 ring-orange-500 scale-110 shadow-lg';
+          }
+
+          itemDiv.innerHTML = `
+            <div 
+              class="${customClass}" 
+              data-id="${bead.id}"
+              style="touch-action: none;"
+            >
+              <div class="progress-fill absolute inset-0 rounded-full bg-white/20 scale-0 opacity-0 transition-all duration-700"></div>
+              
+              <div class="relative z-10 flex items-center justify-center w-full h-full">
+                ${bead.type === 'cruz' ? `
+                  <svg class="w-5 h-5 transition-opacity duration-500 ${isCompleted ? 'opacity-50' : 'opacity-100'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m-4-10h8" />
+                  </svg>
+                ` : ''}
+                
+                ${bead.type === 'misterio' ? `
+                  <div class="w-1.5 h-1.5 rounded-full transition-colors duration-500 ${isCompleted ? 'bg-orange-500/50' : 'bg-orange-100'}"></div>
+                ` : ''}
+
+                ${bead.type === 'salve-rainha' ? `
+                  <svg class="w-4 h-4 transition-colors duration-500 ${isCompleted ? 'text-orange-500/50' : 'text-orange-100'}" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                ` : ''}
+              </div>
+            </div>
+          `;
+
+          // Linhas conectoras do rosário
+          const isLast = i === beadsList.length - 1;
+          if (!isLast) {
+            const thread = document.createElement('div');
+            thread.className = `h-px bg-stone-200/60 w-4 -ml-2 -mr-2 z-0 shrink-0`;
+            itemDiv.appendChild(thread);
+
+            // Espaçadores maiores entre as dezenas dos mistérios
+            if (bead.type === 'misterio' || beadsList[i+1].type === 'misterio') {
+              const gap = document.createElement('div');
+              gap.className = "w-5 shrink-0";
+              itemDiv.appendChild(gap);
+            }
+          }
+
+          const beadCore = itemDiv.querySelector('[data-id]');
+          let pressTimer = null;
+          let isPressing = false;
+
+          const triggerHaptic = (ms) => {
+            if (navigator.vibrate) {
+              try { navigator.vibrate(ms); } catch(err) {}
+            }
+          };
+
+          const handleSelection = () => {
+            activeBeadId = bead.id;
+            triggerHaptic(10);
+            renderBeads();
+            renderPanel();
+            centerBead(bead.id);
+          };
+
+          // Toque e Pressão contínua
+          const startPress = (e) => {
+            e.preventDefault();
+            isPressing = true;
+            handleSelection();
+            beadCore.classList.add('scale-95');
+
+            if (isCompleted) return;
+
+            const fillEl = beadCore.querySelector('.progress-fill');
+            if (fillEl) {
+              fillEl.classList.remove('scale-0', 'opacity-0');
+              fillEl.classList.add('scale-100', 'opacity-100');
+            }
+
+            pressTimer = setTimeout(() => {
+              if (isPressing) {
+                toggleBead(bead.id);
+              }
+            }, 600); // Segurar por 600ms para confirmar oração
+          };
+
+          const cancelPress = () => {
+            isPressing = false;
+            beadCore.classList.remove('scale-95');
+            const fillEl = beadCore.querySelector('.progress-fill');
+            if (fillEl) {
+              fillEl.classList.add('scale-0', 'opacity-0');
+              fillEl.classList.remove('scale-100', 'opacity-100');
+            }
+            if (pressTimer) {
+              clearTimeout(pressTimer);
+              pressTimer = null;
+            }
+          };
+
+          beadCore.addEventListener('pointerdown', startPress);
+          beadCore.addEventListener('pointerup', cancelPress);
+          beadCore.addEventListener('pointerleave', cancelPress);
+          beadCore.addEventListener('pointercancel', cancelPress);
+
+          beadsContainer.appendChild(itemDiv);
+        });
+
+        // Atualizar barra de progresso do terço
+        const pPercentage = (completedBeads.size / beadsList.length) * 100;
+        pBarFill.style.width = `${pPercentage}%`;
+      }
+
+      function toggleBead(id) {
+        if (completedBeads.has(id)) {
+          completedBeads.delete(id);
+        } else {
+          completedBeads.add(id);
+          if (navigator.vibrate) {
+            try { navigator.vibrate([30, 50, 30]); } catch(err) {}
+          }
+        }
+
+        // Avanço automático com discreto intervalo visual agradável
+        if (id === activeBeadId && id < beadsList.length - 1) {
+          setTimeout(() => {
+            activeBeadId = id + 1;
+            renderBeads();
+            renderPanel();
+            centerBead(activeBeadId);
+          }, 250);
+        } else {
+          renderBeads();
+        }
+      }
+
+      // Função de centralização elegante por scroll suave
+      function centerBead(id) {
+        const targetEl = document.getElementById(`bead-item-${id}`);
+        if (targetEl && beadsContainer) {
+          const containerHalf = beadsContainer.clientWidth / 2;
+          const elementHalf = targetEl.clientWidth / 2;
+          const scrollPos = targetEl.offsetLeft - containerHalf + elementHalf;
+
+          beadsContainer.scrollTo({
+            left: scrollPos,
+            behavior: 'smooth'
+          });
+        }
+      }
+
+      // Inicializar Configurações Padrões
+      setMode('meditativo');
+      setTimeout(() => {
+        centerBead(0);
+      }, 500);
+    </script>
+  </body>
+</html>
