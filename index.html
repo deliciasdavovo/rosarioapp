@@ -143,43 +143,54 @@
       </div>
     </div>
 
-    <!-- Painel de Leitura Litúrgica Central (Design de Livro Antigo) -->
-    <main class="flex-1 relative flex items-center justify-center min-h-0 z-10 p-4">
-      <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
-        <!-- Moldura elegante interna -->
-        <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
-        <!-- Ornamentos de Canto em Cruz -->
-        <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-        <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-        <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-        <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+    <!-- Área Principal: Sidebar Lateral + Painel de Conteúdo -->
+    <div class="flex flex-1 min-h-0">
 
-        <!-- Janela de Conteúdo do Devocionário -->
-        <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in">
-          <!-- Conteúdo gerado e atualizado via JavaScript -->
+      <!-- Sidebar Lateral: Trilha Vertical do Rosário -->
+      <div class="flex-none bg-white border-r border-stone-100 shadow-[4px_0_20px_-5px_rgba(0,0,0,0.06)] relative z-30 flex flex-col" style="width: 68px;">
+        <!-- Barra decorativa de Progresso (vertical, borda esquerda) -->
+        <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-stone-100">
+          <div id="pBarFill" class="absolute top-0 left-0 right-0 bg-orange-300 transition-all duration-700 ease-out" style="height: 0%;"></div>
+        </div>
+
+        <!-- Rótulo superior discreto -->
+        <div class="flex-none pt-3 pb-1 text-center">
+          <span class="text-[8px] font-medium text-stone-300 uppercase tracking-[0.2em]">terço</span>
+        </div>
+
+        <!-- Trilha Vertical do Rosário -->
+        <div
+          id="beadsContainer"
+          class="flex flex-col overflow-y-auto items-center py-[38vh] gap-3 hide-scrollbar snap-y snap-mandatory flex-1"
+          style="scroll-snap-type: y mandatory;"
+        >
+          <!-- Contas do Terço injetadas dinamicamente -->
+        </div>
+
+        <!-- Rótulo inferior: dica de uso -->
+        <div class="flex-none pb-3 pt-1 flex flex-col items-center gap-0.5">
+          <span class="text-[7px] font-medium text-stone-300 uppercase tracking-wider leading-tight text-center" style="writing-mode: horizontal-tb;">toque</span>
+          <span class="text-[7px] font-medium text-stone-300 uppercase tracking-wider leading-tight text-center">segure</span>
         </div>
       </div>
-    </main>
 
-    <!-- Fita Inferior contendo a trilha do Rosário de Contas -->
-    <div class="flex-none bg-white border-t border-stone-100 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.05)] relative z-30">
-      <!-- Barra decorativa de Progresso -->
-      <div class="h-0.5 bg-stone-100 w-full relative">
-        <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width: 0%;"></div>
-      </div>
+      <!-- Painel de Leitura Litúrgica Central (Design de Livro Antigo) -->
+      <main class="flex-1 relative flex items-center justify-center min-h-0 z-10 p-4">
+        <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
+          <!-- Moldura elegante interna -->
+          <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
+          <!-- Ornamentos de Canto em Cruz -->
+          <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+          <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+          <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+          <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
 
-      <div class="pt-4 pb-1 text-center text-[10px] font-medium text-stone-400 uppercase tracking-[0.22em]">
-        Toque para selecionar, segure para rezar
-      </div>
-
-      <!-- Trilha Horizontal do Rosário -->
-      <div 
-        id="beadsContainer"
-        class="flex overflow-x-auto items-center justify-start py-8 px-[50vw] gap-3 hide-scrollbar snap-x snap-mandatory"
-        style="scroll-snap-type: x mandatory;"
-      >
-        <!-- Contas do Terço injetadas dinamicamente -->
-      </div>
+          <!-- Janela de Conteúdo do Devocionário -->
+          <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in">
+            <!-- Conteúdo gerado e atualizado via JavaScript -->
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- Scripts de Lógica Litúrgica do Rosário -->
@@ -724,7 +735,7 @@
         beadsList.forEach((bead, i) => {
           const itemDiv = document.createElement('div');
           itemDiv.id = `bead-item-${bead.id}`;
-          itemDiv.className = 'flex items-center snap-center relative shrink-0 transition-transform duration-300';
+          itemDiv.className = 'flex flex-col items-center snap-center relative shrink-0 transition-transform duration-300';
           
           const isCompleted = completedBeads.has(bead.id);
           const isActive = activeBeadId === bead.id;
@@ -785,13 +796,13 @@
           const isLast = i === beadsList.length - 1;
           if (!isLast) {
             const thread = document.createElement('div');
-            thread.className = `h-px bg-stone-200/60 w-4 -ml-2 -mr-2 z-0 shrink-0`;
+            thread.className = `w-px bg-stone-200/60 h-3 z-0 shrink-0`;
             itemDiv.appendChild(thread);
 
             // Espaçadores maiores entre as dezenas dos mistérios
             if (bead.type === 'misterio' || beadsList[i+1].type === 'misterio') {
               const gap = document.createElement('div');
-              gap.className = "w-5 shrink-0";
+              gap.className = "h-3 shrink-0";
               itemDiv.appendChild(gap);
             }
           }
@@ -860,7 +871,7 @@
 
         // Atualizar barra de progresso do terço
         const pPercentage = (completedBeads.size / beadsList.length) * 100;
-        pBarFill.style.width = `${pPercentage}%`;
+        pBarFill.style.height = `${pPercentage}%`;
       }
 
       function toggleBead(id) {
@@ -890,12 +901,12 @@
       function centerBead(id) {
         const targetEl = document.getElementById(`bead-item-${id}`);
         if (targetEl && beadsContainer) {
-          const containerHalf = beadsContainer.clientWidth / 2;
-          const elementHalf = targetEl.clientWidth / 2;
-          const scrollPos = targetEl.offsetLeft - containerHalf + elementHalf;
+          const containerHalf = beadsContainer.clientHeight / 2;
+          const elementHalf = targetEl.clientHeight / 2;
+          const scrollPos = targetEl.offsetTop - containerHalf + elementHalf;
 
           beadsContainer.scrollTo({
-            left: scrollPos,
+            top: scrollPos,
             behavior: 'smooth'
           });
         }
