@@ -188,39 +188,11 @@
       </div>
     </div>
 
-    <!-- Área Principal: Sidebar Lateral + Painel de Conteúdo -->
-    <div class="flex flex-1 min-h-0">
-
-      <!-- Sidebar Lateral: Trilha Vertical do Rosário -->
-      <div class="flex-none bg-white border-r border-stone-100 shadow-[4px_0_20px_-5px_rgba(0,0,0,0.06)] relative z-30 flex flex-col" style="width: 68px;">
-        <!-- Barra decorativa de Progresso (vertical, borda esquerda) -->
-        <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-stone-100">
-          <div id="pBarFill" class="absolute top-0 left-0 right-0 bg-orange-300 transition-all duration-700 ease-out" style="height: 0%;"></div>
-        </div>
-
-        <!-- Rótulo superior discreto -->
-        <div class="flex-none pt-3 pb-1 text-center">
-          <span class="text-[8px] font-medium text-stone-300 uppercase tracking-[0.2em]">terço</span>
-        </div>
-
-        <!-- Trilha Vertical do Rosário -->
-        <div
-          id="beadsContainer"
-          class="flex flex-col overflow-y-auto items-center py-[38vh] gap-3 hide-scrollbar snap-y snap-mandatory flex-1"
-          style="scroll-snap-type: y mandatory;"
-        >
-          <!-- Contas do Terço injetadas dinamicamente -->
-        </div>
-
-        <!-- Rótulo inferior: dica de uso -->
-        <div class="flex-none pb-3 pt-1 flex flex-col items-center gap-0.5">
-          <span class="text-[7px] font-medium text-stone-300 uppercase tracking-wider leading-tight text-center" style="writing-mode: horizontal-tb;">toque</span>
-          <span class="text-[7px] font-medium text-stone-300 uppercase tracking-wider leading-tight text-center">segure</span>
-        </div>
-      </div>
+    <!-- Área Principal: Painel de Oração + Terço Flutuante -->
+    <div class="flex-1 relative min-h-0">
 
       <!-- Painel de Leitura Litúrgica Central (Design de Livro Antigo) -->
-      <main class="flex-1 relative flex items-center justify-center min-h-0 z-10 p-4">
+      <main class="absolute inset-0 flex items-center justify-center z-10 p-4">
         <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
           <!-- Moldura elegante interna -->
           <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
@@ -230,12 +202,26 @@
           <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
           <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
 
+          <!-- Barra de progresso discreta no topo do painel -->
+          <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
+            <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width: 0%;"></div>
+          </div>
+
           <!-- Janela de Conteúdo do Devocionário -->
           <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in">
             <!-- Conteúdo gerado e atualizado via JavaScript -->
           </div>
         </div>
       </main>
+
+      <!-- Terço flutuante na lateral direita — sem fundo, sem sidebar -->
+      <div
+        id="beadsContainer"
+        class="absolute right-0 top-0 bottom-0 flex flex-col overflow-y-auto items-center py-[38vh] gap-2 hide-scrollbar z-30"
+        style="width: 44px; scroll-snap-type: y mandatory;"
+      >
+        <!-- Contas do Terço injetadas dinamicamente -->
+      </div>
     </div>
 
     <!-- Scripts de Lógica Litúrgica do Rosário -->
@@ -916,7 +902,7 @@
 
         // Atualizar barra de progresso do terço
         const pPercentage = (completedBeads.size / beadsList.length) * 100;
-        pBarFill.style.height = `${pPercentage}%`;
+        pBarFill.style.width = `${pPercentage}%`;
       }
 
       function toggleBead(id) {
