@@ -188,11 +188,11 @@
       </div>
     </div>
 
-    <!-- Área Principal: Painel de Oração + Terço Flutuante -->
-    <div class="flex-1 relative min-h-0">
+    <!-- Área Principal: Painel de Oração + Terço Lateral -->
+    <div class="flex flex-1 min-h-0">
 
       <!-- Painel de Leitura Litúrgica Central (Design de Livro Antigo) -->
-      <main class="absolute inset-0 flex items-center justify-center z-10 p-4">
+      <main class="flex-1 relative flex items-center justify-center min-h-0 z-10 p-4">
         <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
           <!-- Moldura elegante interna -->
           <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
@@ -214,10 +214,10 @@
         </div>
       </main>
 
-      <!-- Terço flutuante na lateral direita — sem fundo, sem sidebar -->
+      <!-- Terço na lateral direita — coluna transparente, sem fundo -->
       <div
         id="beadsContainer"
-        class="absolute right-0 top-0 bottom-0 flex flex-col overflow-y-auto items-center py-[38vh] gap-2 hide-scrollbar z-30"
+        class="flex-none flex flex-col overflow-y-auto items-center py-[38vh] gap-2 hide-scrollbar"
         style="width: 44px; scroll-snap-type: y mandatory;"
       >
         <!-- Contas do Terço injetadas dinamicamente -->
