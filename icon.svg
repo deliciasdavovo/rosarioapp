@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#E8841A"/>
+  <g fill="#F1EDE8" stroke="#F1EDE8" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Fio do rosário: arco de −125° a +125° (abertura embaixo) -->
+    <path fill="none" stroke-width="8"
+      d="M 139 297 A 143 143 0 1 1 373 297"/>
+
+    <!-- Contas: 1 no topo + 5 em cada lado -->
+    <circle cx="256" cy="72"  r="16"/>
+    <circle cx="196" cy="85"  r="13"/>
+    <circle cx="146" cy="123" r="13"/>
+    <circle cx="118" cy="178" r="13"/>
+    <circle cx="115" cy="240" r="13"/>
+    <circle cx="139" cy="297" r="13"/>
+    <circle cx="316" cy="85"  r="13"/>
+    <circle cx="366" cy="123" r="13"/>
+    <circle cx="394" cy="178" r="13"/>
+    <circle cx="397" cy="240" r="13"/>
+    <circle cx="373" cy="297" r="13"/>
+
+    <!-- Caule -->
+    <line x1="256" y1="290" x2="256" y2="400" stroke-width="24"/>
+
+    <!-- Cruz -->
+    <line x1="256" y1="400" x2="256" y2="440" stroke-width="24"/>
+    <line x1="228" y1="418" x2="284" y2="418" stroke-width="24"/>
+
+    <!-- Rosa: braço esquerdo (sai do caule, abre para esquerda, converge no topo) -->
+    <path fill="none" stroke-width="25"
+      d="M 256 290 C 226 273 183 251 175 227 C 167 203 197 181 256 181"/>
+
+    <!-- Rosa: braço direito (espelho) -->
+    <path fill="none" stroke-width="25"
+      d="M 256 290 C 286 273 329 251 337 227 C 345 203 315 181 256 181"/>
+
+    <!-- Espiral da rosa -->
+    <path fill="none" stroke-width="20"
+      d="M 256 181
+         C 280 174 303 190 303 213
+         C 303 236 284 251 261 248
+         C 239 245 224 229 227 212
+         C 230 197 242 191 254 195
+         C 263 198 268 207 264 215
+         C 260 221 252 222 246 219"/>
+
+    <!-- Folhas inferiores: esquerda -->
+    <path fill="none" stroke-width="20"
+      d="M 247 348 C 231 337 211 318 214 300 C 215 292 225 290 236 297"/>
+
+    <!-- Folhas inferiores: direita -->
+    <path fill="none" stroke-width="20"
+      d="M 265 348 C 281 337 301 318 298 300 C 297 292 287 290 276 297"/>
+
+  </g>
+</svg>
