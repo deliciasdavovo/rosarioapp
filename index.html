@@ -196,12 +196,9 @@
     <!-- Área principal: painel + terço lado a lado, tudo inline style -->
     <div style="display:flex; flex:1; min-height:0; overflow:hidden;">
 
-      <!-- Espaçador fantasma à esquerda para centralizar o painel -->
-      <div style="width:56px; flex-shrink:0;"></div>
-
       <!-- Painel de Leitura Litúrgica Central -->
-      <main id="mainContent" style="flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; padding:16px; overflow:hidden; z-index:10;">
-        <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
+      <main id="mainContent" style="flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; padding:12px 8px 12px 12px; overflow:hidden; z-index:10;">
+        <div class="w-full h-full bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
           <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
           <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
           <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
@@ -216,7 +213,7 @@
 
       <!-- Terço lateral direito — coluna com inline styles, zero dependência de Tailwind -->
       <div id="beadsContainer" style="
-        width: 56px;
+        width: 64px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
@@ -636,13 +633,13 @@
                   <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
                 </div>
 
-                <div class="max-w-md my-auto space-y-6">
+                <div class="w-full my-auto space-y-6 px-4">
                   <h3 class="text-2xl font-serif text-orange-950 font-medium leading-snug tracking-wide">
                     ${mystery.title}
                   </h3>
                   ${fruit ? `<div class="text-[11px] uppercase tracking-[0.2em] text-orange-800/80 font-serif">Fruto — <span class="font-semibold italic lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
                   <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-4"></div>
-                  <p class="text-base text-stone-600 font-serif font-light leading-relaxed italic max-w-xs mx-auto">
+                  <p class="text-base text-stone-600 font-serif font-light leading-relaxed italic">
                     "${mystery.curta}"
                   </p>
                 </div>
@@ -656,7 +653,7 @@
             layout = `
               <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
                 <div class="flex flex-col items-center space-y-1">
-                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/55 font-serif text-ellipsis overflow-hidden whitespace-nowrap max-w-[280px]">
+                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/55 font-serif">
                     ${mystery.title}
                   </span>
                   <h4 class="text-xs font-serif italic tracking-wide text-orange-600/80 font-medium">
@@ -665,11 +662,11 @@
                   <div class="text-orange-600/20 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
                 </div>
 
-                <div class="max-w-md my-auto space-y-6">
+                <div class="w-full my-auto space-y-6 px-4">
                   <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">
                     ${bead.beadIndex + 1}ª Dezena
                   </span>
-                  <h3 class="text-xl font-serif font-light text-stone-800 leading-relaxed max-w-xs mx-auto">
+                  <h3 class="text-xl font-serif font-light text-stone-800 leading-relaxed">
                     ${mystery.meditativo[bead.beadIndex]}
                   </h3>
                 </div>
@@ -687,7 +684,7 @@
                   <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
                 </div>
 
-                <div class="max-w-md my-auto space-y-5">
+                <div class="w-full my-auto space-y-5 px-4">
                   <span class="text-xs uppercase tracking-[0.2em] text-orange-650/70 font-semibold block">
                     Contemplação
                   </span>
@@ -696,7 +693,7 @@
                   </h3>
                   ${fruit ? `<div class="text-[11px] italic tracking-wider text-orange-850/70 font-serif">Fruto do Mistério — ${fruit}</div>` : ''}
                   <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-4"></div>
-                  <p class="text-base text-stone-500 font-serif leading-relaxed max-w-xs mx-auto">
+                  <p class="text-base text-stone-500 font-serif leading-relaxed">
                     Pai Nosso, em honra e meditação a este santo mistério.
                   </p>
                 </div>
@@ -737,18 +734,18 @@
                   <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">${iconHeader}</div>
                 </div>
 
-                <div class="max-w-md my-auto space-y-4 max-h-[58vh] overflow-y-auto hide-scrollbar px-2">
+                <div class="w-full my-auto space-y-4 max-h-[58vh] overflow-y-auto hide-scrollbar px-4">
                   ${bead.type === 'misterio' && mystery ? `
                     <div class="mb-4">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 block">Mistério do Dia</span>
                       <h4 class="text-lg font-serif font-medium text-orange-900/90 leading-snug">${mystery.title}</h4>
                     </div>
                   ` : ''}
-                  
+
                   <h3 class="text-[13px] font-serif text-orange-850 font-medium uppercase tracking-widest mb-4">
                     ${title}
                   </h3>
-                  <p class="text-base sm:text-lg text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">
+                  <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">
                     ${content}
                   </p>
                 </div>
@@ -787,7 +784,7 @@
           var isCompleted = completedBeads.has(bead.id);
           var isActive    = activeBeadId === bead.id;
           var isBig       = bead.type === 'pai-nosso' || bead.type === 'misterio' || bead.type === 'salve-rainha';
-          var size        = bead.type === 'cruz' ? 28 : isBig ? 22 : 15;
+          var size        = bead.type === 'cruz' ? 44 : isBig ? 32 : 22;
 
           // Espaçador extra antes de cada mistério para agrupar décadas
           if (bead.type === 'misterio' && i > 0) {
@@ -826,29 +823,29 @@
           b.style.overflow       = 'hidden';
 
           if (isCompleted) {
-            b.style.background = 'rgba(249,115,22,0.15)';
-            b.style.border     = '1.5px solid rgba(249,115,22,0.35)';
-            b.style.boxShadow  = 'none';
+            b.style.background = 'radial-gradient(circle at 38% 32%, rgba(255,220,180,0.4) 0%, rgba(249,115,22,0.2) 60%, rgba(160,50,5,0.1) 100%)';
+            b.style.border     = '2px solid rgba(249,115,22,0.4)';
+            b.style.boxShadow  = 'inset 0 1px 3px rgba(0,0,0,0.08)';
             b.style.transform  = 'scale(1)';
           } else {
-            b.style.background = 'radial-gradient(circle at 38% 32%, rgba(255,210,140,0.95) 0%, rgb(249,115,22) 52%, rgb(180,55,5) 100%)';
-            b.style.border     = '1px solid rgba(160,48,5,0.45)';
+            b.style.background = 'radial-gradient(circle at 33% 26%, #ffe4a0 0%, #fb923c 38%, #ea580c 68%, #7c2d12 100%)';
+            b.style.border     = '1.5px solid rgba(120,35,5,0.5)';
             b.style.boxShadow  = isActive
-              ? '0 0 0 3px rgba(249,115,22,0.45), 0 3px 10px rgba(234,88,12,0.55)'
-              : '0 1px 5px rgba(200,70,10,0.45)';
-            b.style.transform  = isActive ? 'scale(1.35)' : 'scale(1)';
+              ? '0 0 0 4px rgba(249,115,22,0.4), 0 4px 14px rgba(234,88,12,0.65)'
+              : '0 2px 7px rgba(180,60,5,0.5), inset 0 1px 0 rgba(255,255,255,0.15)';
+            b.style.transform  = isActive ? 'scale(1.3)' : 'scale(1)';
           }
 
           // Reflexo brilhante nas contas não completadas
           if (!isCompleted) {
             var shine = document.createElement('div');
-            shine.style.position     = 'absolute';
-            shine.style.top          = '2px';
-            shine.style.left         = '3px';
-            shine.style.width        = Math.round(size * 0.45) + 'px';
-            shine.style.height       = Math.round(size * 0.35) + 'px';
-            shine.style.borderRadius = '50%';
-            shine.style.background   = 'rgba(255,255,255,0.45)';
+            shine.style.position      = 'absolute';
+            shine.style.top           = Math.round(size * 0.1) + 'px';
+            shine.style.left          = Math.round(size * 0.15) + 'px';
+            shine.style.width         = Math.round(size * 0.52) + 'px';
+            shine.style.height        = Math.round(size * 0.42) + 'px';
+            shine.style.borderRadius  = '50%';
+            shine.style.background    = 'radial-gradient(ellipse, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0) 80%)';
             shine.style.pointerEvents = 'none';
             b.appendChild(shine);
           }
@@ -875,13 +872,16 @@
           // Número da décena nas contas de mistério (1–5)
           if (bead.type === 'misterio' && bead.mysteryIndex !== undefined) {
             var num = document.createElement('span');
-            num.textContent      = String(bead.mysteryIndex + 1);
-            num.style.fontSize   = '9px';
-            num.style.fontWeight = '700';
-            num.style.color      = isCompleted ? 'rgba(249,115,22,0.7)' : 'rgba(255,255,255,0.9)';
-            num.style.position   = 'relative';
-            num.style.zIndex     = '1';
-            num.style.lineHeight = '1';
+            num.textContent          = String(bead.mysteryIndex + 1);
+            num.style.fontSize       = '13px';
+            num.style.fontWeight     = '800';
+            num.style.fontFamily     = 'sans-serif';
+            num.style.color          = isCompleted ? 'rgba(249,115,22,0.8)' : 'white';
+            num.style.textShadow     = isCompleted ? 'none' : '0 1px 3px rgba(0,0,0,0.5)';
+            num.style.position       = 'relative';
+            num.style.zIndex         = '1';
+            num.style.lineHeight     = '1';
+            num.style.letterSpacing  = '-0.5px';
             b.appendChild(num);
           }
 
