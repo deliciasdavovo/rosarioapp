@@ -847,8 +847,7 @@
       function getFatimaAveText(m, i) {
         if (i < 3) return m.scripture;
         if (i < 6) return m.reflexao;
-        if (i === 6) return m.perguntas[0];
-        if (i === 7) return m.perguntas[1];
+        if (i < 8) return m.perguntas[0] + '\n\n' + m.perguntas[1];
         return m.oracao;
       }
 
@@ -1163,13 +1162,10 @@
                   <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/50 font-serif">${mSet.name}</span>
                   <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
                 </div>
-                <div class="w-full my-auto space-y-4 px-4">
-                  <span class="text-xs uppercase tracking-[0.2em] text-orange-650/70 font-semibold block">Santuário de Fátima</span>
+                <div class="w-full my-auto space-y-5 px-4">
+                  <span class="text-xs uppercase tracking-[0.2em] text-orange-650/70 font-semibold block">Contemplação</span>
                   <h3 class="text-2xl font-serif font-light text-stone-800 leading-snug">${mystery.title}</h3>
                   ${fruit ? `<div class="text-[11px] tracking-wider text-orange-850/70 font-serif">Fruto do Mistério — ${fruit}</div>` : ''}
-                  <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-2"></div>
-                  <p class="text-[10px] text-orange-700/50 font-serif italic tracking-wide">${fatimaMystery.ref}</p>
-                  <p class="text-sm text-stone-500 font-serif leading-relaxed whitespace-pre-line">${fatimaMystery.scripture}</p>
                 </div>
                 <div class="text-[10px] text-orange-700/60 font-serif tracking-[0.15em] uppercase">Pai Nosso</div>
               </div>
@@ -1177,6 +1173,7 @@
           } else if (isFatima && fatimaMystery && bead.type === 'ave-maria' && isMystery) {
             const fatimaText = getFatimaAveText(fatimaMystery, bead.beadIndex);
             const secLabels = ['Sagrada Escritura','Sagrada Escritura','Sagrada Escritura','Reflexão','Reflexão','Reflexão','Meditação','Meditação','Oração','Oração'];
+            const isMeditacao = bead.beadIndex >= 6 && bead.beadIndex < 8;
             layout = `
               <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
                 <div class="flex flex-col items-center space-y-1">
@@ -1186,7 +1183,7 @@
                 </div>
                 <div class="w-full my-auto space-y-4 px-4">
                   <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${secLabels[bead.beadIndex]}</span>
-                  <p class="text-base text-stone-700 font-serif leading-relaxed whitespace-pre-line">${fatimaText}</p>
+                  <p class="text-base ${isMeditacao ? 'text-stone-600 italic' : 'text-stone-700'} font-serif leading-relaxed whitespace-pre-line">${fatimaText}</p>
                 </div>
                 <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50"></div>
               </div>
