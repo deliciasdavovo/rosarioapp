@@ -130,10 +130,10 @@
 
     <!-- Barra de Cabeçalho Superior -->
     <header class="flex-none px-4 py-3 z-30">
-      <div class="max-w-2xl mx-auto flex items-center justify-between relative">
+      <div class="max-w-2xl mx-auto grid grid-cols-3 items-center">
 
         <!-- Esquerda: Seletor de Dia -->
-        <div class="relative">
+        <div class="relative justify-self-start">
           <button
             id="daySelectorBtn"
             class="flex items-center gap-1.5 hover:bg-stone-100/70 px-3 py-1.5 rounded-full transition-colors"
@@ -152,10 +152,10 @@
         </div>
 
         <!-- Centro: Título -->
-        <h1 class="absolute left-1/2 -translate-x-1/2 text-2xl font-serif text-amber-950 font-bold tracking-wide pointer-events-none">meu terço</h1>
+        <h1 class="text-2xl font-serif text-amber-950 font-bold tracking-wide text-center">meu terço</h1>
 
         <!-- Direita: Menu Hambúrguer -->
-        <button class="flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
+        <button class="justify-self-end flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
           <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
           <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
           <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
