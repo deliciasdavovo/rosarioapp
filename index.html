@@ -51,6 +51,11 @@
           0% 50%, 0% 30%, 35% 30%
         );
       }
+      #beadsContainer, #beadsContainer * {
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+      }
       .book-sheet-shadow {
         box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), 0 15px 30px -5px rgba(30,20,10,0.06);
       }
@@ -191,6 +196,9 @@
     <!-- Área principal: painel + terço lado a lado, tudo inline style -->
     <div style="display:flex; flex:1; min-height:0; overflow:hidden;">
 
+      <!-- Espaçador fantasma à esquerda para centralizar o painel -->
+      <div style="width:56px; flex-shrink:0;"></div>
+
       <!-- Painel de Leitura Litúrgica Central -->
       <main id="mainContent" style="flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; padding:16px; overflow:hidden; z-index:10;">
         <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
@@ -208,7 +216,7 @@
 
       <!-- Terço lateral direito — coluna com inline styles, zero dependência de Tailwind -->
       <div id="beadsContainer" style="
-        width: 48px;
+        width: 56px;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
@@ -218,6 +226,7 @@
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         z-index: 20;
+        position: relative;
       "></div>
 
     </div>
@@ -761,48 +770,100 @@
       function renderBeads() {
         beadsContainer.innerHTML = '';
 
+        // Fio contínuo atrás das contas
+        var threadBg = document.createElement('div');
+        threadBg.style.position    = 'absolute';
+        threadBg.style.left        = '50%';
+        threadBg.style.transform   = 'translateX(-50%)';
+        threadBg.style.top         = '0';
+        threadBg.style.bottom      = '0';
+        threadBg.style.width       = '2px';
+        threadBg.style.background  = 'linear-gradient(to bottom, transparent 0%, rgba(161,128,95,0.35) 4%, rgba(161,128,95,0.35) 96%, transparent 100%)';
+        threadBg.style.pointerEvents = 'none';
+        threadBg.style.zIndex      = '0';
+        beadsContainer.appendChild(threadBg);
+
         beadsList.forEach(function(bead, i) {
           var isCompleted = completedBeads.has(bead.id);
           var isActive    = activeBeadId === bead.id;
           var isBig       = bead.type === 'pai-nosso' || bead.type === 'misterio' || bead.type === 'salve-rainha';
-          var size        = bead.type === 'cruz' ? 32 : isBig ? 26 : 18;
+          var size        = bead.type === 'cruz' ? 28 : isBig ? 22 : 15;
+
+          // Espaçador extra antes de cada mistério para agrupar décadas
+          if (bead.type === 'misterio' && i > 0) {
+            var gap = document.createElement('div');
+            gap.style.height      = '10px';
+            gap.style.flexShrink  = '0';
+            gap.style.position    = 'relative';
+            gap.style.zIndex      = '1';
+            beadsContainer.appendChild(gap);
+          }
 
           var wrap = document.createElement('div');
           wrap.id = 'bead-item-' + bead.id;
-          wrap.style.display        = 'flex';
-          wrap.style.flexDirection  = 'column';
-          wrap.style.alignItems     = 'center';
-          wrap.style.flexShrink     = '0';
+          wrap.style.display       = 'flex';
+          wrap.style.flexDirection = 'column';
+          wrap.style.alignItems    = 'center';
+          wrap.style.flexShrink    = '0';
+          wrap.style.position      = 'relative';
+          wrap.style.zIndex        = '1';
 
           var b = document.createElement('div');
           b.setAttribute('data-id', String(bead.id));
           b.style.width          = size + 'px';
           b.style.height         = size + 'px';
-          b.style.borderRadius   = bead.type === 'cruz' ? '3px' : '50%';
-          b.style.background     = isCompleted ? 'rgba(249,115,22,0.18)' : 'rgb(249,115,22)';
-          b.style.border         = isCompleted ? '1.5px solid rgba(249,115,22,0.4)' : '1.5px solid rgba(234,88,12,0.6)';
-          b.style.outline        = isActive ? '2px solid rgb(249,115,22)' : 'none';
-          b.style.outlineOffset  = '2px';
-          b.style.boxShadow      = isCompleted ? 'none' : '0 1px 4px rgba(234,88,12,0.4)';
-          b.style.transform      = isActive && !isCompleted ? 'scale(1.2)' : 'scale(1)';
+          b.style.borderRadius   = bead.type === 'cruz' ? '5px' : '50%';
           b.style.cursor         = 'pointer';
           b.style.flexShrink     = '0';
           b.style.touchAction    = 'none';
+          b.style.userSelect     = 'none';
+          b.style.webkitUserSelect = 'none';
           b.style.display        = 'flex';
           b.style.alignItems     = 'center';
           b.style.justifyContent = 'center';
-          b.style.transition     = 'transform 0.2s';
+          b.style.transition     = 'transform 0.15s, box-shadow 0.15s';
           b.style.position       = 'relative';
           b.style.overflow       = 'hidden';
 
+          if (isCompleted) {
+            b.style.background = 'rgba(249,115,22,0.15)';
+            b.style.border     = '1.5px solid rgba(249,115,22,0.35)';
+            b.style.boxShadow  = 'none';
+            b.style.transform  = 'scale(1)';
+          } else {
+            b.style.background = 'radial-gradient(circle at 38% 32%, rgba(255,210,140,0.95) 0%, rgb(249,115,22) 52%, rgb(180,55,5) 100%)';
+            b.style.border     = '1px solid rgba(160,48,5,0.45)';
+            b.style.boxShadow  = isActive
+              ? '0 0 0 3px rgba(249,115,22,0.45), 0 3px 10px rgba(234,88,12,0.55)'
+              : '0 1px 5px rgba(200,70,10,0.45)';
+            b.style.transform  = isActive ? 'scale(1.35)' : 'scale(1)';
+          }
+
+          // Reflexo brilhante nas contas não completadas
+          if (!isCompleted) {
+            var shine = document.createElement('div');
+            shine.style.position     = 'absolute';
+            shine.style.top          = '2px';
+            shine.style.left         = '3px';
+            shine.style.width        = Math.round(size * 0.45) + 'px';
+            shine.style.height       = Math.round(size * 0.35) + 'px';
+            shine.style.borderRadius = '50%';
+            shine.style.background   = 'rgba(255,255,255,0.45)';
+            shine.style.pointerEvents = 'none';
+            b.appendChild(shine);
+          }
+
+          // Ícone de cruz SVG
           if (bead.type === 'cruz') {
             var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
             svg.setAttribute('viewBox','0 0 24 24');
             svg.setAttribute('fill','none');
-            svg.setAttribute('stroke', isCompleted ? 'rgba(249,115,22,0.6)' : 'white');
+            svg.setAttribute('stroke', isCompleted ? 'rgba(249,115,22,0.7)' : 'rgba(255,255,255,0.92)');
             svg.setAttribute('stroke-width','2.5');
-            svg.style.width  = '14px';
-            svg.style.height = '14px';
+            svg.style.width        = '13px';
+            svg.style.height       = '13px';
+            svg.style.position     = 'relative';
+            svg.style.zIndex       = '1';
             var path = document.createElementNS('http://www.w3.org/2000/svg','path');
             path.setAttribute('stroke-linecap','round');
             path.setAttribute('stroke-linejoin','round');
@@ -811,14 +872,29 @@
             b.appendChild(svg);
           }
 
+          // Número da décena nas contas de mistério (1–5)
+          if (bead.type === 'misterio' && bead.mysteryIndex !== undefined) {
+            var num = document.createElement('span');
+            num.textContent      = String(bead.mysteryIndex + 1);
+            num.style.fontSize   = '9px';
+            num.style.fontWeight = '700';
+            num.style.color      = isCompleted ? 'rgba(249,115,22,0.7)' : 'rgba(255,255,255,0.9)';
+            num.style.position   = 'relative';
+            num.style.zIndex     = '1';
+            num.style.lineHeight = '1';
+            b.appendChild(num);
+          }
+
           wrap.appendChild(b);
 
-          // Fio conector
+          // Fio entre contas
           if (i < beadsList.length - 1) {
             var thread = document.createElement('div');
+            var nextIsMystery = beadsList[i+1].type === 'misterio';
+            var curIsMystery  = bead.type === 'misterio';
             thread.style.width      = '1px';
-            thread.style.height     = bead.type === 'misterio' || beadsList[i+1].type === 'misterio' ? '10px' : '6px';
-            thread.style.background = 'rgba(168,162,158,0.55)';
+            thread.style.height     = (curIsMystery || nextIsMystery) ? '8px' : '5px';
+            thread.style.background = 'transparent';
             thread.style.flexShrink = '0';
             wrap.appendChild(thread);
           }
