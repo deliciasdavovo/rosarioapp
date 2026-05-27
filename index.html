@@ -856,7 +856,7 @@
       // Estado Global da Aplicação
       let selectedDay = new Date().getDay();
       let activeMode = 'meditativo';
-      let meditativoVariant = 'tradicional'; // 'tradicional' | 'montfort' | 'fatima'
+      let meditativoVariant = 'fatima'; // 'montfort' | 'fatima'
       let activeBeadId = 0;
       let completedBeads = new Set();
       let beadsList = [];
@@ -1673,19 +1673,18 @@
       }
 
       function updateMeditativoSelectorButtons() {
-        const btnT = document.getElementById('btnMeditativoTradicional');
-        const btnM = document.getElementById('btnMeditativoMontfort');
-        const btnF = document.getElementById('btnMeditativoFatima');
-        const btns = [btnT, btnM, btnF];
-        const variantMap = ['tradicional', 'montfort', 'fatima'];
-        btns.forEach((btn, idx) => {
-          if (!btn) return;
-          if (meditativoVariant === variantMap[idx]) {
-            btn.classList.add('border-orange-300', 'bg-orange-50/50');
-            btn.classList.remove('border-stone-100', 'bg-transparent');
+        const btns = [
+          { el: document.getElementById('btnMeditativoMontfort'), variant: 'montfort' },
+          { el: document.getElementById('btnMeditativoFatima'),   variant: 'fatima'   }
+        ];
+        btns.forEach(({ el, variant }) => {
+          if (!el) return;
+          if (meditativoVariant === variant) {
+            el.classList.add('border-orange-300', 'bg-orange-50/50');
+            el.classList.remove('border-stone-100', 'bg-transparent');
           } else {
-            btn.classList.remove('border-orange-300', 'bg-orange-50/50');
-            btn.classList.add('border-stone-100');
+            el.classList.remove('border-orange-300', 'bg-orange-50/50');
+            el.classList.add('border-stone-100');
           }
         });
       }
@@ -1746,18 +1745,6 @@
         <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
         <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-0.5">Modo Meditativo</h3>
         <p class="text-center text-[11px] font-serif text-stone-400 mb-5 tracking-wide">Escolha como meditar o Rosário</p>
-
-        <button id="btnMeditativoTradicional" onclick="selectMeditativoVariant('tradicional')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-3 transition-all text-left">
-          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center">
-            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />
-            </svg>
-          </div>
-          <div>
-            <div class="font-serif text-orange-950 text-sm font-medium">Tradicional</div>
-            <div class="text-[11px] font-serif text-stone-400 mt-0.5">Meditações temáticas por mistério</div>
-          </div>
-        </button>
 
         <button id="btnMeditativoMontfort" onclick="selectMeditativoVariant('montfort')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-3 transition-all text-left">
           <div class="flex-shrink-0 w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center">
