@@ -17,4 +17,6 @@
   <circle cx="166" cy="360" r="10" fill="#b45309"/>
   <!-- Bottom cross bead -->
   <circle cx="256" cy="470" r="12" fill="#92400e"/>
+  <!-- esse text -->
+  <text x="256" y="375" text-anchor="middle" font-family="Georgia, serif" font-size="52" font-weight="bold" fill="#92400e" letter-spacing="4">esse</text>
 </svg>
