@@ -194,7 +194,7 @@
     </div>
 
     <!-- Wrapper com papel e terço sobrepostos -->
-    <div style="flex:1; min-height:0; position:relative; overflow:hidden;">
+    <div id="mainWrapper" style="flex:1; min-height:0; position:relative; overflow:hidden;">
 
       <!-- Papel ocupa tudo — inclusive por baixo do terço -->
       <main id="mainContent" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:12px; overflow:hidden; z-index:10;">
@@ -952,7 +952,7 @@
 
       function centerBead(id) { /* no-op */ }
 
-      // Navegação tipo roleta: arrasto livre entre contas, snap ao soltar
+      // Navegação tipo roleta: arrasto livre + tap esquerdo/direito
       function addSwipeNavigation() {
         var STEP     = 38;
         var PN_EXTRA = 42; // deve bater com renderBeads
@@ -963,24 +963,28 @@
           return STEP + ((ta === 'pai-nosso' || tb === 'pai-nosso') ? PN_EXTRA : 0);
         }
 
-        var el = document.getElementById('mainContent');
-        var startX = 0, startY = 0;
+        // Listener no wrapper pai — cobre o papel E o terço (z-index não bloqueia eventos touch)
+        var el      = document.getElementById('mainWrapper');
+        var panel   = document.getElementById('mainContent');
+        var startX = 0, startY = 0, startT = 0;
         var lastX = 0, lastT = 0;
+        var touchTarget = null;
         var velocityX = 0;
         var dragging = false;
-        var anchorIdx    = 0; // índice no beadsList ao iniciar o toque
-        var previewIdx   = 0; // índice atualmente centrado durante o arrasto
-        var prevPrevIdx  = 0; // para detectar cruzamento de conta (háptico)
+        var anchorIdx   = 0;
+        var previewIdx  = 0;
+        var prevPrevIdx = 0;
 
         el.addEventListener('touchstart', function(e) {
           startX = lastX = e.touches[0].clientX;
           startY = e.touches[0].clientY;
-          lastT = Date.now();
+          startT = lastT = Date.now();
+          touchTarget = e.target;
           dragging = false;
           velocityX = 0;
           anchorIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
           previewIdx = prevPrevIdx = anchorIdx;
-          el.style.transition = '';
+          panel.style.transition = '';
         }, { passive: true });
 
         el.addEventListener('touchmove', function(e) {
@@ -1000,7 +1004,6 @@
           lastX = cx;
           lastT = now;
 
-          // Consome gaps a partir do anchorIdx para descobrir qual conta está centrada
           var cur = anchorIdx;
           var rem = dx;
 
@@ -1015,37 +1018,62 @@
 
           previewIdx = cur;
 
-          // Rubber-band nas bordas absolutas
           var offset = rem;
           if (cur === 0 && rem > 0) offset = rem * 0.25;
           if (cur === beadsList.length - 1 && rem < 0) offset = rem * 0.25;
 
-          // Háptico ao cruzar uma conta
           if (cur !== prevPrevIdx) {
             if (navigator.vibrate) try { navigator.vibrate(5); } catch(er) {}
             prevPrevIdx = cur;
           }
 
           renderBeads(offset, true, beadsList[cur].id);
-          el.style.transform = 'translateX(' + (offset * 0.1) + 'px)';
+          panel.style.transform = 'translateX(' + (offset * 0.1) + 'px)';
         }, { passive: true });
 
+        function navigate(idx) {
+          var newId = beadsList[idx].id;
+          if (newId === activeBeadId) return;
+          activeBeadId = newId;
+          if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {}
+          renderBeads(0, false);
+          renderPanel();
+        }
+
         function onEnd(e) {
+          var endX = e.changedTouches ? e.changedTouches[0].clientX : lastX;
+          var endY = e.changedTouches ? e.changedTouches[0].clientY : startY;
+          var totalDx = Math.abs(endX - startX);
+          var totalDy = Math.abs(endY - startY);
+          var elapsed = Date.now() - startT;
+
+          // Tap: movimento pequeno e toque curto, fora de uma conta individual
+          var isTap = !dragging && totalDx < 10 && totalDy < 10 && elapsed < 400;
+          if (isTap && !(touchTarget && touchTarget.closest('.bw'))) {
+            var curIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
+            if (endX < window.innerWidth / 2) {
+              if (curIdx > 0) navigate(curIdx - 1);
+            } else {
+              if (curIdx < beadsList.length - 1) navigate(curIdx + 1);
+            }
+            return;
+          }
+
           if (!dragging) return;
           dragging = false;
 
-          // Flick: velocidade alta empurra mais uma conta na direção do gesto
           var finalIdx = previewIdx;
           if (velocityX < -0.5 && finalIdx < beadsList.length - 1) finalIdx++;
           if (velocityX >  0.5 && finalIdx > 0) finalIdx--;
 
-          el.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
-          el.style.transform  = '';
-          setTimeout(function() { el.style.transition = ''; }, 300);
+          panel.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
+          panel.style.transform  = '';
+          setTimeout(function() { panel.style.transition = ''; }, 300);
 
           var newId = beadsList[finalIdx].id;
           if (newId !== activeBeadId) {
             activeBeadId = newId;
+            if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {}
             renderPanel();
           }
           renderBeads(0, false);
