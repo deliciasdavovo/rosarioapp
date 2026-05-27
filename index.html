@@ -1055,8 +1055,8 @@
             `;
           } else if (activeMode === 'curta' && isMystery && mystery) {
             layout = `
-              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
-                <div class="flex flex-col items-center space-y-2">
+              <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
+                <div class="flex flex-col items-center space-y-2 pt-4 pb-2">
                   <span class="text-[9px] tracking-[0.3em] uppercase text-orange-950/50 font-serif font-semibold">
                     ${mSet.name}
                   </span>
@@ -1066,18 +1066,20 @@
                   <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
                 </div>
 
-                <div class="w-full my-auto space-y-6 px-4">
-                  <h3 class="text-2xl font-serif text-orange-950 font-medium leading-snug tracking-wide">
-                    ${mystery.title}
-                  </h3>
-                  ${fruit ? `<div class="text-[11px] uppercase tracking-[0.2em] text-orange-800/80 font-serif">Fruto — <span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
-                  <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-4"></div>
-                  <p class="text-base text-stone-600 font-serif font-light leading-relaxed">
-                    "${mystery.curta}"
-                  </p>
+                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                  <div class="space-y-6 py-4">
+                    <h3 class="text-2xl font-serif text-orange-950 font-medium leading-snug tracking-wide">
+                      ${mystery.title}
+                    </h3>
+                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.2em] text-orange-800/80 font-serif">Fruto — <span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                    <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
+                    <p class="text-base text-stone-600 font-serif font-light leading-relaxed">
+                      "${mystery.curta}"
+                    </p>
+                  </div>
                 </div>
 
-                <div class="text-[9px] text-stone-400 font-serif tracking-[0.3em] uppercase">
+                <div class="text-[9px] text-stone-400 font-serif tracking-[0.3em] uppercase py-3">
                   Sagrada Escritura
                 </div>
               </div>
@@ -1182,17 +1184,19 @@
             const secLabels = ['Sagrada Escritura','Sagrada Escritura','Sagrada Escritura','Reflexão','Reflexão','Reflexão','Meditação','Meditação','Oração','Oração'];
             const isMeditacao = bead.beadIndex >= 6 && bead.beadIndex < 8;
             layout = `
-              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
-                <div class="flex flex-col items-center space-y-1">
+              <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
+                <div class="flex flex-col items-center space-y-1 pt-4 pb-2">
                   <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/55 font-serif">Santuário de Fátima</span>
                   <h4 class="text-xs font-serif tracking-wide text-orange-600/80 font-medium">${mystery.title}</h4>
                   <div class="text-orange-600/20 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
                 </div>
-                <div class="w-full my-auto space-y-4 px-4">
-                  <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${secLabels[bead.beadIndex]}</span>
-                  <p class="text-base ${isMeditacao ? 'text-stone-600 italic' : 'text-stone-700'} font-serif leading-relaxed whitespace-pre-line">${fatimaText}</p>
+                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                  <div class="space-y-4 py-4">
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${secLabels[bead.beadIndex]}</span>
+                    <p class="text-base ${isMeditacao ? 'text-stone-600 italic' : 'text-stone-700'} font-serif leading-relaxed whitespace-pre-line">${fatimaText}</p>
+                  </div>
                 </div>
-                <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50"></div>
+                <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50 my-3"></div>
               </div>
             `;
           } else if (activeMode === 'meditativo' && isMystery && mystery && bead.type === 'ave-maria') {
