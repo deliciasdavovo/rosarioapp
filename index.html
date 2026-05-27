@@ -916,8 +916,9 @@
 
           // Cores (aplicadas sempre para refletir mudança de estado)
           if (isCruz) {
-            b.style.color     = isCompleted ? 'rgba(234,88,12,0.30)' : isActive ? '#ea580c' : '#fb923c';
-            b.style.boxShadow = isActive ? '0 0 0 5px rgba(234,88,12,0.18)' : 'none';
+            b.style.color        = isCompleted ? 'rgba(234,88,12,0.30)' : isActive ? '#ea580c' : '#fb923c';
+            b.style.borderRadius = isActive ? '50%' : '0';
+            b.style.boxShadow    = isActive ? '0 0 0 5px rgba(234,88,12,0.18)' : 'none';
           } else if (isCompleted) {
             b.style.background = 'rgba(234,88,12,0.14)';
             b.style.border     = '1.5px solid rgba(234,88,12,0.28)';
