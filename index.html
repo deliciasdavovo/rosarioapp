@@ -129,29 +129,37 @@
     </div>
 
     <!-- Barra de Cabeçalho Superior -->
-    <header class="flex-none p-4 pb-2 z-30">
-      <div class="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h1 class="text-2xl font-serif text-amber-950 font-bold tracking-wide">meu terço</h1>
+    <header class="flex-none px-4 py-3 z-30">
+      <div class="max-w-2xl mx-auto flex items-center justify-between">
 
-        <!-- Dropdown Seletor de Dia Litúrgico -->
+        <!-- Esquerda: Seletor de Dia -->
         <div class="relative">
           <button
             id="daySelectorBtn"
-            class="flex items-center gap-2 bg-stone-100/50 hover:bg-stone-100/80 px-5 py-2 rounded-full transition-colors border border-stone-200/60"
+            class="flex items-center gap-1.5 hover:bg-stone-100/70 px-3 py-1.5 rounded-full transition-colors"
           >
             <span id="currentDayLabel" class="text-stone-700 font-serif tracking-wide text-sm font-medium">Domingo</span>
-            <svg class="w-4 h-4 text-orange-600/70 transition-transform duration-300" id="chevronIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5 text-orange-600/70 transition-transform duration-300" id="chevronIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-
           <div
             id="dayDropdown"
-            class="hidden absolute top-12 right-0 bg-white border border-stone-100 shadow-xl rounded-2xl p-2 w-52 origin-top z-50 flex flex-col gap-1 transition-all"
+            class="hidden absolute top-10 left-0 bg-white border border-stone-100 shadow-xl rounded-2xl p-2 w-52 origin-top z-50 flex flex-col gap-1 transition-all"
           >
             <!-- Injetado dinamicamente via Javascript -->
           </div>
         </div>
+
+        <!-- Centro: Título -->
+        <h1 class="text-xl font-serif text-amber-950 font-bold tracking-wide">meu terço</h1>
+
+        <!-- Direita: Menu Hambúrguer -->
+        <button class="flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
+          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
+          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
+          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
+        </button>
       </div>
     </header>
 
