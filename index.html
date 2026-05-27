@@ -980,6 +980,24 @@
         renderPanel();
       }
 
+      function getPanelKey(beadId) {
+        const bead = beadsList[beadId];
+        const isMystery = bead.mysteryIndex !== undefined;
+        if ((activeMode === 'imagem' || activeMode === 'curta') && isMystery) {
+          return activeMode + ':' + bead.mysteryIndex;
+        }
+        if (activeMode === 'meditativo') {
+          if (bead.type === 'ave-maria' && bead.introIndex !== undefined)
+            return 'meditativo:' + meditativoVariant + ':ave-intro:' + bead.introIndex;
+          if (bead.type === 'ave-maria' && isMystery)
+            return 'meditativo:' + meditativoVariant + ':ave:' + bead.mysteryIndex + ':' + bead.beadIndex;
+          if (bead.type === 'misterio' && isMystery)
+            return 'meditativo:' + meditativoVariant + ':misterio:' + bead.mysteryIndex;
+        }
+        if (bead.type === 'pai-nosso' || bead.type === 'misterio') return 'fallback:pai-nosso';
+        return 'fallback:' + bead.type;
+      }
+
       // Renderizar Painel Devocional Central
       function renderPanel() {
         panelContent.classList.add('fade-out');
@@ -1432,8 +1450,10 @@
                 if (activeBeadId === beadCopy.id) {
                   toggleBead(beadCopy.id);
                 } else {
+                  const prevKey = getPanelKey(activeBeadId);
                   activeBeadId = beadCopy.id;
-                  renderBeads(); renderPanel();
+                  renderBeads();
+                  if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
                 }
               });
             })(bead, b);
@@ -1500,9 +1520,10 @@
         // Avanço automático com discreto intervalo visual agradável
         if (id === activeBeadId && id < beadsList.length - 1) {
           setTimeout(() => {
+            const prevKey = getPanelKey(activeBeadId);
             activeBeadId = id + 1;
             renderBeads();
-            renderPanel();
+            if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
             centerBead(activeBeadId);
           }, 250);
         } else {
@@ -1594,10 +1615,11 @@
         function navigate(idx) {
           var newId = beadsList[idx].id;
           if (newId === activeBeadId) return;
+          const prevKey = getPanelKey(activeBeadId);
           activeBeadId = newId;
           if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {}
           renderBeads(0, false);
-          renderPanel();
+          if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
         }
 
         function onEnd(e) {
@@ -1632,9 +1654,10 @@
 
           var newId = beadsList[finalIdx].id;
           if (newId !== activeBeadId) {
+            const prevKey = getPanelKey(activeBeadId);
             activeBeadId = newId;
             if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {}
-            renderPanel();
+            if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
           }
           renderBeads(0, false);
         }
