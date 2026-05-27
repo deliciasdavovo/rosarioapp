@@ -86,33 +86,34 @@
         position: fixed;
         top: 0;
         left: 50%;
-        transform: translate(-50%, -60px);
+        transform: translate(-50%, -48px);
         opacity: 0;
         z-index: 200;
         pointer-events: none;
-        transition: opacity 0.15s;
+        transition: opacity 0.2s;
       }
       #ptr.ptr-show {
-        transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
-        transform: translate(-50%, 16px);
+        transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
+        transform: translate(-50%, 10px);
         opacity: 1;
       }
       #ptr-ring {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: #f97316;
-        box-shadow: 0 4px 18px rgba(249,115,22,0.45);
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 7px;
+        padding: 7px 14px 7px 10px;
+        background: #FAF6EE;
+        border: 1px solid #E9DFCB;
+        border-radius: 999px;
+        box-shadow: 0 4px 14px rgba(30,20,10,0.12);
       }
       #ptr-spinner {
-        width: 26px;
-        height: 26px;
-        border: 3px solid rgba(255,255,255,0.35);
-        border-top-color: white;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(234,88,12,0.2);
+        border-top-color: #ea580c;
         border-radius: 50%;
+        flex-shrink: 0;
       }
       #ptr-spinner.spinning {
         animation: ptr-spin 0.7s linear infinite;
@@ -125,6 +126,7 @@
     <div id="ptr">
       <div id="ptr-ring">
         <div id="ptr-spinner"></div>
+        <span style="font-family:'Outfit',serif;font-size:11px;color:#92400e;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;white-space:nowrap;">atualizando</span>
       </div>
     </div>
 
@@ -1543,23 +1545,24 @@
         });
       }
 
-      // Pull-to-refresh: arrasta pra baixo → bolinha no topo → reload
+      // Pull-to-refresh: arrasta pra baixo a partir do topo → pílula → reload
       (function () {
         const ptr = document.getElementById('ptr');
         const spinner = document.getElementById('ptr-spinner');
         let startY = 0;
+        let startInHeader = false;
         let triggered = false;
 
         document.addEventListener('touchstart', e => {
           startY = e.touches[0].clientY;
+          startInHeader = startY < 72; // só ativa se o toque começar na área do cabeçalho
           triggered = false;
         }, { passive: true });
 
         document.addEventListener('touchmove', e => {
-          if (triggered) return;
-          const atTop = (window.scrollY || document.documentElement.scrollTop) === 0;
+          if (!startInHeader || triggered) return;
           const dy = e.touches[0].clientY - startY; // positivo = deslizou pra baixo
-          if (atTop && dy > 60) {
+          if (dy > 55) {
             triggered = true;
             ptr.style.transition = 'none';
             ptr.style.opacity = '1';
