@@ -1,22 +1,109 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Background -->
-  <rect width="512" height="512" rx="100" fill="#EFECE6"/>
-  <!-- Cross vertical bar -->
-  <rect x="236" y="80" width="40" height="220" rx="8" fill="#92400e"/>
-  <!-- Cross horizontal bar -->
-  <rect x="156" y="148" width="200" height="40" rx="8" fill="#92400e"/>
-  <!-- Rosary circle of beads -->
-  <circle cx="256" cy="360" r="90" fill="none" stroke="#92400e" stroke-width="6" stroke-dasharray="18 10"/>
-  <!-- Center bead -->
-  <circle cx="256" cy="270" r="14" fill="#b45309"/>
-  <!-- Decade beads -->
-  <circle cx="346" cy="360" r="10" fill="#b45309"/>
-  <circle cx="316" cy="433" r="10" fill="#b45309"/>
-  <circle cx="256" cy="460" r="10" fill="#b45309"/>
-  <circle cx="196" cy="433" r="10" fill="#b45309"/>
-  <circle cx="166" cy="360" r="10" fill="#b45309"/>
-  <!-- Bottom cross bead -->
-  <circle cx="256" cy="470" r="12" fill="#92400e"/>
-  <!-- esse text -->
-  <text x="256" y="375" text-anchor="middle" font-family="Georgia, serif" font-size="52" font-weight="bold" fill="#92400e" letter-spacing="4">esse</text>
+  <defs>
+    <!-- sombra suave -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- fundo laranja -->
+  <rect width="512" height="512" fill="#EB8128"/>
+
+  <!-- ícone -->
+  <g filter="url(#softShadow)">
+    <!-- aro do terço -->
+    <g fill="none" stroke="#F1EFEC" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M221 386
+               C181 372 161 335 161 282
+               C161 215 199 169 256 154" />
+      <path d="M291 386
+               C331 372 351 335 351 282
+               C351 215 313 169 256 154" />
+    </g>
+
+    <!-- bolinhas -->
+    <g fill="#F1EFEC">
+      <!-- topo -->
+      <circle cx="256" cy="142" r="18"/>
+
+      <!-- esquerda -->
+      <circle cx="211" cy="155" r="10"/>
+      <circle cx="180" cy="183" r="10"/>
+      <circle cx="165" cy="220" r="10"/>
+      <circle cx="165" cy="264" r="10"/>
+      <circle cx="175" cy="302" r="10"/>
+      <circle cx="193" cy="339" r="10"/>
+
+      <!-- direita -->
+      <circle cx="301" cy="155" r="10"/>
+      <circle cx="332" cy="183" r="10"/>
+      <circle cx="347" cy="220" r="10"/>
+      <circle cx="347" cy="264" r="10"/>
+      <circle cx="337" cy="302" r="10"/>
+      <circle cx="319" cy="339" r="10"/>
+
+      <!-- baixo -->
+      <circle cx="256" cy="388" r="11"/>
+    </g>
+
+    <!-- rosa central -->
+    <g fill="none" stroke="#F1EFEC" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+      <!-- botão superior -->
+      <path d="M216 214
+               C216 181 234 166 256 166
+               C278 166 296 181 296 214
+               C296 235 283 249 256 273
+               C229 249 216 235 216 214Z"/>
+
+      <!-- espiral interna -->
+      <path d="M242 206
+               C248 194 267 192 278 199
+               C290 206 291 222 281 231
+               C273 239 259 239 251 235
+               C244 231 241 224 243 217
+               C245 211 251 208 258 208
+               C264 208 268 210 270 214"/>
+
+      <!-- “taça” esquerda -->
+      <path d="M206 215
+               C202 249 205 278 244 294"/>
+
+      <!-- “taça” direita -->
+      <path d="M306 215
+               C310 249 307 278 268 294"/>
+
+      <!-- ligação com o caule -->
+      <path d="M244 294
+               C249 299 253 305 256 312"/>
+      <path d="M268 294
+               C263 299 259 305 256 312"/>
+
+      <!-- caule -->
+      <path d="M256 312 L256 431"/>
+    </g>
+
+    <!-- folhas -->
+    <g fill="#F1EFEC">
+      <path d="M207 321
+               C218 310 234 309 245 320
+               C241 338 231 347 214 346
+               C205 341 203 330 207 321Z"/>
+      <path d="M305 321
+               C294 310 278 309 267 320
+               C271 338 281 347 298 346
+               C307 341 309 330 305 321Z"/>
+    </g>
+
+    <!-- conexões das folhas -->
+    <g fill="none" stroke="#F1EFEC" stroke-width="10" stroke-linecap="round">
+      <path d="M226 307 C236 301 246 299 256 299"/>
+      <path d="M286 307 C276 301 266 299 256 299"/>
+    </g>
+
+    <!-- cruz -->
+    <g fill="none" stroke="#F1EFEC" stroke-width="10" stroke-linecap="round">
+      <line x1="256" y1="388" x2="256" y2="444"/>
+      <line x1="241" y1="412" x2="271" y2="412"/>
+    </g>
+  </g>
 </svg>
