@@ -1,4 +1,4 @@
-const CACHE = 'meu-terco-v4';
+const CACHE = 'meu-terco-v5';
 const PRECACHE = ['/', '/index.html', '/manifest.json', '/icon.svg'];
 
 self.addEventListener('install', (e) => {

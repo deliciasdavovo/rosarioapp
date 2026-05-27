@@ -884,15 +884,14 @@
 
       // Inicializar
       setMode('meditativo');
+      renderBeads();
 
       setTimeout(function() {
-        var mainEl = document.getElementById('mainContent');
-        if (mainEl) {
-          beadsContainer.style.top = Math.round(mainEl.getBoundingClientRect().top) + 'px';
-        }
         var h = beadsContainer.clientHeight;
-        beadsContainer.style.paddingTop    = Math.round(h / 2) + 'px';
-        beadsContainer.style.paddingBottom = Math.round(h / 2) + 'px';
+        if (h > 0) {
+          beadsContainer.style.paddingTop    = Math.round(h / 2) + 'px';
+          beadsContainer.style.paddingBottom = Math.round(h / 2) + 'px';
+        }
         centerBead(0);
       }, 300);
 
