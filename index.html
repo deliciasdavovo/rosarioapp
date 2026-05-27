@@ -187,12 +187,13 @@
           </span>
         </button>
 
-        <button onclick="setMode('meditativo')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="meditativo">
+        <button onclick="openMeditativoSelector()" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="meditativo">
           <span class="flex flex-col items-center gap-1">
             <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />
             </svg>
             <span class="text-[10px] font-medium tracking-wide uppercase">Meditativo</span>
+            <span id="montfortBadge" class="hidden text-[8px] font-semibold tracking-wider text-orange-500 uppercase leading-none">Montfort</span>
           </span>
         </button>
 
@@ -444,6 +445,251 @@
         }
       };
 
+      const MONTFORT_DATA = {
+        credoPontos: [
+          '1º) Fé na presença de Deus',
+          '2º) Fé no Evangelho',
+          '3º) Fé e obediência ao Papa como Vigário de Jesus Cristo'
+        ],
+        paiNossoIntro: 'Unidade de um só Deus, vivo e verdadeiro.',
+        avesIntro: [
+          'Em honra do Pai Eterno, que gera seu Filho contemplando-Se.',
+          'Em honra do Verbo Eterno, igual ao Pai, que com Ele produz o Espírito Santo.',
+          'Em honra do Espírito Santo, que procede do Pai e do Filho por via de amor.'
+        ],
+        gozosos: [
+          {
+            paiNosso: 'A caridade de Deus, imensa.',
+            aveMarias: [
+              'para lamentar o desgraçado estado de Adão desobediente, sua justa condenação e a de todos os seus filhos.',
+              'em honra dos desejos dos patriarcas e profetas, que pediam a vinda do Messias.',
+              'em honra dos desejos e das preces da Santíssima Virgem, que apressaram a vinda do Messias.',
+              'em honra da caridade do Pai Eterno, que nos deu Seu divino Filho.',
+              'em honra do amor do Filho, que se entregou por nós.',
+              'em honra da embaixada e da saudação do arcanjo Gabriel.',
+              'em honra do temor virginal de Maria.',
+              'em honra da fé e do consentimento da Santíssima Virgem.',
+              'em honra da criação da alma e da formação do Corpo de Jesus Cristo no seio de Maria, pelo Espírito Santo.',
+              'em honra da adoração do Verbo Encarnado, pelos anjos, no seio de Maria.'
+            ]
+          },
+          {
+            paiNosso: 'A majestade de Deus, adorável.',
+            aveMarias: [
+              'em honra do gozo do Coração de Maria e da morada durante nove meses do Verbo em seu seio.',
+              'em honra do sacrifício que Jesus Cristo fez de Si mesmo ao Pai, ao entrar neste Mundo.',
+              'em honra das complacências de Jesus no seio humilde e virginal de Maria, e de Nossa Senhora, no gozo do seu Deus.',
+              'em honra da dúvida de São José acerca da maternidade de Maria.',
+              'em honra da eleição dos escolhidos, combinada entre Jesus e Maria, em seu seio.',
+              'em honra do fervor de Maria na sua visita a Santa Isabel.',
+              'em honra da santificação de João Batista no ventre de sua mãe.',
+              'em honra da gratidão da Santíssima Virgem para com Deus, no Magnificat.',
+              'em honra da sua caridade e humildade em servir sua prima.',
+              'em honra da mútua dependência de Jesus e de Maria, e da devoção que devemos ter para com um e outra.'
+            ]
+          },
+          {
+            paiNosso: 'As riquezas de Deus, infinitas.',
+            aveMarias: [
+              'em honra dos desprezos e injúrias feitas a Maria e a São José em Belém.',
+              'em honra da pobreza do estábulo onde Deus veio ao mundo.',
+              'em honra da alta contemplação e do excessivo amor de Maria no momento de dar à luz.',
+              'em honra da saída do Verbo Eterno do seio de Maria sem romper o selo de sua virgindade.',
+              'em honra das adorações e cânticos dos anjos no nascimento de Jesus.',
+              'em honra da formosura arrebatadora de Sua divina infância.',
+              'em honra da vinda dos pastores ao estábulo, com seus presentes.',
+              'em honra da circuncisão de Jesus Cristo e Suas dores amorosas.',
+              'em honra da imposição do nome de Jesus Cristo e suas grandezas.',
+              'em honra da adoração dos reis magos e seus presentes.'
+            ]
+          },
+          {
+            paiNosso: 'Sabedoria de Deus, eterna.',
+            aveMarias: [
+              'em honra da obediência de Jesus e de Maria à Lei.',
+              'em honra do sacrifício que ali fez Jesus de sua humanidade.',
+              'em honra do sacrifício que ali fez Maria de sua honra.',
+              'em honra do gozo e dos cânticos de Simeão e Ana, a profetisa.',
+              'em honra do resgate de Jesus pela oferenda de duas rolas.',
+              'em honra da matança dos santos inocentes.',
+              'em honra da fuga de Jesus para o Egito, pela obediência de São José à voz do anjo.',
+              'em honra da estada misteriosa no Egito.',
+              'em honra da Sua volta para Nazaré.',
+              'em honra do seu crescimento em idade, sabedoria e graça.'
+            ]
+          },
+          {
+            paiNosso: 'A Santidade de Deus, incompreensível.',
+            aveMarias: [
+              'em honra da Sua vida oculta, laboriosa e obediente na casa de Nazaré.',
+              'em honra de sua perda e encontro no Templo entre os doutores.',
+              'em honra do seu jejum e tentações no deserto.',
+              'em honra do seu Batismo por São João Batista.',
+              'em honra da sua pregação admirável.',
+              'em honra de seus milagres portentosos.',
+              'em honra da eleição de seus doze Apóstolos e dos poderes que lhes deu.',
+              'em honra de sua transfiguração maravilhosa.',
+              'em honra do lava-pés dos Apóstolos.',
+              'em honra da instituição da Sagrada Eucaristia.'
+            ]
+          }
+        ],
+        dolorosos: [
+          {
+            paiNosso: 'Felicidade de Deus, essencial.',
+            aveMarias: [
+              'em honra dos divinos retiros que fez Jesus em Sua vida, principalmente no horto.',
+              'em honra de suas orações humildes e fervorosas durante Sua vida e nas vésperas da Paixão.',
+              'em honra da paciência e doçura com que suportou Seus Apóstolos, particularmente no horto.',
+              'em honra do tédio de sua Alma durante toda a Sua vida, principalmente no horto.',
+              'em honra dos rios de sangue que a dor fez brotar de seu Ser adorável.',
+              'em honra do consolo que teve por bem aceitar de um anjo na agonia.',
+              'em honra de sua conformidade com a vontade do Pai, apesar da repugnância de Sua natureza.',
+              'em honra de Sua traição por Judas e prisão pelos judeus.',
+              'em honra do valor com que saiu ao encontro dos algozes e a força da palavra com que os lançou por terra e os levantou.',
+              'em honra do abandono que sofreu de Seus Apóstolos.'
+            ]
+          },
+          {
+            paiNosso: 'Paciência de Deus, admirável.',
+            aveMarias: [
+              'em honra das cordas com que Jesus foi atado.',
+              'em honra da bofetada que recebeu em casa de Caifás.',
+              'em honra das negações de São Pedro.',
+              'em honra das ignomínias que sofreu em casa de Herodes, quando lhe puseram a veste branca.',
+              'em honra do despojamento de Suas vestes.',
+              'em honra dos desprezos e insultos que sofreu de seus verdugos pela Sua nudez.',
+              'em honra das varas espinhosas e dos açoites cruéis com que foi golpeado.',
+              'em honra da coluna em que foi atado.',
+              'em honra do sangue que derramou e das chagas que recebeu.',
+              'em honra da Sua queda no próprio sangue por causa da fraqueza.'
+            ]
+          },
+          {
+            paiNosso: 'Formosura de Deus, inefável.',
+            aveMarias: [
+              'em honra do despojamento de Suas vestes pela terceira vez.',
+              'em honra da Sua coroa de espinhos.',
+              'em honra do véu com que Lhe vendaram os olhos.',
+              'em honra das bofetadas e dos escarros com que Lhe cobriram o rosto.',
+              'em honra do andrajo que Lhe puseram sobre os ombros.',
+              'em honra da cana que Lhe puseram nas mãos.',
+              'em honra da pedra pontiaguda sobre a qual O sentaram.',
+              'em honra dos ultrajes e dos insultos que Lhe fizeram.',
+              'em honra do sangue e dos suores que escorriam de Sua cabeça adorável.',
+              'em honra dos cabelos e da barba que Lhe arrancaram.'
+            ]
+          },
+          {
+            paiNosso: 'Onipotência de Deus, sem limites.',
+            aveMarias: [
+              'em honra da apresentação de Nosso Senhor diante do povo com o “Eis o Homem”.',
+              'em honra do haver sido preferido a Barrabás.',
+              'em honra dos falsos testemunhos que contra Ele deram.',
+              'em honra de Sua condenação à morte.',
+              'em honra do amor com que abraçou e beijou a Cruz.',
+              'em honra do trabalho espantoso que teve em carregá-la.',
+              'em honra das quedas de pura debilidade sob seu peso.',
+              'em honra do encontro doloroso com Sua Santa Mãe.',
+              'em honra do véu de Verônica, no qual Seu rosto se estampou.',
+              'em honra de suas lágrimas, as de Sua Santa Mãe e das piedosas mulheres que O seguiram até o Calvário.'
+            ]
+          },
+          {
+            paiNosso: 'Justiça de Deus, espantosa.',
+            aveMarias: [
+              'em honra das cinco chagas de Jesus e do sangue que derramou na Cruz.',
+              'em honra de Seu coração traspassado e da Cruz em que foi crucificado.',
+              'em honra dos cravos e da lança que O atravessaram.',
+              'em honra da vergonha e da infâmia que sofreu, sendo crucificado entre dois ladrões.',
+              'em honra da compaixão de Sua Mãe Santíssima.',
+              'em honra das sete últimas palavras.',
+              'em honra de Seu desamparo e Seu silêncio.',
+              'em honra da aflição de todo o Universo.',
+              'em honra de Sua morte cruel e ignominiosa.',
+              'em honra da descida da Cruz e do sepultamento.'
+            ]
+          }
+        ],
+        gloriosos: [
+          {
+            paiNosso: 'Eternidade de Deus, sem princípio.',
+            aveMarias: [
+              'em honra da descida da Alma de Nosso Senhor aos Infernos.',
+              'em honra do gozo e da saída das almas dos Santos Padres que estavam no limbo.',
+              'em honra da reunião de Sua Alma e de Seu Corpo no sepulcro.',
+              'em honra de sua milagrosa saída do Sepulcro.',
+              'em honra de suas vitórias sobre a morte, o pecado, o mundo e o demônio.',
+              'em honra dos quatro dons gloriosos de Seu Corpo.',
+              'em honra do poder que Lhe deu Seu Pai no céu e na terra.',
+              'em honra das aparições com que honrou Sua Santa Mãe.',
+              'em honra das conversações sobre o Céu e da ceia que fez com Seus Apóstolos.',
+              'em honra da autoridade e missão que lhes deu, para que fossem pregar por toda a Terra.'
+            ]
+          },
+          {
+            paiNosso: 'Imensidade de Deus, sem limites.',
+            aveMarias: [
+              'em honra da promessa que fez Jesus aos Apóstolos de lhes enviar o Espírito Santo, e da ordem que lhes deu de se prepararem para O receber.',
+              'em honra da reunião no Monte das Oliveiras.',
+              'em honra da benção que lhes deu ao se elevar da Terra aos Céus.',
+              'em honra de Sua gloriosa e admirável Ascensão por Sua própria virtude até o Céu Empíreo.',
+              'em honra do recebimento e do triunfo que lhe fez Deus, Seu Pai, e toda a corte celestial.',
+              'em honra do poder triunfante com que abriu as portas do Céu, onde nenhum mortal havia entrado.',
+              'em honra de seu assento à direita do Pai, como Seu Filho querido, igual a Ele mesmo.',
+              'em honra do poder que Lhe deu de julgar os vivos e os mortos.',
+              'em honra de Sua última vinda sobre a Terra, na qual Seu poder e majestade aparecerão em todo o seu esplendor.',
+              'em honra da justiça que fará no último Juízo, recompensando os bons e castigando os maus por toda a eternidade.'
+            ]
+          },
+          {
+            paiNosso: 'Providência de Deus, universal.',
+            aveMarias: [
+              'em honra da Verdade do Espírito Santo, Deus que procede do Pai e do Filho, e que é o Coração da Divindade.',
+              'em honra do dom do Espírito Santo pelo Pai e pelo Filho sobre os Apóstolos.',
+              'em honra do grande estrondo com que desceu, sinal de Sua força e Seu poder.',
+              'em honra das línguas de fogo que enviou sobre os Apóstolos, para lhes dar a inteligência das Escrituras, o amor de Deus e do próximo.',
+              'em honra da plenitude de graças com que distinguiu Maria, Sua fiel esposa.',
+              'em honra de Sua conduta maravilhosa com os santos e com o próprio Jesus Cristo, a quem guiou durante toda a vida.',
+              'em honra dos doze frutos do Espírito Santo.',
+              'em honra dos sete dons do Espírito Santo.',
+              'para pedir em particular o dom da Sabedoria e a vinda de Seu reino aos corações.',
+              'para obter a vitória sobre os três espíritos que Lhe são opostos: o espírito da carne, do mundo e do demônio.'
+            ]
+          },
+          {
+            paiNosso: 'Liberalidade de Deus, inenarrável.',
+            aveMarias: [
+              'em honra da predestinação eterna de Maria, como obra-prima das mãos de Deus.',
+              'em honra de Sua Conceição Imaculada, a plenitude de graças e o uso da razão no seio de sua mãe.',
+              'em honra de Sua Natividade que regozijou todo o Universo.',
+              'em honra de Sua apresentação e sua vida no Templo.',
+              'em honra de Sua vida admirável e isenta de todo pecado.',
+              'em honra da plenitude de suas virtudes singulares.',
+              'em honra de Sua virgindade fecunda e seu parto sem dor.',
+              'em honra de Sua maternidade divina e sua aliança com a Santíssima Trindade.',
+              'em honra de Sua morte preciosa e cheia de amor.',
+              'em honra de Sua ressurreição e assunção triunfante.'
+            ]
+          },
+          {
+            paiNosso: 'Glória de Deus, inacessível.',
+            aveMarias: [
+              'em honra da tríplice coroa com que a Santíssima Trindade coroou Maria.',
+              'em honra do gozo e da glória nova que recebeu o Céu por seu triunfo.',
+              'para reconhecê-la como Rainha do Céu e da Terra, dos anjos e dos homens.',
+              'em honra da tesoureira e dispensadora de todas as graças de Deus, dos méritos de Jesus Cristo e dos dons do Espírito Santo.',
+              'em honra da Medianeira e advogada dos homens.',
+              'em honra da destruidora e da ruína do demônio e das heresias.',
+              'em honra do refúgio seguro dos pecadores.',
+              'em honra da mãe e nutriz dos cristãos.',
+              'em honra da que é gozo e doçura dos justos.',
+              'em honra da que é asilo universal dos vivos, consolo todo-poderoso dos aflitos, dos moribundos e das almas do purgatório.'
+            ]
+          }
+        ]
+      };
+
       function getMysterySetIdForDay(dayIndex) {
         switch (dayIndex) {
           case 0: return 'gloriosos'; // Domingo
@@ -460,6 +706,7 @@
       // Estado Global da Aplicação
       let selectedDay = new Date().getDay();
       let activeMode = 'meditativo';
+      let meditativoVariant = 'tradicional'; // 'tradicional' | 'montfort'
       let activeBeadId = 0;
       let completedBeads = new Set();
       let beadsList = [];
@@ -472,9 +719,9 @@
         // Introdução
         list.push({ id: index++, type: 'cruz' });
         list.push({ id: index++, type: 'pai-nosso' });
-        list.push({ id: index++, type: 'ave-maria' }); // Fé
-        list.push({ id: index++, type: 'ave-maria' }); // Esperança
-        list.push({ id: index++, type: 'ave-maria' }); // Caridade
+        list.push({ id: index++, type: 'ave-maria', introIndex: 0 }); // Fé
+        list.push({ id: index++, type: 'ave-maria', introIndex: 1 }); // Esperança
+        list.push({ id: index++, type: 'ave-maria', introIndex: 2 }); // Caridade
 
         // 5 Dezenas de Mistérios
         for (let m = 0; m < 5; m++) {
@@ -597,6 +844,10 @@
 
           let layout = '';
 
+          const isMontfort = activeMode === 'meditativo' && meditativoVariant === 'montfort';
+          const montfortSet = isMontfort ? MONTFORT_DATA[getMysterySetIdForDay(selectedDay)] : null;
+          const montfortMystery = (montfortSet && isMystery) ? montfortSet[bead.mysteryIndex] : null;
+
           if (activeMode === 'imagem' && isMystery && mystery) {
             layout = `
               <div class="flex flex-col items-center justify-between w-full h-full py-8 text-center">
@@ -657,6 +908,86 @@
                 <div class="text-[9px] text-stone-400 font-serif tracking-[0.3em] uppercase">
                   Sagrada Escritura
                 </div>
+              </div>
+            `;
+          } else if (isMontfort && bead.type === 'cruz') {
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.3em] uppercase text-orange-950/50 font-serif">São Luís de Montfort</span>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
+                </div>
+                <div class="w-full my-auto space-y-5 px-4">
+                  <h3 class="text-base font-serif font-medium text-orange-950 tracking-wide">Meditando o Credo</h3>
+                  <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
+                  <div class="space-y-3 text-left">
+                    ${MONTFORT_DATA.credoPontos.map(p => `<p class="text-sm font-serif text-stone-600 leading-relaxed">${p}</p>`).join('')}
+                  </div>
+                </div>
+                <div class="text-[10px] text-orange-700/40 font-serif tracking-widest uppercase">Creio em Deus Pai</div>
+              </div>
+            `;
+          } else if (isMontfort && bead.type === 'pai-nosso' && !isMystery) {
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.3em] uppercase text-orange-950/50 font-serif">São Luís de Montfort</span>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✦  ✦  ✦</div>
+                </div>
+                <div class="w-full my-auto space-y-5 px-4">
+                  <span class="text-xs uppercase tracking-[0.2em] text-orange-650/70 font-semibold block">Contemplação</span>
+                  <h3 class="text-xl font-serif font-light text-stone-800 leading-snug">${MONTFORT_DATA.paiNossoIntro}</h3>
+                </div>
+                <div class="text-[10px] text-orange-700/60 font-serif tracking-[0.15em] uppercase">Pai Nosso</div>
+              </div>
+            `;
+          } else if (isMontfort && bead.type === 'ave-maria' && bead.introIndex !== undefined) {
+            const introText = MONTFORT_DATA.avesIntro[bead.introIndex];
+            const ordinals = ['1ª', '2ª', '3ª'];
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/55 font-serif">São Luís de Montfort</span>
+                  <h4 class="text-xs font-serif tracking-wide text-orange-600/80 font-medium">${ordinals[bead.introIndex]} Ave Maria</h4>
+                  <div class="text-orange-600/20 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
+                </div>
+                <div class="w-full my-auto space-y-6 px-4">
+                  <h3 class="text-xl font-serif font-light text-stone-800 leading-relaxed">${introText}</h3>
+                </div>
+                <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50"></div>
+              </div>
+            `;
+          } else if (isMontfort && montfortMystery && bead.type === 'misterio') {
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/50 font-serif">${mSet.name}</span>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
+                </div>
+                <div class="w-full my-auto space-y-5 px-4">
+                  <span class="text-xs uppercase tracking-[0.2em] text-orange-650/70 font-semibold block">Contemplação</span>
+                  <h3 class="text-2xl font-serif font-light text-stone-800 leading-snug">${mystery.title}</h3>
+                  ${fruit ? `<div class="text-[11px] tracking-wider text-orange-850/70 font-serif">Fruto do Mistério — ${fruit}</div>` : ''}
+                  <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-4"></div>
+                  <p class="text-base text-stone-500 font-serif leading-relaxed">${montfortMystery.paiNosso}</p>
+                </div>
+                <div class="text-[10px] text-orange-700/60 font-serif tracking-[0.15em] uppercase">Pai Nosso</div>
+              </div>
+            `;
+          } else if (isMontfort && montfortMystery && bead.type === 'ave-maria' && isMystery) {
+            const aveText = montfortMystery.aveMarias[bead.beadIndex];
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/55 font-serif">${mystery.title}</span>
+                  <h4 class="text-xs font-serif tracking-wide text-orange-600/80 font-medium">${bead.beadIndex + 1}ª Ave Maria</h4>
+                  <div class="text-orange-600/20 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
+                </div>
+                <div class="w-full my-auto space-y-6 px-4">
+                  <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${bead.beadIndex + 1}ª Dezena</span>
+                  <h3 class="text-xl font-serif font-light text-stone-800 leading-relaxed">Ave Maria, ${aveText}</h3>
+                </div>
+                <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50"></div>
               </div>
             `;
           } else if (activeMode === 'meditativo' && isMystery && mystery && bead.type === 'ave-maria') {
@@ -1150,6 +1481,50 @@
         el.addEventListener('touchcancel', onEnd, { passive: true });
       }
 
+      function openMeditativoSelector() {
+        const overlay = document.getElementById('meditativoSelectorOverlay');
+        const sheet = document.getElementById('meditativoSelectorSheet');
+        overlay.style.display = 'flex';
+        updateMeditativoSelectorButtons();
+        requestAnimationFrame(() => {
+          sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+          sheet.style.transform = 'translateY(0)';
+        });
+      }
+
+      function closeMeditativoSelector() {
+        const overlay = document.getElementById('meditativoSelectorOverlay');
+        const sheet = document.getElementById('meditativoSelectorSheet');
+        sheet.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 310);
+      }
+
+      function selectMeditativoVariant(variant) {
+        meditativoVariant = variant;
+        const badge = document.getElementById('montfortBadge');
+        if (badge) badge.classList.toggle('hidden', variant !== 'montfort');
+        setMode('meditativo');
+        closeMeditativoSelector();
+      }
+
+      function updateMeditativoSelectorButtons() {
+        const btnT = document.getElementById('btnMeditativoTradicional');
+        const btnM = document.getElementById('btnMeditativoMontfort');
+        if (!btnT || !btnM) return;
+        if (meditativoVariant === 'montfort') {
+          btnM.classList.add('border-orange-300', 'bg-orange-50/50');
+          btnM.classList.remove('border-stone-100', 'bg-transparent');
+          btnT.classList.remove('border-orange-300', 'bg-orange-50/50');
+          btnT.classList.add('border-stone-100');
+        } else {
+          btnT.classList.add('border-orange-300', 'bg-orange-50/50');
+          btnT.classList.remove('border-stone-100', 'bg-transparent');
+          btnM.classList.remove('border-orange-300', 'bg-orange-50/50');
+          btnM.classList.add('border-stone-100');
+        }
+      }
+
       // Inicializar
       setMode('meditativo');
       renderBeads();
@@ -1199,5 +1574,39 @@
         }, { passive: true });
       })();
     </script>
+    <!-- Modal de Seleção do Estilo Meditativo -->
+    <div id="meditativoSelectorOverlay" style="display:none; position:fixed; inset:0; z-index:100; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="closeMeditativoSelector()">
+      <div id="meditativoSelectorSheet" style="transform:translateY(100%);" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60" onclick="event.stopPropagation()">
+        <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
+        <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-0.5">Modo Meditativo</h3>
+        <p class="text-center text-[11px] font-serif text-stone-400 mb-5 tracking-wide">Escolha como meditar o Rosário</p>
+
+        <button id="btnMeditativoTradicional" onclick="selectMeditativoVariant('tradicional')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-3 transition-all text-left">
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />
+            </svg>
+          </div>
+          <div>
+            <div class="font-serif text-orange-950 text-sm font-medium">Tradicional</div>
+            <div class="text-[11px] font-serif text-stone-400 mt-0.5">Meditações temáticas por mistério</div>
+          </div>
+        </button>
+
+        <button id="btnMeditativoMontfort" onclick="selectMeditativoVariant('montfort')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-2 transition-all text-left">
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </div>
+          <div>
+            <div class="font-serif text-orange-950 text-sm font-medium">São Luís M. G. de Montfort</div>
+            <div class="text-[11px] font-serif text-stone-400 mt-0.5">Ave Marias individuais com intenção própria</div>
+          </div>
+        </button>
+
+        <div style="height: env(safe-area-inset-bottom, 8px);"></div>
+      </div>
+    </div>
   </body>
 </html>
