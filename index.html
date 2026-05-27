@@ -789,10 +789,15 @@
         var startIdx  = Math.max(0, activeIdx - SIDE);
         var endIdx    = Math.min(beadsList.length - 1, activeIdx + SIDE);
 
+        function beadSize(type) {
+          return type === 'cruz' ? 36 : (type === 'pai-nosso' || type === 'misterio') ? 30 : 26;
+        }
+
         function gapBetween(a, b) {
           var ta = beadsList[a] && beadsList[a].type;
           var tb = beadsList[b] && beadsList[b].type;
-          return STEP + ((ta === 'pai-nosso' || tb === 'pai-nosso') ? PN_EXTRA : 0);
+          var isPn = ta === 'pai-nosso' || ta === 'misterio' || tb === 'pai-nosso' || tb === 'misterio';
+          return STEP + (isPn ? PN_EXTRA : 0);
         }
 
         function xPos(i) {
@@ -837,7 +842,7 @@
           var isCompleted = completedBeads.has(bead.id);
           var isActive    = centerId === bead.id;
           var isCruz      = bead.type === 'cruz';
-          var sz          = isCruz ? 36 : 26;
+          var sz          = beadSize(bead.type);
           var tfm         = 'translate(' + (p.x + swipeDx) + 'px,' + p.y + 'px) scale(' + p.s + ')';
 
           var existingWrap = beadsContainer.querySelector('[data-wi="' + idx + '"]');
@@ -936,7 +941,7 @@
           // Recriar fio antes desta conta (largura = gap entre bordas das contas)
           if (idx > startIdx) {
             var pp    = calcPos(idx - 1);
-            var beadSz = 26; // tamanho padrão das contas (exceto cruz)
+            var beadSz = (beadSize(beadsList[idx - 1].type) + beadSize(bead.type)) / 2;
             var gap   = gapBetween(idx - 1, idx);
             var tw    = Math.max(2, gap - beadSz);
             var cx2   = (p.x + pp.x) / 2 + swipeDx;
