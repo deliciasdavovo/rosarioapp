@@ -760,16 +760,18 @@
       }
 
       // Gerar/atualizar contas com transições suaves (DOM diff, sem limpar innerHTML)
-      function renderBeads(swipeDx, instant) {
-        swipeDx = swipeDx || 0;
-        instant = instant || false;
+      function renderBeads(swipeDx, instant, previewId) {
+        swipeDx  = swipeDx  || 0;
+        instant  = instant  || false;
         var SIDE      = 4;
-        var MAX_CURVE = 11;  // px de arco vertical no centro
-        var STEP      = 38;  // px entre centros de contas (horizontal)
-        var PN_EXTRA  = 14;  // px extras ao redor das contas Pai Nosso
+        var MAX_CURVE = 11;
+        var STEP      = 38;
+        var PN_EXTRA  = 42;  // 3× espaço extra ao redor das contas Pai Nosso
         var EASE      = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.25s ease';
 
-        var activeIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
+        // previewId: conta mostrada no centro durante arrasto (undefined → activeBeadId)
+        var centerId  = (previewId !== undefined) ? previewId : activeBeadId;
+        var activeIdx = beadsList.findIndex(function(b) { return b.id === centerId; });
         var startIdx  = Math.max(0, activeIdx - SIDE);
         var endIdx    = Math.min(beadsList.length - 1, activeIdx + SIDE);
 
@@ -819,7 +821,7 @@
           var bead        = beadsList[idx];
           var p           = calcPos(idx);
           var isCompleted = completedBeads.has(bead.id);
-          var isActive    = activeBeadId === bead.id;
+          var isActive    = centerId === bead.id;
           var isCruz      = bead.type === 'cruz';
           var sz          = isCruz ? 36 : 26;
           var tfm         = 'translate(' + (p.x + swipeDx) + 'px,' + p.y + 'px) scale(' + p.s + ')';
@@ -896,26 +898,28 @@
             b.style.boxShadow  = 'none';
           }
 
-          // Recriar fio antes desta conta
+          // Recriar fio antes desta conta (largura = gap entre bordas das contas)
           if (idx > startIdx) {
-            var pp  = calcPos(idx - 1);
-            var isGap = bead.type === 'pai-nosso' || bead.type === 'misterio'
-                     || beadsList[idx - 1].type === 'misterio';
-            var tw  = isGap ? 20 : 6;
-            var tmx = (p.x + pp.x) / 2 + swipeDx - tw / 2;
-            var tmy = (p.y + pp.y) / 2 - 0.75;
+            var pp    = calcPos(idx - 1);
+            var beadSz = 26; // tamanho padrão das contas (exceto cruz)
+            var gap   = gapBetween(idx - 1, idx);
+            var tw    = Math.max(2, gap - beadSz);
+            var cx2   = (p.x + pp.x) / 2 + swipeDx;
+            var cy2   = (p.y + pp.y) / 2;
+            var angle = Math.atan2(p.y - pp.y, p.x - pp.x) * 180 / Math.PI;
 
             var thread = document.createElement('div');
-            thread.className          = 'bt';
-            thread.style.position     = 'absolute';
-            thread.style.left         = '50%';
-            thread.style.top          = '50%';
-            thread.style.width        = tw + 'px';
-            thread.style.height       = '1.5px';
-            thread.style.background   = 'rgba(234,88,12,0.38)';
-            thread.style.borderRadius = '1px';
-            thread.style.transform    = 'translate(' + tmx + 'px,' + tmy + 'px)';
+            thread.className           = 'bt';
+            thread.style.position      = 'absolute';
+            thread.style.left          = '50%';
+            thread.style.top           = '50%';
+            thread.style.width         = tw + 'px';
+            thread.style.height        = '1.5px';
+            thread.style.background    = 'rgba(234,88,12,0.38)';
+            thread.style.borderRadius  = '1px';
             thread.style.pointerEvents = 'none';
+            thread.style.transform     = 'translate(' + (cx2 - tw / 2) + 'px,' + (cy2 - 0.75) + 'px) rotate(' + angle + 'deg)';
+            thread.style.transformOrigin = '50% 50%';
             beadsContainer.appendChild(thread);
           }
         }
@@ -948,13 +952,25 @@
 
       function centerBead(id) { /* no-op */ }
 
-      // Swipe no painel: esquerda = avança, direita = volta (com follow em tempo real)
+      // Navegação tipo roleta: arrasto livre entre contas, snap ao soltar
       function addSwipeNavigation() {
+        var STEP     = 38;
+        var PN_EXTRA = 42; // deve bater com renderBeads
+
+        function gap(a, b) {
+          var ta = beadsList[a] && beadsList[a].type;
+          var tb = beadsList[b] && beadsList[b].type;
+          return STEP + ((ta === 'pai-nosso' || tb === 'pai-nosso') ? PN_EXTRA : 0);
+        }
+
         var el = document.getElementById('mainContent');
         var startX = 0, startY = 0;
         var lastX = 0, lastT = 0;
         var velocityX = 0;
         var dragging = false;
+        var anchorIdx    = 0; // índice no beadsList ao iniciar o toque
+        var previewIdx   = 0; // índice atualmente centrado durante o arrasto
+        var prevPrevIdx  = 0; // para detectar cruzamento de conta (háptico)
 
         el.addEventListener('touchstart', function(e) {
           startX = lastX = e.touches[0].clientX;
@@ -962,6 +978,8 @@
           lastT = Date.now();
           dragging = false;
           velocityX = 0;
+          anchorIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
+          previewIdx = prevPrevIdx = anchorIdx;
           el.style.transition = '';
         }, { passive: true });
 
@@ -982,39 +1000,55 @@
           lastX = cx;
           lastT = now;
 
-          var atFirst = (activeBeadId <= 0);
-          var atLast  = (activeBeadId >= beadsList.length - 1);
-          var offset  = dx;
-          if ((atFirst && dx > 0) || (atLast && dx < 0)) offset = dx * 0.25;
+          // Consome gaps a partir do anchorIdx para descobrir qual conta está centrada
+          var cur = anchorIdx;
+          var rem = dx;
 
-          renderBeads(offset, true);
-          el.style.transform = 'translateX(' + (offset * 0.12) + 'px)';
+          while (rem < 0 && cur < beadsList.length - 1) {
+            var g = gap(cur, cur + 1);
+            if (-rem >= g) { rem += g; cur++; } else break;
+          }
+          while (rem > 0 && cur > 0) {
+            var g = gap(cur - 1, cur);
+            if (rem >= g) { rem -= g; cur--; } else break;
+          }
+
+          previewIdx = cur;
+
+          // Rubber-band nas bordas absolutas
+          var offset = rem;
+          if (cur === 0 && rem > 0) offset = rem * 0.25;
+          if (cur === beadsList.length - 1 && rem < 0) offset = rem * 0.25;
+
+          // Háptico ao cruzar uma conta
+          if (cur !== prevPrevIdx) {
+            if (navigator.vibrate) try { navigator.vibrate(5); } catch(er) {}
+            prevPrevIdx = cur;
+          }
+
+          renderBeads(offset, true, beadsList[cur].id);
+          el.style.transform = 'translateX(' + (offset * 0.1) + 'px)';
         }, { passive: true });
 
         function onEnd(e) {
           if (!dragging) return;
           dragging = false;
 
-          var dx = (e.changedTouches ? e.changedTouches[0].clientX : lastX) - startX;
-          var swipeLeft  = dx < -30 || (dx < -8 && velocityX < -0.4);
-          var swipeRight = dx > 30  || (dx > 8  && velocityX > 0.4);
+          // Flick: velocidade alta empurra mais uma conta na direção do gesto
+          var finalIdx = previewIdx;
+          if (velocityX < -0.5 && finalIdx < beadsList.length - 1) finalIdx++;
+          if (velocityX >  0.5 && finalIdx > 0) finalIdx--;
 
           el.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
           el.style.transform  = '';
           setTimeout(function() { el.style.transition = ''; }, 300);
 
-          if (swipeLeft) {
-            toggleBead(activeBeadId);
-          } else if (swipeRight && activeBeadId > 0) {
-            completedBeads.delete(activeBeadId);
-            activeBeadId = activeBeadId - 1;
-            completedBeads.delete(activeBeadId);
-            if (navigator.vibrate) { try { navigator.vibrate(10); } catch(er) {} }
-            renderBeads(0, false);
+          var newId = beadsList[finalIdx].id;
+          if (newId !== activeBeadId) {
+            activeBeadId = newId;
             renderPanel();
-          } else {
-            renderBeads(0, false);
           }
+          renderBeads(0, false);
         }
 
         el.addEventListener('touchend',    onEnd, { passive: true });
