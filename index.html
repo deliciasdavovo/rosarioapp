@@ -86,33 +86,34 @@
         position: fixed;
         top: 0;
         left: 50%;
-        transform: translate(-50%, -60px);
+        transform: translate(-50%, -48px);
         opacity: 0;
         z-index: 200;
         pointer-events: none;
-        transition: opacity 0.15s;
+        transition: opacity 0.2s;
       }
       #ptr.ptr-show {
-        transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
-        transform: translate(-50%, 16px);
+        transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
+        transform: translate(-50%, 10px);
         opacity: 1;
       }
       #ptr-ring {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: #f97316;
-        box-shadow: 0 4px 18px rgba(249,115,22,0.45);
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 7px;
+        padding: 7px 14px 7px 10px;
+        background: #FAF6EE;
+        border: 1px solid #E9DFCB;
+        border-radius: 999px;
+        box-shadow: 0 4px 14px rgba(30,20,10,0.12);
       }
       #ptr-spinner {
-        width: 26px;
-        height: 26px;
-        border: 3px solid rgba(255,255,255,0.35);
-        border-top-color: white;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(234,88,12,0.2);
+        border-top-color: #ea580c;
         border-radius: 50%;
+        flex-shrink: 0;
       }
       #ptr-spinner.spinning {
         animation: ptr-spin 0.7s linear infinite;
@@ -125,6 +126,7 @@
     <div id="ptr">
       <div id="ptr-ring">
         <div id="ptr-spinner"></div>
+        <span style="font-family:'Outfit',serif;font-size:11px;color:#92400e;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;white-space:nowrap;">atualizando</span>
       </div>
     </div>
 
@@ -223,7 +225,7 @@
           <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
             <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width:0%"></div>
           </div>
-          <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in"></div>
+          <div id="panelContent" class="relative w-full h-full z-10 flex flex-col pt-10 px-10 pb-20 text-center fade-transition fade-in"></div>
         </div>
       </main>
 
@@ -1266,31 +1268,33 @@
             }
 
             layout = `
-              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
-                <div class="flex flex-col items-center space-y-1">
+              <div class="flex flex-col items-center w-full flex-1 text-center">
+                <div class="flex flex-col items-center space-y-1 pt-4 pb-4">
                   <span class="text-[9px] tracking-[0.3em] uppercase text-orange-955/40 font-serif">
                     Devocionário
                   </span>
                   <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">${iconHeader}</div>
                 </div>
 
-                <div class="w-full my-auto space-y-4 max-h-[58vh] overflow-y-auto hide-scrollbar px-4">
-                  ${bead.type === 'misterio' && mystery ? `
-                    <div class="mb-4">
-                      <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 block">Mistério do Dia</span>
-                      <h4 class="text-lg font-serif font-medium text-orange-900/90 leading-snug">${mystery.title}</h4>
-                    </div>
-                  ` : ''}
+                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                  <div class="space-y-4 pb-4">
+                    ${bead.type === 'misterio' && mystery ? `
+                      <div class="mb-4">
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 block">Mistério do Dia</span>
+                        <h4 class="text-lg font-serif font-medium text-orange-900/90 leading-snug">${mystery.title}</h4>
+                      </div>
+                    ` : ''}
 
-                  <h3 class="text-[13px] font-serif text-orange-850 font-medium uppercase tracking-widest mb-4">
-                    ${title}
-                  </h3>
-                  <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">
-                    ${content}
-                  </p>
+                    <h3 class="text-[13px] font-serif text-orange-850 font-medium uppercase tracking-widest mb-4">
+                      ${title}
+                    </h3>
+                    <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">
+                      ${content}
+                    </p>
+                  </div>
                 </div>
 
-                <div class="text-[10px] text-orange-700/40 font-serif tracking-widest uppercase">
+                <div class="text-[10px] text-orange-700/40 font-serif tracking-widest uppercase py-3">
                   Rezar com Devoção
                 </div>
               </div>
@@ -1743,23 +1747,24 @@
         });
       }
 
-      // Pull-to-refresh: arrasta pra baixo → bolinha no topo → reload
+      // Pull-to-refresh: arrasta pra baixo a partir do topo → pílula → reload
       (function () {
         const ptr = document.getElementById('ptr');
         const spinner = document.getElementById('ptr-spinner');
         let startY = 0;
+        let startInHeader = false;
         let triggered = false;
 
         document.addEventListener('touchstart', e => {
           startY = e.touches[0].clientY;
+          startInHeader = startY < 72; // só ativa se o toque começar na área do cabeçalho
           triggered = false;
         }, { passive: true });
 
         document.addEventListener('touchmove', e => {
-          if (triggered) return;
-          const atTop = (window.scrollY || document.documentElement.scrollTop) === 0;
+          if (!startInHeader || triggered) return;
           const dy = e.touches[0].clientY - startY; // positivo = deslizou pra baixo
-          if (atTop && dy > 60) {
+          if (dy > 55) {
             triggered = true;
             ptr.style.transition = 'none';
             ptr.style.opacity = '1';
