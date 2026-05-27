@@ -43,13 +43,9 @@
       .hide-scrollbar::-webkit-scrollbar {
         display: none;
       }
-      .clip-cross {
-        clip-path: polygon(
-          35% 0%, 65% 0%, 65% 30%, 
-          100% 30%, 100% 50%, 65% 50%, 
-          65% 100%, 35% 100%, 35% 50%, 
-          0% 50%, 0% 30%, 35% 30%
-        );
+      .bead-pressed {
+        filter: brightness(0.5) saturate(0.6);
+        transition: filter 0.15s ease !important;
       }
       #beadsContainer, #beadsContainer * {
         user-select: none;
@@ -849,7 +845,7 @@
             wrap.style.height     = sz + 'px';
 
             b = document.createElement('div');
-            b.className          = 'bb' + (isCruz ? ' clip-cross' : '');
+            b.className          = 'bb';
             b.setAttribute('data-id', String(bead.id));
             b.style.width            = sz + 'px';
             b.style.height           = sz + 'px';
@@ -858,6 +854,24 @@
             b.style.userSelect       = 'none';
             b.style.webkitUserSelect = 'none';
             b.style.borderRadius     = isCruz ? '0' : '50%';
+
+            if (isCruz) {
+              b.style.background = 'transparent';
+              b.style.border     = 'none';
+              var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+              svg.setAttribute('viewBox', '0 0 36 36');
+              svg.style.cssText = 'width:100%;height:100%;display:block;overflow:visible;pointer-events:none;';
+              var vR = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+              vR.setAttribute('x','14'); vR.setAttribute('y','1');
+              vR.setAttribute('width','8'); vR.setAttribute('height','34');
+              vR.setAttribute('rx','4'); vR.setAttribute('fill','currentColor');
+              var hR = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+              hR.setAttribute('x','1'); hR.setAttribute('y','11');
+              hR.setAttribute('width','34'); hR.setAttribute('height','8');
+              hR.setAttribute('rx','4'); hR.setAttribute('fill','currentColor');
+              svg.appendChild(vR); svg.appendChild(hR);
+              b.appendChild(svg);
+            }
             b.style.transform        = tfm;
             b.style.opacity          = String(p.o);
 
@@ -884,7 +898,10 @@
           }
 
           // Cores (aplicadas sempre para refletir mudança de estado)
-          if (isCompleted) {
+          if (isCruz) {
+            b.style.color     = isCompleted ? 'rgba(234,88,12,0.30)' : isActive ? '#ea580c' : '#fb923c';
+            b.style.boxShadow = isActive ? '0 0 0 5px rgba(234,88,12,0.18)' : 'none';
+          } else if (isCompleted) {
             b.style.background = 'rgba(234,88,12,0.14)';
             b.style.border     = '1.5px solid rgba(234,88,12,0.28)';
             b.style.boxShadow  = 'none';
@@ -975,6 +992,20 @@
         var previewIdx  = 0;
         var prevPrevIdx = 0;
 
+        var lpTimer  = null;   // timer do long press
+        var lpFired  = false;  // long press já disparou
+
+        function getActiveBead() {
+          return beadsContainer.querySelector('[data-id="' + activeBeadId + '"]');
+        }
+        function cancelLP(commit) {
+          if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; }
+          var b = getActiveBead();
+          if (b) b.classList.remove('bead-pressed');
+          if (commit && lpFired) toggleBead(activeBeadId);
+          lpFired = false;
+        }
+
         el.addEventListener('touchstart', function(e) {
           startX = lastX = e.touches[0].clientX;
           startY = e.touches[0].clientY;
@@ -982,9 +1013,17 @@
           touchTarget = e.target;
           dragging = false;
           velocityX = 0;
+          lpFired = false;
           anchorIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
           previewIdx = prevPrevIdx = anchorIdx;
           panel.style.transition = '';
+
+          lpTimer = setTimeout(function() {
+            lpFired = true;
+            var b = getActiveBead();
+            if (b) b.classList.add('bead-pressed');
+            if (navigator.vibrate) try { navigator.vibrate([20, 40, 20]); } catch(er) {}
+          }, 450);
         }, { passive: true });
 
         el.addEventListener('touchmove', function(e) {
@@ -992,6 +1031,9 @@
           var cy = e.touches[0].clientY;
           var dx = cx - startX;
           var dy = cy - startY;
+
+          // Cancela long press ao menor movimento
+          if (Math.abs(dx) > 4 || Math.abs(dy) > 4) cancelLP(false);
 
           if (!dragging) {
             if (Math.abs(dx) < 8) return;
@@ -1041,6 +1083,9 @@
         }
 
         function onEnd(e) {
+          if (lpFired) { cancelLP(true); dragging = false; return; }
+          cancelLP(false);
+
           var endX = e.changedTouches ? e.changedTouches[0].clientX : lastX;
           var endY = e.changedTouches ? e.changedTouches[0].clientY : startY;
           var totalDx = Math.abs(endX - startX);
