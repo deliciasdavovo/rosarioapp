@@ -193,41 +193,33 @@
       </div>
     </div>
 
-    <!-- Área principal: painel ocupando tudo + terço flutuando por cima -->
-    <div style="flex:1; min-height:0; overflow:hidden; position:relative;">
-
-      <!-- Painel de Leitura Litúrgica Central (largura total) -->
-      <main id="mainContent" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:12px; overflow:hidden; z-index:10;">
-        <div class="w-full h-full bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
-          <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
-          <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
-            <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width:0%"></div>
-          </div>
-          <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in"></div>
+    <!-- Painel de Leitura Litúrgica Central -->
+    <main id="mainContent" style="flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; padding:12px 12px 8px 12px; overflow:hidden; z-index:10;">
+      <div class="w-full h-full bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
+        <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
+        <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+        <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
+          <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width:0%"></div>
         </div>
-      </main>
+        <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in"></div>
+      </div>
+    </main>
 
-      <!-- Terço flutuando sobre o painel -->
-      <div id="beadsContainer" style="
-        position: absolute;
-        right: 8px;
-        top: 0;
-        bottom: 0;
-        width: 72px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        z-index: 30;
-        pointer-events: none;
-      "></div>
-
-    </div>
+    <!-- Terço horizontal na base -->
+    <div id="beadsContainer" style="
+      flex-shrink: 0;
+      height: 82px;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 20;
+    "></div>
 
     <!-- Scripts de Lógica Litúrgica do Rosário -->
     <script>
@@ -769,8 +761,8 @@
         beadsContainer.innerHTML = '';
 
         var activeIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
-        var SIDE      = 4;   // contas visíveis de cada lado da ativa
-        var MAX_CURVE = 14;  // deslocamento horizontal máximo em px
+        var SIDE      = 4;   // contas de cada lado da ativa
+        var MAX_CURVE = 11;  // px de subida para o centro do arco
 
         var startIdx = Math.max(0, activeIdx - SIDE);
         var endIdx   = Math.min(beadsList.length - 1, activeIdx + SIDE);
@@ -780,42 +772,40 @@
           var isCompleted = completedBeads.has(bead.id);
           var isActive    = activeBeadId === bead.id;
           var isCruz      = bead.type === 'cruz';
-          // Todas as contas têm o mesmo tamanho — só a cruz difere (forma, não tamanho)
-          var size        = isCruz ? 42 : 28;
+          var size        = isCruz ? 36 : 26;
 
           var relToActive = idx - activeIdx;
           var distAbs     = Math.abs(relToActive);
 
-          var xOffset = -MAX_CURVE * Math.cos(relToActive * Math.PI / (2 * SIDE));
-          var scale   = isActive ? 1.08 : Math.max(0.7, 1 - distAbs * 0.07);
-          var opacity = Math.max(0.22, 1 - distAbs * 0.18);
+          // Arco: centro sobe, extremos ficam abaixo
+          var yOffset = -MAX_CURVE * Math.cos(relToActive * Math.PI / (2 * SIDE));
+          var scale   = isActive ? 1.12 : Math.max(0.7, 1 - distAbs * 0.07);
+          var opacity = Math.max(0.2, 1 - distAbs * 0.18);
 
-          // Fio entre contas — mais longo antes de pai-nosso/misterio (espaçamento do terço real)
+          // Fio horizontal — mais largo antes de pai-nosso/misterio
           if (idx > startIdx) {
             var prevRel     = (idx - 1) - activeIdx;
-            var prevXOffset = -MAX_CURVE * Math.cos(prevRel * Math.PI / (2 * SIDE));
-            var midX        = (xOffset + prevXOffset) / 2;
+            var prevYOffset = -MAX_CURVE * Math.cos(prevRel * Math.PI / (2 * SIDE));
+            var midY        = (yOffset + prevYOffset) / 2;
             var isPausePoint = bead.type === 'pai-nosso' || bead.type === 'misterio'
                             || beadsList[idx - 1].type === 'misterio';
 
             var thread = document.createElement('div');
-            thread.style.width        = '1.5px';
-            thread.style.height       = isPausePoint ? '18px' : '8px';
-            thread.style.background   = 'rgba(30,30,30,0.28)';
+            thread.style.height       = '1.5px';
+            thread.style.width        = isPausePoint ? '22px' : '7px';
+            thread.style.background   = 'rgba(234,88,12,0.38)';
             thread.style.flexShrink   = '0';
             thread.style.borderRadius = '1px';
             thread.style.alignSelf    = 'center';
-            thread.style.transform    = 'translateX(' + midX + 'px)';
+            thread.style.transform    = 'translateY(' + midY + 'px)';
             beadsContainer.appendChild(thread);
           }
 
           var wrap = document.createElement('div');
           wrap.id = 'bead-item-' + bead.id;
-          wrap.style.display       = 'flex';
-          wrap.style.flexDirection = 'column';
-          wrap.style.alignItems    = 'center';
-          wrap.style.flexShrink    = '0';
-          wrap.style.pointerEvents = 'auto'; // reabilita sobre o container none
+          wrap.style.display    = 'flex';
+          wrap.style.alignItems = 'center';
+          wrap.style.flexShrink = '0';
 
           var b = document.createElement('div');
           b.setAttribute('data-id', String(bead.id));
@@ -826,7 +816,7 @@
           b.style.touchAction      = 'none';
           b.style.userSelect       = 'none';
           b.style.webkitUserSelect = 'none';
-          b.style.transform        = 'translateX(' + xOffset + 'px) scale(' + scale + ')';
+          b.style.transform        = 'translateY(' + yOffset + 'px) scale(' + scale + ')';
           b.style.opacity          = String(opacity);
 
           if (isCruz) {
@@ -837,15 +827,15 @@
           }
 
           if (isCompleted) {
-            b.style.background = 'rgba(30,30,30,0.12)';
-            b.style.border     = '1.5px solid rgba(30,30,30,0.18)';
+            b.style.background = 'rgba(234,88,12,0.14)';
+            b.style.border     = '1.5px solid rgba(234,88,12,0.28)';
             b.style.boxShadow  = 'none';
           } else if (isActive) {
-            b.style.background = '#111827';
+            b.style.background = '#ea580c';
             b.style.border     = '2px solid transparent';
-            b.style.boxShadow  = '0 0 0 4px rgba(17,24,39,0.15)';
+            b.style.boxShadow  = '0 0 0 5px rgba(234,88,12,0.18)';
           } else {
-            b.style.background = '#6B7280';
+            b.style.background = '#fb923c';
             b.style.border     = '2px solid transparent';
             b.style.boxShadow  = 'none';
           }
@@ -853,7 +843,6 @@
           wrap.appendChild(b);
           beadsContainer.appendChild(wrap);
 
-          // Toque simples (pointerup) = avança — sem precisar segurar
           ;(function(beadCopy, bEl) {
             var startX = 0, startY = 0;
 
@@ -906,13 +895,44 @@
         }
       }
 
-      function centerBead(id) {
-        // no-op: a janela sempre mantém a conta ativa centrada
+      function centerBead(id) { /* no-op */ }
+
+      // Swipe no painel: esquerda = avança, direita = volta
+      function addSwipeNavigation() {
+        var el = document.getElementById('mainContent');
+        var startX = 0, startY = 0;
+
+        el.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        el.addEventListener('touchend', function(e) {
+          var dx = e.changedTouches[0].clientX - startX;
+          var dy = e.changedTouches[0].clientY - startY;
+          if (Math.abs(dx) < 44 || Math.abs(dy) > Math.abs(dx) * 0.8) return;
+
+          if (dx < 0) {
+            // Swipe esquerda → completa conta ativa e avança
+            toggleBead(activeBeadId);
+          } else {
+            // Swipe direita → volta uma conta (desmarca ambas para poder rezar de novo)
+            if (activeBeadId > 0) {
+              completedBeads.delete(activeBeadId);
+              activeBeadId = activeBeadId - 1;
+              completedBeads.delete(activeBeadId);
+              if (navigator.vibrate) { try { navigator.vibrate(10); } catch(e) {} }
+              renderBeads();
+              renderPanel();
+            }
+          }
+        }, { passive: true });
       }
 
       // Inicializar
       setMode('meditativo');
       renderBeads();
+      addSwipeNavigation();
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
