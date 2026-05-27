@@ -129,100 +129,78 @@
     </div>
 
     <!-- Barra de Cabeçalho Superior -->
-    <header class="flex-none px-4 py-2 z-30">
-      <div class="max-w-2xl mx-auto flex items-center justify-between">
+    <header class="flex-none p-4 pb-2 z-30">
+      <div class="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <h1 class="text-2xl font-serif text-amber-950 font-bold tracking-wide">meu terço</h1>
 
-        <!-- Esquerda: Seletor de Dia da Semana -->
+        <!-- Dropdown Seletor de Dia Litúrgico -->
         <div class="relative">
           <button
             id="daySelectorBtn"
-            class="flex items-center gap-1.5 hover:bg-stone-100/70 px-3 py-1.5 rounded-full transition-colors"
+            class="flex items-center gap-2 bg-stone-100/50 hover:bg-stone-100/80 px-5 py-2 rounded-full transition-colors border border-stone-200/60"
           >
             <span id="currentDayLabel" class="text-stone-700 font-serif tracking-wide text-sm font-medium">Domingo</span>
-            <svg class="w-3.5 h-3.5 text-orange-600/70 transition-transform duration-300" id="chevronIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-orange-600/70 transition-transform duration-300" id="chevronIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
 
           <div
             id="dayDropdown"
-            class="hidden absolute top-10 left-0 bg-white border border-stone-100 shadow-xl rounded-2xl p-2 w-52 origin-top z-50 flex flex-col gap-1 transition-all"
+            class="hidden absolute top-12 right-0 bg-white border border-stone-100 shadow-xl rounded-2xl p-2 w-52 origin-top z-50 flex flex-col gap-1 transition-all"
           >
             <!-- Injetado dinamicamente via Javascript -->
           </div>
         </div>
-
-        <!-- Direita: Menu Hambúrguer -->
-        <button id="menuBtn" onclick="toggleAppMenu()" class="flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
-          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
-          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
-          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
-        </button>
       </div>
     </header>
 
-    <!-- Painel de Menu Lateral -->
-    <div id="appMenu" class="hidden fixed inset-0 z-[200]" onclick="toggleAppMenu()">
-      <div class="absolute top-0 right-0 w-64 h-full bg-[#FAF6EE] shadow-2xl flex flex-col p-6 border-l border-stone-200/60" onclick="event.stopPropagation()">
-        <div class="flex items-center justify-between mb-8">
-          <h1 class="text-xl font-serif text-amber-950 font-bold tracking-wide">meu terço</h1>
-          <button onclick="toggleAppMenu()" class="p-1.5 rounded-xl hover:bg-stone-100/80 transition-colors">
-            <svg class="w-5 h-5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    <!-- Abas de Modos de Contemplação -->
+    <div class="flex-none max-w-xl mx-auto w-full px-4 mb-2 z-20">
+      <div class="flex justify-between bg-white rounded-2xl shadow-sm p-1.5 border border-stone-100/80 relative">
+        <!-- Indicador deslizante de aba ativa -->
+        <div id="activeTabBg" class="absolute top-1.5 bottom-1.5 left-1.5 bg-orange-50 rounded-xl transition-all duration-300 ease-out" style="width: calc(25% - 3px); left: 1.5px;"></div>
+
+        <button onclick="setMode('curta')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-orange-900" data-mode="curta">
+          <span class="flex flex-col items-center gap-1">
+            <svg class="w-4 h-4 text-orange-600/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-          </button>
-        </div>
-        <div class="flex flex-col gap-1 text-sm font-serif text-stone-600">
-          <span class="text-[10px] uppercase tracking-widest text-orange-400/80 mb-2">Modo de contemplação</span>
-          <button onclick="setMode('curta'); toggleAppMenu();" class="text-left px-3 py-2.5 rounded-xl hover:bg-stone-100/80 transition-colors">Curta</button>
-          <button onclick="setMode('oracao'); toggleAppMenu();" class="text-left px-3 py-2.5 rounded-xl hover:bg-stone-100/80 transition-colors">Oração</button>
-          <button onclick="setMode('meditativo'); toggleAppMenu();" class="text-left px-3 py-2.5 rounded-xl hover:bg-stone-100/80 transition-colors">Meditativo</button>
-          <button onclick="setMode('imagem'); toggleAppMenu();" class="text-left px-3 py-2.5 rounded-xl hover:bg-stone-100/80 transition-colors">Imagem</button>
-        </div>
+            <span class="text-[10px] font-medium tracking-wide uppercase">Curta</span>
+          </span>
+        </button>
+
+        <button onclick="setMode('oracao')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="oracao">
+          <span class="flex flex-col items-center gap-1">
+            <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span class="text-[10px] font-medium tracking-wide uppercase">Oração</span>
+          </span>
+        </button>
+
+        <button onclick="setMode('meditativo')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="meditativo">
+          <span class="flex flex-col items-center gap-1">
+            <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />
+            </svg>
+            <span class="text-[10px] font-medium tracking-wide uppercase">Meditativo</span>
+          </span>
+        </button>
+
+        <button onclick="setMode('imagem')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="imagem">
+          <span class="flex flex-col items-center gap-1">
+            <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a1 1 0 011.414 0L16 16m-2-2l1.586-1.586a1 1 0 011.414 0L21 14m-7-4a2 2 0 110-4 2 2 0 010 4z" />
+            </svg>
+            <span class="text-[10px] font-medium tracking-wide uppercase">Imagem</span>
+          </span>
+        </button>
       </div>
     </div>
 
     <!-- Wrapper com papel e terço sobrepostos -->
     <div id="mainWrapper" style="flex:1; min-height:0; position:relative; overflow:hidden;">
-
-      <!-- Abas flutuando sobre o papel, fora dele -->
-      <div style="position:absolute; top:12px; left:12px; right:12px; z-index:20;">
-        <div class="flex justify-between bg-white/95 rounded-xl p-1 border border-stone-100/80 relative shadow-sm">
-          <div id="activeTabBg" class="absolute top-1 bottom-1 bg-orange-50 rounded-lg transition-all duration-300 ease-out" style="width: calc(25% - 3px); left: 4px;"></div>
-          <button onclick="setMode('curta')" class="relative flex flex-col items-center justify-center py-1.5 rounded-lg flex-1 transition-colors duration-300 mode-btn text-orange-900" data-mode="curta">
-            <span class="flex flex-col items-center gap-0.5">
-              <svg class="w-3.5 h-3.5 text-orange-600/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span class="text-[9px] font-medium tracking-wide uppercase">Curta</span>
-            </span>
-          </button>
-          <button onclick="setMode('oracao')" class="relative flex flex-col items-center justify-center py-1.5 rounded-lg flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="oracao">
-            <span class="flex flex-col items-center gap-0.5">
-              <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <span class="text-[9px] font-medium tracking-wide uppercase">Oração</span>
-            </span>
-          </button>
-          <button onclick="setMode('meditativo')" class="relative flex flex-col items-center justify-center py-1.5 rounded-lg flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="meditativo">
-            <span class="flex flex-col items-center gap-0.5">
-              <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />
-              </svg>
-              <span class="text-[9px] font-medium tracking-wide uppercase">Meditativo</span>
-            </span>
-          </button>
-          <button onclick="setMode('imagem')" class="relative flex flex-col items-center justify-center py-1.5 rounded-lg flex-1 transition-colors duration-300 mode-btn text-stone-400 hover:text-stone-600" data-mode="imagem">
-            <span class="flex flex-col items-center gap-0.5">
-              <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a1 1 0 011.414 0L16 16m-2-2l1.586-1.586a1 1 0 011.414 0L21 14m-7-4a2 2 0 110-4 2 2 0 010 4z" />
-              </svg>
-              <span class="text-[9px] font-medium tracking-wide uppercase">Imagem</span>
-            </span>
-          </button>
-        </div>
-      </div>
 
       <!-- Papel ocupa tudo — inclusive por baixo do terço -->
       <main id="mainContent" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:12px; overflow:hidden; z-index:10;">
@@ -235,7 +213,7 @@
           <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
             <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width:0%"></div>
           </div>
-          <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 pt-16 text-center fade-transition fade-in"></div>
+          <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in"></div>
         </div>
       </main>
 
@@ -516,12 +494,6 @@
       const activeTabBg = document.getElementById('activeTabBg');
       const pBarFill = document.getElementById('pBarFill');
 
-      // Menu Hambúrguer
-      function toggleAppMenu() {
-        const menu = document.getElementById('appMenu');
-        menu.classList.toggle('hidden');
-      }
-
       // Gerenciar Estado do Dropdown de Dias
       daySelectorBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -578,7 +550,7 @@
       function setMode(mode) {
         activeMode = mode;
         const indexBtn = ['curta', 'oracao', 'meditativo', 'imagem'].indexOf(mode);
-        activeTabBg.style.left = `calc(${indexBtn * 25}% + 4px)`;
+        activeTabBg.style.left = `calc(${indexBtn * 25}% + 1.5px)`;
         
         document.querySelectorAll('.mode-btn').forEach(btn => {
           if (btn.getAttribute('data-mode') === mode) {
