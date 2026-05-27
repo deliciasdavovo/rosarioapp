@@ -194,6 +194,7 @@
             </svg>
             <span class="text-[10px] font-medium tracking-wide uppercase">Meditativo</span>
             <span id="montfortBadge" class="hidden text-[8px] font-semibold tracking-wider text-orange-500 uppercase leading-none">Montfort</span>
+            <span id="fatimaBadge" class="hidden text-[8px] font-semibold tracking-wider text-orange-500 uppercase leading-none">Fátima</span>
           </span>
         </button>
 
@@ -690,6 +691,165 @@
         ]
       };
 
+      const FATIMA_DATA = {
+        gozosos: [
+          {
+            ref: 'Do Evangelho de S. Lucas (1,26-27.30-31.38)',
+            scripture: '«Maria, não temas, pois achaste graça diante de Deus. Hás de conceber no teu seio e dar à luz um filho, ao qual porás o nome de Jesus.»\nE Maria respondeu: «Eis aqui a Escrava do Senhor. Faça-se em mim segundo a Tua Palavra.»',
+            reflexao: 'Chegada a plenitude dos tempos, Deus estabeleceu com a humanidade um novo diálogo de amor — discreto e fecundo. É o Deus que potencia a liberdade e faz nascer a vida no mais íntimo de nós. Basta que digamos SIM.\nQuantas «anunciações» na vida dos pastorinhos e na nossa! Quantas oportunidades de dizer FIAT, «faça-se», abertos e disponíveis para acolher a Vida Verdadeira que Deus nos quer dar!',
+            perguntas: ['Que «anjos» tem posto Deus no meu caminho?', 'Que «SIM» tenho agora de dar ao Senhor?\n(breve silêncio)'],
+            oracao: 'Deus de Infinita Bondade, que capacitaste Maria para Te responder em plena liberdade, concede-nos a graça de ouvir a Tua voz e de cumprir fielmente a Tua vontade. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Lucas (1,39-42)',
+            scripture: '«Feliz de ti, porque acreditaste que havia de cumprir-se o que o Senhor te disse!»\nMaria pôs-se a caminho e dirigiu-se apressadamente para a montanha, cheia de graça, para celebrar com Isabel a alegria de acreditar num Deus para quem nada é impossível.',
+            reflexao: 'A Visitação é uma oportunidade para contemplarmos o Deus Santo, que cumpre o que promete e cuja Palavra não volta atrás: é o Deus do Amor Fiel, comprometido com a vida de cada um.\nQuantos encontros, quantas oportunidades para experimentar a verdadeira felicidade de estar nas mãos de um Deus Todo-Poderoso no Amor!',
+            perguntas: ['Que promessas me faz Deus? Acredito e confio-me a Ele?', 'Ou duvido?\n(breve silêncio)'],
+            oracao: 'Deus Fiel, que concedeste a Maria a graça de acreditar plenamente na Tua Palavra, aumenta a nossa fé e o nosso desejo de partilharmos com outros a alegria de acreditarmos em Ti. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Lucas (2,6-7)',
+            scripture: 'Completaram-se os dias de Maria dar à luz e teve o seu filho primogénito, que envolveu em panos e recostou numa manjedoura, por não haver lugar para eles na hospedaria.\nO Filho de Deus nasce em suma pobreza: sem lugar, sem comodidades. Maria oferece o melhor de si, para que não Lhe falte o mais importante — o Amor.',
+            reflexao: 'O Nascimento de Jesus é uma oportunidade para contemplarmos o Deus Santo, que Se entrega na debilidade: é o Deus Pobre, que desperta sempre o melhor que há em nós.\nQuanta fragilidade, quanta impotência na nossa vida! Quantas ocasiões para, como Maria, oferecermos o que temos e nos centrarmos no Amor!',
+            perguntas: ['Como vivo as incomodidades e impotências da vida?', 'Percebo-as como ocasião para dar o melhor de mim?\n(breve silêncio)'],
+            oracao: 'Deus de Infinita Sabedoria, que quiseste vir ao mundo em suma pobreza, ensina-nos a acolhermos a nossa fragilidade e a defendermos com ternura qualquer vida ameaçada. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Lucas (2)',
+            scripture: 'Maria e José levaram Jesus a Jerusalém para o apresentarem ao Senhor, conforme está escrito na Lei. Vivia em Jerusalém um homem chamado Simeão; era justo e piedoso e esperava a consolação de Israel.\nNa vida da Sagrada Família, o respeito pela Lei nasce da certeza de que é Deus o seu Fundamento.',
+            reflexao: 'A Apresentação de Jesus no Templo é uma oportunidade para contemplarmos o Deus Santo, que assume o ritmo dos homens: é o Deus de Amor, que Se revela na história humana sem se impor.\nQuanta revelação de Deus no cumprimento fiel dos deveres de cada dia! Quanta rotina santificada em gestos simples de pura obediência, como os dos pastorinhos!',
+            perguntas: ['Como vivo o que não foi estabelecido por mim ou em função de mim?', 'Sei respeitar os tempos e os momentos dos outros?\n(breve silêncio)'],
+            oracao: 'Deus Todo-Poderoso, que aceitaste revelar-Te ao ritmo dos homens, concede-nos encontrar-Te no cumprimento fiel dos deveres do dia a dia e ensina-nos a acolher com paciência os tempos de quem está à nossa volta. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Lucas (2,43.48-49)',
+            scripture: '«Filho, porque nos fizeste isto? Olha que teu pai e eu andávamos aflitos à tua procura!» Ele respondeu: «Não sabíeis que devia estar em casa de meu Pai?»\nJesus revela-Se como o inesperado: por fidelidade ao que vive, assume que aquele é o momento de estar em casa do Pai.',
+            reflexao: 'Esta cena é uma oportunidade para contemplarmos o Deus Santo, que irrompe na nossa vida e a transforma: é o Deus Forte, que unifica e totaliza a nossa existência e nos chama a pôr n\'Ele só a nossa confiança.\nQuantas chamadas de Deus! Quantas oportunidades de encontro com os nossos desejos mais profundos!',
+            perguntas: ['Como reajo ao Deus imprevisível, que não posso controlar?', 'O que me unifica e totaliza por dentro?\n(breve silêncio)'],
+            oracao: 'Deus da Verdade, que revelaste no Teu Filho Jesus o sentido da nossa existência — estar em Tua casa —, unifica-nos e ensina-nos a pôr em Ti a nossa confiança. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          }
+        ],
+        luminosos: [
+          {
+            ref: 'Do Evangelho de S. Mateus (3,13-14.16-17)',
+            scripture: 'Jesus veio ter com João para ser batizado por ele. Uma vez batizado, saiu da água e uma voz vinda do Céu dizia: «Este é o meu Filho muito amado, no qual pus todo o meu agrado».\nO Filho de Deus na fila dos pecadores — igual a nós em tudo exceto no pecado —, revelando o Seu modo de ser: descer sempre para revelar a Sua verdadeira identidade.',
+            reflexao: 'O Batismo de Jesus é uma oportunidade para contemplarmos o Deus Santo, que Se deixa sepultar: também nós, deixando-nos sepultar com Ele, com Ele renascemos para uma vida nova.\nQuantas ocasiões para descermos, para servirmos, para aceitarmos morrer para dar vida!',
+            perguntas: ['O que é que na minha vida precisa de «nascer para Deus»?', 'Onde e com quem me pede o Senhor que «desça», que renuncie?\n(breve silêncio)'],
+            oracao: 'Deus de Misericórdia, que no Batismo de Jesus nos revelaste a Sua verdadeira identidade, concede-nos sentirmo-nos, em todas as circunstâncias, Teus filhos muito amados. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. João (2,3-5)',
+            scripture: 'A mãe de Jesus disse-Lhe: «Não têm vinho!» Jesus respondeu-Lhe: «Ainda não chegou a minha hora». Sua mãe disse aos serventes: «Fazei o que Ele vos disser!».\nMaria revela-se como o protótipo de todo o crente: atenta às necessidades concretas, anima os outros a porem em Cristo a sua confiança.',
+            reflexao: 'As Bodas de Caná são uma oportunidade para contemplarmos o Deus Santo, que acolhe as nossas preces: é o Deus do «tempo oportuno», que sabe dar a cada um aquilo de que mais precisa.\nQuanta generosidade em rezar incessantemente pelas necessidades do mundo, confiados na misericórdia de Deus!',
+            perguntas: ['A que necessidades, à minha volta, posso estar mais atento?', 'A quem posso dizer, como Maria: confia; faz o que Jesus te disser?\n(breve silêncio)'],
+            oracao: 'Deus de Infinita Bondade, que ouves o clamor do Teu Povo e respondes às suas preces, faz-nos atentos às necessidades do nosso mundo e concede-nos confiança no poder da Tua graça. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Marcos (1,14-15)',
+            scripture: '«Completou-se o tempo e o Reino de Deus aproximou-se: convertei-vos e acreditai no Evangelho.»\nPerante a prisão injusta de João Batista, Jesus reage com vigor, anunciando o essencial: em Jesus, o Reino de Deus aproximou-se de nós. A resposta de cada crente só pode ser uma: converter-se e acreditar.',
+            reflexao: 'O Anúncio do Reino é uma oportunidade para contemplarmos o Deus Santo, que elimina todas as barreiras: é o Deus de Amor que, em Jesus, Se aproxima sempre de nós e nos convida a voltarmos para Ele.\nQuanto empenho pedido pela conversão dos que estão longe: «rezai, rezai muito e fazei sacrifícios pelos pecadores!»',
+            perguntas: ['Experimento na minha vida esta proximidade de Deus, em Jesus Cristo?', 'Acredito e anuncio, com vigor, esta «Boa Notícia»?\n(breve silêncio)'],
+            oracao: 'Deus de Amor, que no Teu Filho Jesus Cristo não Te cansas de Te aproximar de cada um de nós, dá-nos um coração sensível à Tua Presença e enche-nos de fé e de coragem para Te anunciarmos com alegria. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Marcos (9,2-3.7)',
+            scripture: 'As Suas vestes tornaram-Se resplandecentes, de tal brancura que lavadeira alguma da terra as poderia branquear assim. Da nuvem fez-se ouvir uma voz: «Este é o Meu Filho muito amado. Escutai-O».\nEnvolvidos numa experiência de Luz, os discípulos recebem um novo imperativo: Escutai-O!',
+            reflexao: 'A Transfiguração do Senhor é uma oportunidade para contemplarmos o Deus Santo, que revela em Jesus Cristo a Sua Santidade: é o Deus Fiel, que enche de sentido e luz a vida dos que O escutam.\nQuantos convites de Deus para escutar, conhecer, amar e seguir o Senhor Jesus!',
+            perguntas: ['Que experiências tenho da revelação da Verdade de Deus na minha vida?', 'Deixo-me implicar por essa Verdade, que é Cristo? Escuto-O e adiro a Ele?\n(breve silêncio)'],
+            oracao: 'Deus Santo, que nos ofereces o Teu Filho como Caminho, Verdade e Vida, concede-nos a graça de O escutarmos sempre e de pormos em prática aquilo que Ele nos pede. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Da Primeira Carta de S. Paulo aos Coríntios (11,23-26)',
+            scripture: '«O Senhor Jesus, na noite em que era entregue, tomou pão e, tendo dado graças, partiu-o e disse: "Isto é o Meu corpo, que é para vós; fazei isto em memória de mim".»\nNa Última Ceia, Jesus antecipa a Sua entrega na Cruz e oferece-Se, no Pão e no Vinho, para a reconciliação de todos.',
+            reflexao: 'A Instituição da Eucaristia é uma oportunidade para contemplarmos o Deus Santo, entregue por nós, em Cristo Jesus: é o Deus da Comunhão, que Se parte e Se reparte para que sejamos, n\'Ele, um só Corpo!\nQuanta Vida recebida e celebrada! Quantas ocasiões para, como Jesus, nos partirmos e repartirmos!',
+            perguntas: ['Vivo a relação entre o Corpo que comungo e a Comunhão que Jesus deseja?', 'Com quem me chama Cristo a dar passos concretos de reconciliação?\n(breve silêncio)'],
+            oracao: 'Deus de Bondade, que em Jesus Te fizeste Pão da Vida e Vinho da Salvação, ajuda-nos a colaborarmos generosamente na reconciliação de todas as pessoas consigo mesmas, com os outros e contigo. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          }
+        ],
+        dolorosos: [
+          {
+            ref: 'Do Evangelho de S. Marcos (14,33-36)',
+            scripture: 'Jesus disse: «A Minha alma está triste até à morte; ficai aqui e vigiai». E dizia: «Abbá, Pai, todas as coisas Te são possíveis; afasta de mim este cálice! Mas não se faça o que Eu quero, senão o que queres Tu».\nNo momento de maior angústia, o grito de Jesus dirige-Se ao Pai com intimidade e confiança inabaláveis.',
+            reflexao: 'A Agonia de Jesus no Horto é uma oportunidade para contemplarmos o Deus Santo, que Se revela sobretudo nos momentos difíceis: é o Deus Compassivo, capaz de despertar nos corações atribulados uma confiança inabalável.\nQuanta intimidade nesse diálogo de fé, que se estabelece de coração a Coração: «Abbá, Pai!».',
+            perguntas: ['Como vivo os momentos dolorosos? Deixo que o desespero me invada?', 'Ou abro as portas à confiança e à intimidade com o Pai?\n(breve silêncio)'],
+            oracao: 'Deus Todo-Poderoso, que em Jesus nos revelaste o sentido profundo de uma dor vivida em união contigo, concede-nos vivermos com confiança e liberdade os momentos dolorosos da nossa vida. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Mateus (27,22-26)',
+            scripture: 'Pilatos lavou as mãos na presença da multidão, dizendo: «Estou inocente deste sangue. Isso é convosco». Quanto a Jesus, depois de O mandar flagelar, entregou-O para ser crucificado.\nA condenação de Jesus é resultado da liberdade humana. O Filho de Deus sofre, na própria pele, o preço da Fidelidade.',
+            reflexao: 'A Flagelação de Jesus é uma oportunidade para contemplarmos o Deus Santo, cuja Palavra não volta atrás: é o Deus Fiel, que responde sempre com mais amor às nossas infidelidades.\nQuantas condenações injustas! Quantas mãos cobardemente lavadas de sangue inocente!',
+            perguntas: ['Como me situo perante as injustiças do mundo e à minha volta?', 'Condeno? Denuncio? Calo?\n(breve silêncio)'],
+            oracao: 'Deus Fiel, que entregaste nas mãos da humanidade pecadora o Teu Filho Jesus Cristo, concede-nos o dom da fidelidade à Sua entrega e a valentia para denunciarmos as injustiças deste mundo. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Mateus (27,29)',
+            scripture: 'Os soldados, tecendo uma coroa de espinhos, puseram-lha na cabeça e, dobrando o joelho diante de Jesus, escarneciam-no, dizendo: «Salve, Rei dos Judeus!».\nA coroa de espinhos que Cristo leva é símbolo do poder que se faz serviço, «amor até ao extremo».',
+            reflexao: 'A Coroação de Espinhos é uma oportunidade para contemplarmos o Deus Santo, que renuncia à violência e responde com Amor: é o Deus da Paz, que Cristo estabeleceu pelo Sangue da Sua Cruz.\nQuanto escárnio! Quanta perversão do poder, também nas pequenas coisas do dia a dia!',
+            perguntas: ['Sou capaz de usar o poder que tenho para servir?', 'Respondo com amor quando sou alvo de escárnio ou injustiça?\n(breve silêncio)'],
+            oracao: 'Deus de Infinita Bondade, que pelo Teu Filho vieste trazer a Paz ao mundo, concede-nos a graça de sermos em todo o mundo construtores de Paz. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. João (19,17)',
+            scripture: 'Jesus, levando a cruz às costas, saiu para o chamado Lugar da Caveira, que em hebraico se diz «Gólgota».\nJesus assume a Sua Cruz e, nela, todos os nossos pecados e infidelidades. A caminho do Calvário, o Seu olhar cruza-Se com outros olhares — uns de ódio, outros de compaixão. A todos Cristo responde com Amor.',
+            reflexao: 'O caminho de Jesus até ao Calvário é uma oportunidade para contemplarmos o Deus Santo, que Se entrega em fidelidade até ao fim: é o Deus Compassivo, que a todos oferece a Sua Misericórdia.\nQuantas «cruzes» para ajudar a carregar, ao menos pela oração, como tão bem fizeram os pastorinhos!',
+            perguntas: ['O que me custa, neste momento, «levar até ao fim»?', 'Ajudo a levar as cruzes dos outros ou fico sempre fechado na minha dor?\n(breve silêncio)'],
+            oracao: 'Deus de Bondade Infinita, Tu que, na Paixão do Teu Filho, Lhe deste força para carregar a Cruz, concede-nos carregarmos também as nossas com fidelidade e aliviarmos a cruz dos que estão ao nosso lado. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. João (19,30.33-34)',
+            scripture: 'Jesus disse: «Tudo está consumado». E, inclinando a cabeça, entregou o espírito. Um dos soldados trespassou-Lhe o peito com uma lança e logo brotou sangue e água.\nJesus entrega o Seu espírito nas mãos do Pai. E, já morto, oferece à humanidade Sangue e Água — símbolos da Vida em Abundância.',
+            reflexao: 'A Morte de Jesus é uma oportunidade para contemplarmos o Deus Santo, que na Cruz Se faz dom inesgotável: é o Deus da Vida Verdadeira, que se dá inteiramente e para sempre a cada um de nós.\nQuanta abundância! Quanta generosidade brota do Coração aberto de Jesus! Quanta Vida para acolher no nosso coração!',
+            perguntas: ['Neste breve momento de silêncio, façamos interiormente um gesto de adoração.', '(breve silêncio)'],
+            oracao: 'Deus da Vida Abundante, que permitiste que o Coração do Teu Filho fosse para nós Fonte inesgotável do Teu amor, concede-nos respondermos agradecidos a tanto bem recebido. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          }
+        ],
+        gloriosos: [
+          {
+            ref: 'Do Evangelho de S. Lucas (24,28-39)',
+            scripture: 'Quando Se pôs à mesa, tomou o pão, pronunciou a bênção e, depois de o partir, entregou-lho. Então, os seus olhos abriram-se e reconheceram-no. Disseram: «Não nos ardia o coração, quando Ele nos falava pelo caminho?».\nJesus Ressuscitado transforma os discípulos: do desânimo à esperança, da tristeza à alegria, do medo à coragem.',
+            reflexao: 'A Ressurreição do Senhor é uma oportunidade para contemplarmos o Deus Santo, que revela todo o Seu poder em Cristo Jesus: é o Deus Forte, em quem podemos pôr a nossa esperança!\nQuanta certeza — nascida da experiência da Ressurreição — nas palavras de Maria: «O meu coração imaculado triunfará!».',
+            perguntas: ['Experimento, na minha vida, os efeitos da Ressurreição?', 'Atrevo-me a comunicá-los aos outros?\n(breve silêncio)'],
+            oracao: 'Deus Forte, que concedeste ao Teu Filho a vitória sobre a Morte, dá-nos a graça de participarmos da Sua Alegria e de sermos, com a nossa vida, testemunhas da Sua Ressurreição. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Marcos (16,19-20)',
+            scripture: 'O Senhor Jesus, depois de ter falado com os discípulos, foi recebido no Céu e sentou-Se à direita de Deus. Eles, partindo, foram pregar por toda a parte; o Senhor cooperava com eles.\nDesde ali, sentado à direita de Deus, Cristo intercede por nós eternamente.',
+            reflexao: 'A Ascensão de Jesus é uma oportunidade para contemplarmos o Deus Santo, eternamente fiel à Sua promessa: é o Deus Vivo, que Se oferece em Cristo como único mediador e caminho seguro para o Pai.\nQuantas oportunidades para nos unirmos à mediação de Cristo, entregando-Lhe, por Maria, todas as necessidades do mundo!',
+            perguntas: ['Que pessoas ou situações quero entregar ao Coração de Jesus?', 'Para que Ele as confie ao Pai?\n(breve silêncio)'],
+            oracao: 'Deus de Misericórdia, que nos deste Cristo como único mediador, concede-nos, por Sua intercessão, caminharmos sempre para Ti e confiarmos-Te os nossos irmãos. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. João (14,25-26)',
+            scripture: 'Jesus disse: «o Paráclito, o Espírito Santo que o Pai enviará em meu nome, esse é que vos ensinará tudo, e há de recordar-vos tudo o que Eu vos disse».\nO Espírito Santo guia-nos pelo caminho da santidade e dá-nos força para sermos testemunhas da Ressurreição do Senhor Jesus.',
+            reflexao: 'A descida do Espírito Santo é uma oportunidade para contemplarmos o Deus Santo, que não Se cansa de nos atrair para Si: é o Deus de Amor que, pelo Espírito Santo, fortalece a nossa comunhão e fecunda a nossa entrega.\nQuanto desejo de verdadeira santidade no coração das almas simples, como as dos pastorinhos!',
+            perguntas: ['Reconheço os dons do Espírito Santo na minha vida?', 'Lembro-me de os agradecer?\n(breve silêncio)'],
+            oracao: 'Deus de Amor, que pelo Espírito Santo fortaleces a nossa fé e a nossa caridade, dá-nos desejos de verdadeira santidade e concede-nos chegarmos, em Ti, à verdade plena. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Lucas (11,27-28)',
+            scripture: 'Uma mulher disse: «Feliz Aquela que Te trouxe no seu ventre!» Mas Jesus respondeu: «Mais felizes são os que ouvem a palavra de Deus e a põem em prática».\nA Virgem Maria, que viveu por Cristo e para Cristo, foi feliz porque ouviu a Palavra de Deus e a pôs em prática.',
+            reflexao: 'A Assunção de Nossa Senhora é uma oportunidade para contemplarmos o Deus Santo, que nos quer introduzir na vida divina: é o Deus de Amor que, em Maria, nos recorda a meta a que somos chamados.\nQuanta delicadeza, por parte de Deus! Quanto desejo de nos ter para sempre junto de Si!',
+            perguntas: ['Sinto, como os pastorinhos, verdadeiros desejos de santidade?', 'Tenho colaborado com Deus para os pôr em prática?\n(breve silêncio)'],
+            oracao: 'Deus de Infinita Misericórdia, que, pelos méritos de Cristo, quiseste preservar a Santa Virgem da corrupção da morte, concede-nos a graça de a termos como modelo de vida e de santidade. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          },
+          {
+            ref: 'Do Evangelho de S. Lucas (1,46.48b-49)',
+            scripture: 'Maria exclamou: «De hoje em diante me chamarão bem-aventurada todas as gerações, porque o Todo-Poderoso fez em mim maravilhas! Santo é o Seu nome!».\nElevada ao Céu, Nossa Senhora recebe das mãos de Deus a coroa da glória, como sinal de uma vida totalmente referida a Deus.',
+            reflexao: 'A Coroação da Virgem é uma oportunidade para contemplarmos o Deus Santo, que se alegra com a fidelidade: é o Deus da Alegria verdadeira, que deseja, mais que tudo, a nossa bem-aventurança.\nQuanta alegria! Quanta força recebida do Coração Imaculado de Maria! Quanto deseja Nossa Senhora que todos os homens sejam também bem-aventurados.',
+            perguntas: ['Em silêncio, contemplo a alegria de Maria.', 'Confio a minha vida à sua intercessão.\n(breve silêncio)'],
+            oracao: 'Deus de Bondade, que concedeste à Virgem Maria a coroa da glória, dá-nos, por sua intercessão, saborearmos a alegria de vivermos para Te amarmos e para Te servirmos. Por Jesus Cristo, Nosso Senhor. ÁMEN.'
+          }
+        ]
+      };
+
+      function getFatimaAveText(m, i) {
+        if (i < 3) return m.scripture;
+        if (i < 6) return m.reflexao;
+        if (i === 6) return m.perguntas[0];
+        if (i === 7) return m.perguntas[1];
+        return m.oracao;
+      }
+
       function getMysterySetIdForDay(dayIndex) {
         switch (dayIndex) {
           case 0: return 'gloriosos'; // Domingo
@@ -706,7 +866,7 @@
       // Estado Global da Aplicação
       let selectedDay = new Date().getDay();
       let activeMode = 'meditativo';
-      let meditativoVariant = 'tradicional'; // 'tradicional' | 'montfort'
+      let meditativoVariant = 'tradicional'; // 'tradicional' | 'montfort' | 'fatima'
       let activeBeadId = 0;
       let completedBeads = new Set();
       let beadsList = [];
@@ -848,6 +1008,10 @@
           const montfortSet = isMontfort ? MONTFORT_DATA[getMysterySetIdForDay(selectedDay)] : null;
           const montfortMystery = (montfortSet && isMystery) ? montfortSet[bead.mysteryIndex] : null;
 
+          const isFatima = activeMode === 'meditativo' && meditativoVariant === 'fatima';
+          const fatimaSet = isFatima ? FATIMA_DATA[getMysterySetIdForDay(selectedDay)] : null;
+          const fatimaMystery = (fatimaSet && isMystery) ? fatimaSet[bead.mysteryIndex] : null;
+
           if (activeMode === 'imagem' && isMystery && mystery) {
             layout = `
               <div class="flex flex-col items-center justify-between w-full h-full py-8 text-center">
@@ -986,6 +1150,41 @@
                 <div class="w-full my-auto space-y-6 px-4">
                   <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${bead.beadIndex + 1}ª Dezena</span>
                   <h3 class="text-xl font-serif font-light text-stone-800 leading-relaxed">Ave Maria, ${aveText}</h3>
+                </div>
+                <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50"></div>
+              </div>
+            `;
+          } else if (isFatima && fatimaMystery && bead.type === 'misterio') {
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/50 font-serif">${mSet.name}</span>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
+                </div>
+                <div class="w-full my-auto space-y-4 px-4">
+                  <span class="text-xs uppercase tracking-[0.2em] text-orange-650/70 font-semibold block">Santuário de Fátima</span>
+                  <h3 class="text-2xl font-serif font-light text-stone-800 leading-snug">${mystery.title}</h3>
+                  ${fruit ? `<div class="text-[11px] tracking-wider text-orange-850/70 font-serif">Fruto do Mistério — ${fruit}</div>` : ''}
+                  <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-2"></div>
+                  <p class="text-[10px] text-orange-700/50 font-serif italic tracking-wide">${fatimaMystery.ref}</p>
+                  <p class="text-sm text-stone-500 font-serif leading-relaxed whitespace-pre-line">${fatimaMystery.scripture}</p>
+                </div>
+                <div class="text-[10px] text-orange-700/60 font-serif tracking-[0.15em] uppercase">Pai Nosso</div>
+              </div>
+            `;
+          } else if (isFatima && fatimaMystery && bead.type === 'ave-maria' && isMystery) {
+            const fatimaText = getFatimaAveText(fatimaMystery, bead.beadIndex);
+            const secLabels = ['Sagrada Escritura','Sagrada Escritura','Sagrada Escritura','Reflexão','Reflexão','Reflexão','Meditação','Meditação','Oração','Oração'];
+            layout = `
+              <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
+                <div class="flex flex-col items-center space-y-1">
+                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/55 font-serif">Santuário de Fátima</span>
+                  <h4 class="text-xs font-serif tracking-wide text-orange-600/80 font-medium">${mystery.title}</h4>
+                  <div class="text-orange-600/20 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
+                </div>
+                <div class="w-full my-auto space-y-4 px-4">
+                  <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${secLabels[bead.beadIndex]}</span>
+                  <p class="text-base text-stone-700 font-serif leading-relaxed whitespace-pre-line">${fatimaText}</p>
                 </div>
                 <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50"></div>
               </div>
@@ -1509,6 +1708,8 @@
         meditativoVariant = variant;
         const badge = document.getElementById('montfortBadge');
         if (badge) badge.classList.toggle('hidden', variant !== 'montfort');
+        const fatimaBadge = document.getElementById('fatimaBadge');
+        if (fatimaBadge) fatimaBadge.classList.toggle('hidden', variant !== 'fatima');
         setMode('meditativo');
         closeMeditativoSelector();
       }
@@ -1516,18 +1717,19 @@
       function updateMeditativoSelectorButtons() {
         const btnT = document.getElementById('btnMeditativoTradicional');
         const btnM = document.getElementById('btnMeditativoMontfort');
-        if (!btnT || !btnM) return;
-        if (meditativoVariant === 'montfort') {
-          btnM.classList.add('border-orange-300', 'bg-orange-50/50');
-          btnM.classList.remove('border-stone-100', 'bg-transparent');
-          btnT.classList.remove('border-orange-300', 'bg-orange-50/50');
-          btnT.classList.add('border-stone-100');
-        } else {
-          btnT.classList.add('border-orange-300', 'bg-orange-50/50');
-          btnT.classList.remove('border-stone-100', 'bg-transparent');
-          btnM.classList.remove('border-orange-300', 'bg-orange-50/50');
-          btnM.classList.add('border-stone-100');
-        }
+        const btnF = document.getElementById('btnMeditativoFatima');
+        const btns = [btnT, btnM, btnF];
+        const variantMap = ['tradicional', 'montfort', 'fatima'];
+        btns.forEach((btn, idx) => {
+          if (!btn) return;
+          if (meditativoVariant === variantMap[idx]) {
+            btn.classList.add('border-orange-300', 'bg-orange-50/50');
+            btn.classList.remove('border-stone-100', 'bg-transparent');
+          } else {
+            btn.classList.remove('border-orange-300', 'bg-orange-50/50');
+            btn.classList.add('border-stone-100');
+          }
+        });
       }
 
       // Inicializar
@@ -1598,7 +1800,7 @@
           </div>
         </button>
 
-        <button id="btnMeditativoMontfort" onclick="selectMeditativoVariant('montfort')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-2 transition-all text-left">
+        <button id="btnMeditativoMontfort" onclick="selectMeditativoVariant('montfort')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-3 transition-all text-left">
           <div class="flex-shrink-0 w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center">
             <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -1607,6 +1809,18 @@
           <div>
             <div class="font-serif text-orange-950 text-sm font-medium">São Luís M. G. de Montfort</div>
             <div class="text-[11px] font-serif text-stone-400 mt-0.5">Ave Marias individuais com intenção própria</div>
+          </div>
+        </button>
+
+        <button id="btnMeditativoFatima" onclick="selectMeditativoVariant('fatima')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-2 transition-all text-left">
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+          </div>
+          <div>
+            <div class="font-serif text-orange-950 text-sm font-medium">Santuário de Fátima</div>
+            <div class="text-[11px] font-serif text-stone-400 mt-0.5">Meditações com Escritura, reflexão e oração</div>
           </div>
         </button>
 
