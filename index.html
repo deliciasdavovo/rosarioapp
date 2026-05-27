@@ -193,11 +193,11 @@
       </div>
     </div>
 
-    <!-- Área principal: painel + terço lado a lado, tudo inline style -->
-    <div style="display:flex; flex:1; min-height:0; overflow:hidden;">
+    <!-- Área principal: painel ocupando tudo + terço flutuando por cima -->
+    <div style="flex:1; min-height:0; overflow:hidden; position:relative;">
 
-      <!-- Painel de Leitura Litúrgica Central -->
-      <main id="mainContent" style="flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; padding:12px 8px 12px 12px; overflow:hidden; z-index:10;">
+      <!-- Painel de Leitura Litúrgica Central (largura total) -->
+      <main id="mainContent" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:12px; overflow:hidden; z-index:10;">
         <div class="w-full h-full bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
           <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
           <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
@@ -211,17 +211,20 @@
         </div>
       </main>
 
-      <!-- Terço lateral direito — coluna com inline styles, zero dependência de Tailwind -->
+      <!-- Terço flutuando sobre o painel -->
       <div id="beadsContainer" style="
-        width: 76px;
-        flex-shrink: 0;
+        position: absolute;
+        right: 8px;
+        top: 0;
+        bottom: 0;
+        width: 72px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        z-index: 20;
-        position: relative;
+        z-index: 30;
+        pointer-events: none;
       "></div>
 
     </div>
@@ -766,8 +769,8 @@
         beadsContainer.innerHTML = '';
 
         var activeIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
-        var SIDE      = 3;   // contas visíveis de cada lado da ativa
-        var MAX_CURVE = 12;  // deslocamento horizontal máximo em px
+        var SIDE      = 4;   // contas visíveis de cada lado da ativa
+        var MAX_CURVE = 14;  // deslocamento horizontal máximo em px
 
         var startIdx = Math.max(0, activeIdx - SIDE);
         var endIdx   = Math.min(beadsList.length - 1, activeIdx + SIDE);
@@ -776,28 +779,29 @@
           var bead        = beadsList[idx];
           var isCompleted = completedBeads.has(bead.id);
           var isActive    = activeBeadId === bead.id;
-          var isBig       = bead.type === 'pai-nosso' || bead.type === 'misterio' || bead.type === 'salve-rainha';
           var isCruz      = bead.type === 'cruz';
-          // Cruz usa clip-path — dimensão generosa para a forma ficar clara
-          var size        = isCruz ? 44 : isBig ? 32 : 24;
+          // Todas as contas têm o mesmo tamanho — só a cruz difere (forma, não tamanho)
+          var size        = isCruz ? 42 : 28;
 
           var relToActive = idx - activeIdx;
           var distAbs     = Math.abs(relToActive);
 
           var xOffset = -MAX_CURVE * Math.cos(relToActive * Math.PI / (2 * SIDE));
-          var scale   = isActive ? 1.1 : Math.max(0.72, 1 - distAbs * 0.08);
-          var opacity = Math.max(0.28, 1 - distAbs * 0.2);
+          var scale   = isActive ? 1.08 : Math.max(0.7, 1 - distAbs * 0.07);
+          var opacity = Math.max(0.22, 1 - distAbs * 0.18);
 
-          // Fio entre contas
+          // Fio entre contas — mais longo antes de pai-nosso/misterio (espaçamento do terço real)
           if (idx > startIdx) {
             var prevRel     = (idx - 1) - activeIdx;
             var prevXOffset = -MAX_CURVE * Math.cos(prevRel * Math.PI / (2 * SIDE));
             var midX        = (xOffset + prevXOffset) / 2;
+            var isPausePoint = bead.type === 'pai-nosso' || bead.type === 'misterio'
+                            || beadsList[idx - 1].type === 'misterio';
 
             var thread = document.createElement('div');
             thread.style.width        = '1.5px';
-            thread.style.height       = '9px';
-            thread.style.background   = 'rgba(156,163,175,0.55)';
+            thread.style.height       = isPausePoint ? '18px' : '8px';
+            thread.style.background   = 'rgba(30,30,30,0.28)';
             thread.style.flexShrink   = '0';
             thread.style.borderRadius = '1px';
             thread.style.alignSelf    = 'center';
@@ -811,6 +815,7 @@
           wrap.style.flexDirection = 'column';
           wrap.style.alignItems    = 'center';
           wrap.style.flexShrink    = '0';
+          wrap.style.pointerEvents = 'auto'; // reabilita sobre o container none
 
           var b = document.createElement('div');
           b.setAttribute('data-id', String(bead.id));
@@ -825,7 +830,6 @@
           b.style.opacity          = String(opacity);
 
           if (isCruz) {
-            // Forma de cruz real via clip-path
             b.className = 'clip-cross';
             b.style.borderRadius = '0';
           } else {
@@ -833,15 +837,15 @@
           }
 
           if (isCompleted) {
-            b.style.background = '#E5E7EB';
-            b.style.border     = '2px solid #D1D5DB';
+            b.style.background = 'rgba(30,30,30,0.12)';
+            b.style.border     = '1.5px solid rgba(30,30,30,0.18)';
             b.style.boxShadow  = 'none';
           } else if (isActive) {
-            b.style.background = '#374151';
+            b.style.background = '#111827';
             b.style.border     = '2px solid transparent';
-            b.style.boxShadow  = '0 0 0 4px rgba(55,65,81,0.18)';
+            b.style.boxShadow  = '0 0 0 4px rgba(17,24,39,0.15)';
           } else {
-            b.style.background = '#9CA3AF';
+            b.style.background = '#6B7280';
             b.style.border     = '2px solid transparent';
             b.style.boxShadow  = 'none';
           }
@@ -863,13 +867,11 @@
             bEl.addEventListener('pointerup', function(e) {
               var dx = e.clientX - startX;
               var dy = e.clientY - startY;
-              if (Math.sqrt(dx*dx + dy*dy) > 14) return; // ignorar scroll/arrasto
+              if (Math.sqrt(dx*dx + dy*dy) > 14) return;
 
               if (activeBeadId === beadCopy.id) {
-                // Conta ativa: toque completa e avança para a próxima
                 toggleBead(beadCopy.id);
               } else {
-                // Outra conta: só seleciona (sem completar)
                 activeBeadId = beadCopy.id;
                 renderBeads();
                 renderPanel();
