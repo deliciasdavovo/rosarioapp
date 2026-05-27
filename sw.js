@@ -1,5 +1,5 @@
-const CACHE = 'meu-terco-v7';
-const PRECACHE = ['/', '/index.html', '/manifest.json', '/icon.svg'];
+const CACHE = 'meu-terco-v8';
+const PRECACHE = ['/', '/index.html', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)));
