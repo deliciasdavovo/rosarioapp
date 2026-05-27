@@ -108,7 +108,7 @@
       }
     </style>
   </head>
-  <body class="flex flex-col h-screen overflow-hidden">
+  <body class="flex flex-col overflow-hidden" style="height:100svh;height:100vh;">
 
     <!-- Indicador pull-to-refresh -->
     <div id="ptr">
@@ -188,45 +188,39 @@
       </div>
     </div>
 
-    <!-- Painel de Leitura Litúrgica Central -->
-    <main id="mainContent" class="flex-1 flex items-center justify-center min-h-0 z-10 p-4">
-      <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
-        <!-- Moldura elegante interna -->
-        <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
-        <!-- Ornamentos de Canto em Cruz -->
-        <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-        <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-        <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-        <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+    <!-- Área principal: painel + terço lado a lado, tudo inline style -->
+    <div style="display:flex; flex:1; min-height:0; overflow:hidden;">
 
-        <!-- Barra de progresso discreta no topo do painel -->
-        <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
-          <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width: 0%;"></div>
+      <!-- Painel de Leitura Litúrgica Central -->
+      <main id="mainContent" style="flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; padding:16px; overflow:hidden; z-index:10;">
+        <div class="w-full h-full max-w-md bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
+          <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+          <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+          <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+          <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+          <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
+            <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width:0%"></div>
+          </div>
+          <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in"></div>
         </div>
+      </main>
 
-        <!-- Janela de Conteúdo do Devocionário -->
-        <div id="panelContent" class="relative w-full h-full z-10 flex flex-col justify-between p-10 text-center fade-transition fade-in">
-          <!-- Conteúdo gerado e atualizado via JavaScript -->
-        </div>
-      </div>
-    </main>
+      <!-- Terço lateral direito — coluna com inline styles, zero dependência de Tailwind -->
+      <div id="beadsContainer" style="
+        width: 48px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        z-index: 20;
+      "></div>
 
-    <!-- Terço: fixo na lateral direita, fora de qualquer layout flex -->
-    <div id="beadsContainer" style="
-      position: fixed;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 48px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 50;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    "></div>
+    </div>
 
     <!-- Scripts de Lógica Litúrgica do Rosário -->
     <script>
