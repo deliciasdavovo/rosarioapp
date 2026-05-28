@@ -1877,6 +1877,28 @@
         renderPanel();
       }
 
+      function openPrayer(key) {
+        const prayer = COMMON_PRAYERS[key];
+        if (!prayer) return;
+        document.getElementById('prayerReaderTitle').textContent = prayer.title;
+        document.getElementById('prayerReaderText').textContent = prayer.text;
+        const overlay = document.getElementById('prayerReaderOverlay');
+        const sheet = document.getElementById('prayerReaderSheet');
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => {
+          sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+          sheet.style.transform = 'translateY(0)';
+        });
+      }
+
+      function closePrayerReader() {
+        const overlay = document.getElementById('prayerReaderOverlay');
+        const sheet = document.getElementById('prayerReaderSheet');
+        sheet.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 310);
+      }
+
       function updateSettingsToggleUI() {
         const btn = document.getElementById('toggleOracoesAdicionais');
         const knob = document.getElementById('toggleKnob');
@@ -1946,7 +1968,92 @@
           </button>
         </div>
 
+        <!-- Devocionário -->
+        <div class="flex items-center gap-3 mt-5 mb-3">
+          <div class="flex-1 h-px bg-stone-100"></div>
+          <span class="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-serif">Devocionário</span>
+          <div class="flex-1 h-px bg-stone-100"></div>
+        </div>
+        <div class="overflow-y-auto hide-scrollbar space-y-1.5" style="max-height: 42vh;">
+          <button onclick="openPrayer('espirito-santo')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Oração ao Espírito Santo</span>
+          </button>
+          <button onclick="openPrayer('sao-jose')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Oração a São José</span>
+          </button>
+          <button onclick="openPrayer('sao-miguel')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Oração a São Miguel Arcanjo</span>
+          </button>
+          <button onclick="openPrayer('oferecimento')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Oferecimento</span>
+          </button>
+          <button onclick="openPrayer('agradecimento')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Agradecimento</span>
+          </button>
+          <button onclick="openPrayer('gloria')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Glória</span>
+          </button>
+          <button onclick="openPrayer('o-meu-jesus')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Ó Meu Jesus</span>
+          </button>
+          <button onclick="openPrayer('salve-rainha')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l3.057-3L12 2l3.943-2L19 3l1 2.5-2 14H6L4 5.5 5 3zM9 12h6"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Salve Rainha</span>
+          </button>
+          <button onclick="openPrayer('cruz')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18M3 10h18"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Creio em Deus Pai</span>
+          </button>
+          <button onclick="openPrayer('pai-nosso')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Pai Nosso</span>
+          </button>
+          <button onclick="openPrayer('ave-maria')" class="w-full flex items-center gap-3 p-3 rounded-2xl border border-stone-100 text-left hover:bg-orange-50/40 active:bg-orange-50/60 transition-colors">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            </div>
+            <span class="font-serif text-orange-950 text-sm font-medium">Ave Maria</span>
+          </button>
+        </div>
+
         <div style="height: env(safe-area-inset-bottom, 8px); margin-top: 8px;"></div>
+      </div>
+    </div>
+    <!-- Sheet de Leitura de Oração -->
+    <div id="prayerReaderOverlay" style="display:none; position:fixed; inset:0; z-index:200; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.55);" onclick="closePrayerReader()">
+      <div id="prayerReaderSheet" style="transform:translateY(100%); max-height:82vh;" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 max-w-xl mx-auto w-full border-t border-stone-200/60 flex flex-col" onclick="event.stopPropagation()">
+        <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5 flex-shrink-0"></div>
+        <h3 id="prayerReaderTitle" class="font-serif text-orange-950 text-base font-medium text-center mb-5 flex-shrink-0"></h3>
+        <div class="text-orange-600/30 text-[9px] tracking-widest font-serif text-center mb-4 flex-shrink-0">✥  ✥  ✥</div>
+        <div id="prayerReaderText" class="overflow-y-auto hide-scrollbar font-serif text-stone-600 text-[15px] leading-relaxed whitespace-pre-line pb-8" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;"></div>
+        <div style="height: env(safe-area-inset-bottom, 8px); flex-shrink:0;"></div>
       </div>
     </div>
   </body>
