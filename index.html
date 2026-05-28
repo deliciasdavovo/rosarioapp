@@ -1009,6 +1009,20 @@
       let selectedAcervoPrayer = 'espirito-santo';
       let acervoMode = 'oracao';
 
+      // Estado do Áudio (Cantos Gregorianos)
+      let audioCtx = null;
+      let audioMasterGain = null;
+      let activeOscillators = new Set();
+      let chantLoopTimer = null;
+      let ambientEnabled = localStorage.getItem('ambientEnabled') === 'true';
+      let selectedChant = localStorage.getItem('selectedChant') || 'kyrie';
+
+      // Estado do Habit Tracker (Rosas para Maria)
+      let rosasData = new Set(JSON.parse(localStorage.getItem('rosasParaMaria') || '[]'));
+      let habitCalMonth = new Date().getMonth();
+      let habitCalYear = new Date().getFullYear();
+      let habitCalView = 'mensal';
+
       // Sequência completa de contas litúrgicas
       function createBeads() {
         const list = [];
@@ -2048,6 +2062,7 @@
         const sheet = document.getElementById('settingsSheet');
         overlay.style.display = 'flex';
         updateSettingsToggleUI();
+        updateAudioUI();
         requestAnimationFrame(() => {
           sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
           sheet.style.transform = 'translateY(0)';
@@ -2241,6 +2256,303 @@
           knob.style.transform = 'translateX(0)';
         }
       }
+
+      // ============= CANTOS GREGORIANOS (Web Audio API) =============
+      const NOTE = {
+        C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00,
+        A4:440.00, Bb4:466.16, B4:493.88, C5:523.25, D5:587.33
+      };
+
+      const GREGORIAN_CHANTS = [
+        {
+          id: 'kyrie', name: 'Kyrie Eleison', sub: 'Modo Dórico',
+          sequence: [
+            [NOTE.D4,1.5],[NOTE.E4,0.5],[NOTE.F4,1],[NOTE.E4,0.5],[NOTE.D4,1.5],
+            [NOTE.F4,0.5],[NOTE.G4,1],[NOTE.F4,0.5],[NOTE.E4,1.5],
+            [NOTE.D4,1],[NOTE.E4,0.5],[NOTE.D4,2.5]
+          ]
+        },
+        {
+          id: 'avemaria', name: 'Ave Maria', sub: 'Modo Lídio',
+          sequence: [
+            [NOTE.F4,1],[NOTE.G4,0.5],[NOTE.A4,0.5],[NOTE.G4,1],[NOTE.F4,0.5],[NOTE.G4,1.5],
+            [NOTE.A4,0.5],[NOTE.Bb4,1],[NOTE.A4,0.5],[NOTE.G4,1.5],
+            [NOTE.F4,1],[NOTE.G4,0.5],[NOTE.F4,2.5]
+          ]
+        },
+        {
+          id: 'salveregina', name: 'Salve Regina', sub: 'Modo Mixolídio',
+          sequence: [
+            [NOTE.G4,1],[NOTE.A4,0.5],[NOTE.G4,0.5],[NOTE.F4,1],[NOTE.G4,1.5],
+            [NOTE.A4,0.5],[NOTE.Bb4,1],[NOTE.A4,0.5],[NOTE.G4,1],
+            [NOTE.F4,0.5],[NOTE.E4,0.5],[NOTE.F4,1],[NOTE.G4,2]
+          ]
+        },
+        {
+          id: 'panglingua', name: 'Pange Lingua', sub: 'Modo Frígio',
+          sequence: [
+            [NOTE.F4,1],[NOTE.G4,0.5],[NOTE.F4,0.5],[NOTE.E4,1],[NOTE.F4,1.5],
+            [NOTE.G4,0.5],[NOTE.A4,1],[NOTE.G4,0.5],[NOTE.F4,1.5],
+            [NOTE.E4,1],[NOTE.F4,0.5],[NOTE.G4,0.5],[NOTE.F4,2]
+          ]
+        }
+      ];
+
+      function ensureAudioCtx() {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          audioMasterGain = audioCtx.createGain();
+          audioMasterGain.gain.value = 0.62;
+          audioMasterGain.connect(audioCtx.destination);
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      }
+
+      function scheduleChoirNote(freq, t, dur) {
+        const ng = audioCtx.createGain();
+        ng.connect(audioMasterGain);
+        const atk = Math.min(0.38, dur * 0.28);
+        const rel = Math.min(0.45, dur * 0.32);
+        ng.gain.setValueAtTime(0, t);
+        ng.gain.linearRampToValueAtTime(0.55, t + atk);
+        ng.gain.setValueAtTime(0.55, Math.max(t + atk + 0.01, t + dur - rel));
+        ng.gain.linearRampToValueAtTime(0, t + dur);
+        [[1,1.0],[2,0.13],[1.498,0.09],[3,0.04]].forEach(([harm, vol]) => {
+          const osc = audioCtx.createOscillator();
+          const og = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq * harm;
+          og.gain.value = vol;
+          osc.connect(og);
+          og.connect(ng);
+          osc.start(t);
+          osc.stop(t + dur + 0.1);
+          activeOscillators.add(osc);
+          osc.onended = () => activeOscillators.delete(osc);
+        });
+      }
+
+      function stopAllAudio() {
+        if (chantLoopTimer) { clearTimeout(chantLoopTimer); chantLoopTimer = null; }
+        activeOscillators.forEach(osc => { try { osc.stop(); } catch(e) {} });
+        activeOscillators.clear();
+      }
+
+      function playChantLoop(chantId) {
+        if (selectedChant !== chantId || !ambientEnabled) return;
+        ensureAudioCtx();
+        const chant = GREGORIAN_CHANTS.find(c => c.id === chantId);
+        if (!chant) return;
+        const beat = 0.72;
+        let t = audioCtx.currentTime + 0.15;
+        let total = 0;
+        chant.sequence.forEach(([freq, beats]) => {
+          const dur = beats * beat;
+          scheduleChoirNote(freq, t, dur - 0.04);
+          t += dur;
+          total += dur;
+        });
+        chantLoopTimer = setTimeout(() => {
+          if (ambientEnabled && selectedChant === chantId) playChantLoop(chantId);
+        }, (total + 1.6) * 1000);
+      }
+
+      function toggleAmbient() {
+        ambientEnabled = !ambientEnabled;
+        localStorage.setItem('ambientEnabled', ambientEnabled ? 'true' : 'false');
+        if (ambientEnabled && selectedChant) {
+          playChantLoop(selectedChant);
+        } else {
+          stopAllAudio();
+        }
+        updateAudioUI();
+        if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
+      }
+
+      function selectChant(id) {
+        stopAllAudio();
+        selectedChant = id;
+        localStorage.setItem('selectedChant', id);
+        if (!ambientEnabled) {
+          ambientEnabled = true;
+          localStorage.setItem('ambientEnabled', 'true');
+        }
+        playChantLoop(id);
+        updateAudioUI();
+        if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
+      }
+
+      function updateAudioUI() {
+        const btn = document.getElementById('toggleAmbient');
+        const knob = document.getElementById('ambientKnob');
+        if (btn && knob) {
+          btn.style.background = ambientEnabled ? '#D97706' : '#D1C9BD';
+          btn.setAttribute('aria-checked', ambientEnabled ? 'true' : 'false');
+          knob.style.transform = ambientEnabled ? 'translateX(20px)' : 'translateX(0)';
+        }
+        GREGORIAN_CHANTS.forEach(c => {
+          const el = document.getElementById('chant-' + c.id);
+          if (!el) return;
+          const sel = selectedChant === c.id;
+          el.style.background = sel ? '#FEF9EE' : '#F5F1EC';
+          el.style.borderColor = sel ? '#D97706' : '#E7E0D5';
+        });
+      }
+
+      // ============= HABIT TRACKER (Rosas para Maria) =============
+      const MONTHS_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const MONTHS_SHORT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const DAY_HDR = ['S','T','Q','Q','S','S','D'];
+
+      function saveRosas() {
+        localStorage.setItem('rosasParaMaria', JSON.stringify([...rosasData]));
+      }
+
+      function fmtDateKey(y, m, d) {
+        return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      }
+
+      function toggleRosaDay(dk) {
+        if (rosasData.has(dk)) rosasData.delete(dk);
+        else rosasData.add(dk);
+        saveRosas();
+        renderHabitsCalendar();
+        if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
+      }
+
+      function openHabitsView() {
+        habitCalMonth = new Date().getMonth();
+        habitCalYear = new Date().getFullYear();
+        habitCalView = 'mensal';
+        const view = document.getElementById('habitsView');
+        view.style.display = 'flex';
+        view.style.transform = 'translateX(100%)';
+        renderHabitsCalendar();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            view.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+            view.style.transform = 'translateX(0)';
+          });
+        });
+      }
+
+      function closeHabitsView() {
+        const view = document.getElementById('habitsView');
+        view.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
+        view.style.transform = 'translateX(100%)';
+        setTimeout(() => { view.style.display = 'none'; }, 310);
+      }
+
+      function setHabitView(v) {
+        habitCalView = v;
+        renderHabitsCalendar();
+      }
+
+      function navigateHabitMonth(dir) {
+        habitCalMonth += dir;
+        if (habitCalMonth > 11) { habitCalMonth = 0; habitCalYear++; }
+        if (habitCalMonth < 0) { habitCalMonth = 11; habitCalYear--; }
+        renderHabitsCalendar();
+      }
+
+      function renderHabitsCalendar() {
+        const container = document.getElementById('habitsCalContainer');
+        const titleEl = document.getElementById('habitsMonthTitle');
+        const statsEl = document.getElementById('habitsStats');
+        if (!container) return;
+
+        if (titleEl) titleEl.textContent = MONTHS_PT[habitCalMonth].toUpperCase() + ' DE ' + habitCalYear;
+
+        ['semana','mensal'].forEach(v => {
+          const tab = document.getElementById('habitsTab-' + v);
+          if (!tab) return;
+          const active = habitCalView === v;
+          tab.style.fontWeight = active ? '600' : '400';
+          tab.style.color = active ? '#1C0A00' : '#A8A29E';
+          tab.style.background = active ? 'white' : 'transparent';
+          tab.style.boxShadow = active ? '0 1px 4px rgba(0,0,0,0.12)' : 'none';
+        });
+
+        let monthCount = 0;
+        rosasData.forEach(dk => {
+          const p = dk.split('-');
+          if (parseInt(p[0]) === habitCalYear && parseInt(p[1]) === habitCalMonth + 1) monthCount++;
+        });
+        if (statsEl) {
+          statsEl.textContent = monthCount === 0
+            ? 'Nenhuma rosa este mês'
+            : monthCount === 1 ? '1 rosa este mês 🌹'
+            : monthCount + ' rosas este mês 🌹';
+        }
+
+        const today = new Date();
+        const html = [];
+
+        html.push('<div style="display:grid;grid-template-columns:40px repeat(7,1fr);gap:3px;padding:0 4px 6px;">');
+        html.push('<div></div>');
+        DAY_HDR.forEach(h => {
+          html.push(`<div style="text-align:center;font-family:Outfit,serif;font-size:12px;color:#A8A29E;padding:4px 0;font-weight:500;">${h}</div>`);
+        });
+        html.push('</div>');
+
+        if (habitCalView === 'mensal') {
+          const firstDow = (new Date(habitCalYear, habitCalMonth, 1).getDay() + 6) % 7;
+          const startDate = new Date(habitCalYear, habitCalMonth, 1 - firstDow);
+          html.push('<div style="display:flex;flex-direction:column;gap:3px;padding:0 4px;">');
+          for (let w = 0; w < 6; w++) {
+            const rowDates = [];
+            for (let i = 0; i < 7; i++) {
+              const d = new Date(startDate);
+              d.setDate(startDate.getDate() + w * 7 + i);
+              rowDates.push(d);
+            }
+            const hasMth = rowDates.some(d => d.getMonth() === habitCalMonth && d.getFullYear() === habitCalYear);
+            if (!hasMth && w > 0) break;
+            const lbl = MONTHS_SHORT[rowDates[0].getMonth()] + ' ' + rowDates[0].getDate();
+            html.push('<div style="display:grid;grid-template-columns:40px repeat(7,1fr);gap:3px;">');
+            html.push(`<div style="display:flex;align-items:center;justify-content:flex-end;padding-right:5px;font-family:Outfit,serif;font-size:9px;color:#B8AFA7;white-space:nowrap;">${lbl}</div>`);
+            rowDates.forEach(d => {
+              const inMth = d.getMonth() === habitCalMonth && d.getFullYear() === habitCalYear;
+              if (!inMth) { html.push('<div style="aspect-ratio:1;border-radius:8px;background:#F0EDE8;min-height:32px;"></div>'); return; }
+              const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+              const hasRosa = rosasData.has(dk);
+              const isToday = d.toDateString() === today.toDateString();
+              const bg = hasRosa ? '#FECDD3' : (isToday ? '#FFF7ED' : '#EAE6DF');
+              const bdr = hasRosa ? '1.5px solid #FDA4AF' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+              const content = hasRosa
+                ? '<span style="font-size:11px;line-height:1;">🌹</span>'
+                : `<span style="font-family:Outfit;font-size:13px;font-weight:${isToday?'700':'400'};line-height:1;">${d.getDate()}</span>`;
+              html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:8px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:32px;">${content}</button>`);
+            });
+            html.push('</div>');
+          }
+          html.push('</div>');
+        } else {
+          const dow = (today.getDay() + 6) % 7;
+          const monday = new Date(today);
+          monday.setDate(today.getDate() - dow);
+          html.push('<div style="padding:0 4px;">');
+          html.push('<div style="display:grid;grid-template-columns:40px repeat(7,1fr);gap:4px;">');
+          html.push(`<div style="display:flex;align-items:center;justify-content:flex-end;padding-right:5px;font-family:Outfit,serif;font-size:9px;color:#B8AFA7;white-space:nowrap;">${MONTHS_SHORT[monday.getMonth()]} ${monday.getDate()}</div>`);
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+            const hasRosa = rosasData.has(dk);
+            const isToday = d.toDateString() === today.toDateString();
+            const bg = hasRosa ? '#FECDD3' : (isToday ? '#FFF7ED' : '#EAE6DF');
+            const bdr = hasRosa ? '1.5px solid #FDA4AF' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+            const content = hasRosa
+              ? '<span style="font-size:16px;line-height:1;">🌹</span>'
+              : `<span style="font-family:Outfit;font-size:15px;font-weight:${isToday?'700':'400'};line-height:1;">${d.getDate()}</span>`;
+            html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:10px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:52px;">${content}</button>`);
+          }
+          html.push('</div>');
+          html.push('</div>');
+        }
+
+        container.innerHTML = html.join('');
+      }
     </script>
     <!-- Modal de Seleção do Estilo Meditativo -->
     <div id="meditativoSelectorOverlay" style="display:none; position:fixed; inset:0; z-index:100; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="closeMeditativoSelector()">
@@ -2279,7 +2591,7 @@
 
     <!-- Modal de Configurações -->
     <div id="settingsOverlay" style="display:none; position:fixed; inset:0; z-index:100; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="closeSettingsMenu()">
-      <div id="settingsSheet" style="transform:translateY(100%);" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60" onclick="event.stopPropagation()">
+      <div id="settingsSheet" style="transform:translateY(100%); max-height:90vh; overflow-y:auto;" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60 hide-scrollbar" onclick="event.stopPropagation()">
         <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
         <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-0.5">Configurações</h3>
         <p class="text-center text-[11px] font-serif text-stone-400 mb-6 tracking-wide">Personalize seu terço</p>
@@ -2296,6 +2608,47 @@
           </button>
         </div>
 
+        <!-- Seção: Som Gregoriano -->
+        <div class="py-3 border-b border-stone-100">
+          <div class="flex items-center justify-between px-1 mb-3">
+            <div class="flex-1 pr-4">
+              <div class="font-serif text-orange-950 text-sm font-medium">Som Gregoriano</div>
+              <div class="text-[11px] font-serif text-stone-400 mt-0.5">Cantos contemplativos em loop</div>
+            </div>
+            <button id="toggleAmbient" onclick="toggleAmbient()" role="switch" aria-checked="false"
+              style="position:relative; width:51px; height:31px; border-radius:999px; border:none; cursor:pointer; transition:background 0.25s; flex-shrink:0; background:#D1C9BD; padding:0;">
+              <span id="ambientKnob" style="position:absolute; top:3px; left:3px; width:25px; height:25px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.22); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);"></span>
+            </button>
+          </div>
+          <!-- Grade de cantos 2x2 -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <button id="chant-kyrie" onclick="selectChant('kyrie')"
+              style="background:#F5F1EC; border:1.5px solid #E7E0D5; border-radius:14px; padding:10px 12px; text-align:left; cursor:pointer; transition:all 0.18s;">
+              <div style="font-size:16px; margin-bottom:4px;">✝</div>
+              <div style="font-family:Outfit,serif; font-size:12px; font-weight:500; color:#1C0A00;">Kyrie Eleison</div>
+              <div style="font-family:Outfit,serif; font-size:10px; color:#A8A29E; margin-top:1px;">Modo Dórico</div>
+            </button>
+            <button id="chant-avemaria" onclick="selectChant('avemaria')"
+              style="background:#F5F1EC; border:1.5px solid #E7E0D5; border-radius:14px; padding:10px 12px; text-align:left; cursor:pointer; transition:all 0.18s;">
+              <div style="font-size:16px; margin-bottom:4px;">🌸</div>
+              <div style="font-family:Outfit,serif; font-size:12px; font-weight:500; color:#1C0A00;">Ave Maria</div>
+              <div style="font-family:Outfit,serif; font-size:10px; color:#A8A29E; margin-top:1px;">Modo Lídio</div>
+            </button>
+            <button id="chant-salveregina" onclick="selectChant('salveregina')"
+              style="background:#F5F1EC; border:1.5px solid #E7E0D5; border-radius:14px; padding:10px 12px; text-align:left; cursor:pointer; transition:all 0.18s;">
+              <div style="font-size:16px; margin-bottom:4px;">👑</div>
+              <div style="font-family:Outfit,serif; font-size:12px; font-weight:500; color:#1C0A00;">Salve Regina</div>
+              <div style="font-family:Outfit,serif; font-size:10px; color:#A8A29E; margin-top:1px;">Modo Mixolídio</div>
+            </button>
+            <button id="chant-panglingua" onclick="selectChant('panglingua')"
+              style="background:#F5F1EC; border:1.5px solid #E7E0D5; border-radius:14px; padding:10px 12px; text-align:left; cursor:pointer; transition:all 0.18s;">
+              <div style="font-size:16px; margin-bottom:4px;">✨</div>
+              <div style="font-family:Outfit,serif; font-size:12px; font-weight:500; color:#1C0A00;">Pange Lingua</div>
+              <div style="font-family:Outfit,serif; font-size:10px; color:#A8A29E; margin-top:1px;">Modo Frígio</div>
+            </button>
+          </div>
+        </div>
+
         <!-- Botão Devocionário -->
         <button onclick="closeSettingsMenu(); setTimeout(openAcervo, 320);" class="w-full flex items-center justify-between px-4 py-3.5 mt-4 rounded-2xl bg-orange-50 border border-orange-100 hover:bg-orange-100/60 active:bg-orange-100/80 transition-colors">
           <div class="flex items-center gap-3">
@@ -2308,6 +2661,20 @@
             </div>
           </div>
           <svg class="w-4 h-4 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <!-- Botão Rosas para Maria -->
+        <button onclick="closeSettingsMenu(); setTimeout(openHabitsView, 320);" class="w-full flex items-center justify-between px-4 py-3.5 mt-3 rounded-2xl bg-rose-50 border border-rose-100 hover:bg-rose-100/60 active:bg-rose-100/80 transition-colors">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-rose-100/80 text-base">
+              🌹
+            </div>
+            <div>
+              <div class="font-serif text-rose-900 text-sm font-medium text-left">Rosas para Maria</div>
+              <div class="text-[11px] font-serif text-stone-400 mt-0.5 text-left">Acompanhe seus dias de devoção</div>
+            </div>
+          </div>
+          <svg class="w-4 h-4 text-rose-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
         <div style="height: env(safe-area-inset-bottom, 8px); margin-top: 8px;"></div>
@@ -2373,6 +2740,72 @@
         </div>
         <div id="acervoDrawerList" class="overflow-y-auto hide-scrollbar flex-1 px-3 py-3 space-y-1"></div>
         <div style="height: env(safe-area-inset-bottom, 8px); flex-shrink:0;"></div>
+      </div>
+    </div>
+
+    <!-- Tela de Hábitos — Rosas para Maria -->
+    <div id="habitsView" style="display:none; position:fixed; inset:0; z-index:50; background:#EFECE6; transform:translateX(100%); flex-direction:column; overflow:hidden;">
+
+      <!-- Header -->
+      <header class="flex-none px-4 py-3 z-30">
+        <div class="max-w-2xl mx-auto grid grid-cols-3 items-center">
+          <button onclick="closeHabitsView()" class="justify-self-start flex items-center gap-1.5 hover:bg-stone-100/70 px-3 py-1.5 rounded-full transition-colors">
+            <svg class="w-3.5 h-3.5 text-orange-600/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+            <span class="text-stone-700 font-serif tracking-wide text-sm font-medium">Rosário</span>
+          </button>
+          <div class="text-center">
+            <div class="text-[9px] tracking-[0.2em] uppercase text-stone-400 font-serif leading-tight">Acompanhamento</div>
+            <div class="font-serif text-orange-950 text-base font-semibold leading-tight">Rosas 🌹</div>
+          </div>
+          <div></div>
+        </div>
+      </header>
+
+      <!-- Tabs Semana / Mensal -->
+      <div class="flex-none max-w-xl mx-auto w-full px-4 mb-3">
+        <div style="display:flex; background:rgba(214,211,208,0.35); border-radius:16px; padding:4px; gap:4px;">
+          <button id="habitsTab-semana" onclick="setHabitView('semana')"
+            style="flex:1; padding:8px; border-radius:12px; font-family:Outfit,serif; font-size:14px; border:none; cursor:pointer; transition:all 0.2s; font-weight:400; color:#A8A29E; background:transparent;">
+            Semana
+          </button>
+          <button id="habitsTab-mensal" onclick="setHabitView('mensal')"
+            style="flex:1; padding:8px; border-radius:12px; font-family:Outfit,serif; font-size:14px; border:none; cursor:pointer; transition:all 0.2s; font-weight:600; color:#1C0A00; background:white; box-shadow:0 1px 4px rgba(0,0,0,0.12);">
+            Mensal
+          </button>
+        </div>
+      </div>
+
+      <!-- Área scrollável com navegação + calendário -->
+      <div style="flex:1; min-height:0; overflow-y:auto;" class="hide-scrollbar">
+        <div class="max-w-xl mx-auto px-2">
+
+          <!-- Navegação de mês -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:0 8px 16px;">
+            <button onclick="navigateHabitMonth(-1)"
+              style="width:40px; height:40px; border-radius:14px; background:white; border:1px solid rgba(214,211,208,0.8); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+              <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div id="habitsMonthTitle" style="font-family:Outfit,serif; font-size:13px; font-weight:600; color:#1C0A00; letter-spacing:0.08em;">MAIO DE 2026</div>
+            <button onclick="navigateHabitMonth(1)"
+              style="width:40px; height:40px; border-radius:14px; background:white; border:1px solid rgba(214,211,208,0.8); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+              <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Grade do calendário (injetada via JS) -->
+          <div id="habitsCalContainer"></div>
+
+          <!-- Estatísticas do mês -->
+          <div id="habitsStats" style="text-align:center; font-family:Outfit,serif; font-size:12px; color:#A8A29E; padding:20px 0 8px; letter-spacing:0.05em;"></div>
+        </div>
+      </div>
+
+      <!-- Botão Fechar -->
+      <div class="flex-none px-4 pt-3 max-w-xl mx-auto w-full" style="padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));">
+        <button onclick="closeHabitsView()"
+          style="width:100%; padding:16px; border-radius:18px; background:#1C1917; color:white; font-family:Outfit,serif; font-size:13px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; border:none; cursor:pointer;">
+          Fechar
+        </button>
       </div>
     </div>
   </body>
