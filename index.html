@@ -1003,7 +1003,6 @@
       let activeMode = 'meditativo';
       let meditativoVariant = 'fatima'; // 'montfort' | 'fatima'
       let activeBeadId = 0;
-      const mysteryImageCache = {};
       let completedBeads = new Set();
       let beadsList = [];
       let oracoesAdicionaisEnabled = localStorage.getItem('oracoesAdicionais') === 'true';
@@ -1183,18 +1182,7 @@
           const fatimaSet = isFatima ? FATIMA_DATA[getMysterySetIdForDay(selectedDay)] : null;
           const fatimaMystery = (fatimaSet && isMystery) ? fatimaSet[bead.mysteryIndex] : null;
 
-          if (isMystery && mystery) {
-            const _cacheKey = getMysterySetIdForDay(selectedDay) + ':' + bead.mysteryIndex;
-            if (!mysteryImageCache[_cacheKey]) {
-              const _urls = mystery.imageUrls;
-              mysteryImageCache[_cacheKey] = Array.isArray(_urls)
-                ? _urls[Math.floor(Math.random() * _urls.length)]
-                : mystery.imageUrl;
-            }
-          }
-
           if (activeMode === 'imagem' && isMystery && mystery) {
-            const _resolvedImageUrl = mysteryImageCache[getMysterySetIdForDay(selectedDay) + ':' + bead.mysteryIndex];
             layout = `
               <div class="flex flex-col items-center justify-between w-full h-full py-3 text-center">
                 <div class="flex flex-col items-center space-y-1">
@@ -1212,7 +1200,7 @@
                   <span class="absolute bottom-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
 
                   <img
-                    src="${_resolvedImageUrl}"
+                    src="${Array.isArray(mystery.imageUrls) ? mystery.imageUrls[Math.floor(Math.random() * mystery.imageUrls.length)] : mystery.imageUrl}"
                     alt="${mystery.title}"
                     class="w-full h-full object-contain grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]"
                     referrerpolicy="no-referrer"
