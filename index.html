@@ -258,7 +258,15 @@
             {
               title: 'A Anunciação do Anjo a Maria',
               curta: 'No sexto mês, o anjo Gabriel foi enviado por Deus a uma cidade da Galiléia, chamada Nazaré, a uma virgem desposada com um homem que se chamava José, da casa de Davi e o nome da virgem era Maria.',
-              imageUrl: 'https://images.unsplash.com/photo-1549721731-827fc32924b1?q=80&w=2070&auto=format&fit=crop',
+              imageUrls: [
+                'https://res.cloudinary.com/ds53z2vv8/image/upload/v1779939740/IMG_8424_rq0ya1.jpg',
+                'https://res.cloudinary.com/ds53z2vv8/image/upload/v1779939740/IMG_8425_nsjont.jpg',
+                'https://res.cloudinary.com/ds53z2vv8/image/upload/v1779939741/IMG_8426_nbvzym.jpg',
+                'https://res.cloudinary.com/ds53z2vv8/image/upload/v1779939741/IMG_8428_hvaut8.jpg',
+                'https://res.cloudinary.com/ds53z2vv8/image/upload/v1779939741/IMG_8429_tbqckz.jpg',
+                'https://res.cloudinary.com/ds53z2vv8/image/upload/v1779939742/IMG_8430_cbafjp.jpg',
+                'https://res.cloudinary.com/ds53z2vv8/image/upload/v1779939742/IMG_8431_orzhb6.jpg',
+              ],
               meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à vossa humilde obediência ao Arcanjo Gabriel. (${i + 1}/10)`)
             },
             {
@@ -1079,9 +1087,9 @@
                   <span class="absolute bottom-5 left-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
                   <span class="absolute bottom-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
 
-                  <img 
-                    src="${mystery.imageUrl}" 
-                    alt="${mystery.title}" 
+                  <img
+                    src="${Array.isArray(mystery.imageUrls) ? mystery.imageUrls[Math.floor(Math.random() * mystery.imageUrls.length)] : mystery.imageUrl}"
+                    alt="${mystery.title}"
                     class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]"
                     referrerpolicy="no-referrer"
                   />
