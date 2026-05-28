@@ -1798,7 +1798,9 @@
           }
 
           // Recriar fio antes desta conta (largura = gap entre bordas das contas)
-          if (idx > startIdx) {
+          var prevType = beadsList[idx - 1] && beadsList[idx - 1].type;
+          var prevIsNonBead = prevType === 'oferecimento' || prevType === 'espirito-santo' || prevType === 'sao-jose' || prevType === 'sao-miguel';
+          if (idx > startIdx && !isNonBead && !prevIsNonBead) {
             var pp    = calcPos(idx - 1);
             var beadSz = (beadSize(beadsList[idx - 1].type) + beadSize(bead.type)) / 2;
             var gap   = gapBetween(idx - 1, idx);
