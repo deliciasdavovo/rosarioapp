@@ -1242,6 +1242,30 @@
                 <div class="text-[10px] text-orange-700/60 font-serif tracking-[0.15em] uppercase py-3">Pai Nosso</div>
               </div>
             `;
+          } else if (isFatima && fatimaMystery && bead.type === 'ave-maria' && isMystery) {
+            const aveText = getFatimaAveText(fatimaMystery, bead.beadIndex);
+            const sectionLabel = bead.beadIndex < 3 ? 'Sagrada Escritura'
+              : bead.beadIndex < 6 ? 'Reflexão'
+              : bead.beadIndex < 8 ? 'Meditação'
+              : 'Oração';
+            const isScripture = bead.beadIndex < 3;
+            layout = `
+              <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
+                <div class="flex flex-col items-center space-y-1 pt-4 pb-2">
+                  <span class="text-[9px] tracking-[0.25em] uppercase text-orange-955/55 font-serif">${mystery.title}</span>
+                  <h4 class="text-xs font-serif tracking-wide text-orange-600/80 font-medium">${bead.beadIndex + 1}ª Ave Maria</h4>
+                  <div class="text-orange-600/20 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
+                </div>
+                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                  <div class="space-y-3 py-2 pb-6">
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${bead.mysteryIndex + 1}ª Dezena · ${sectionLabel}</span>
+                    ${isScripture ? `<p class="text-[11px] text-stone-400 font-serif italic">${fatimaMystery.ref}</p>
+                    <p class="text-sm text-stone-700 font-serif leading-relaxed whitespace-pre-line">"${aveText}"</p>` : `<p class="text-base text-stone-600 font-serif leading-relaxed whitespace-pre-line">${aveText}</p>`}
+                  </div>
+                </div>
+                <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50 mb-3"></div>
+              </div>
+            `;
           } else if (activeMode === 'meditativo' && isMystery && mystery && bead.type === 'ave-maria') {
             layout = `
               <div class="flex flex-col items-center justify-between w-full h-full py-10 text-center">
