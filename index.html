@@ -146,7 +146,7 @@
         <h1 class="text-2xl font-serif text-amber-950 font-bold tracking-wide text-center">meu rosário</h1>
 
         <!-- Direita: Menu Hambúrguer -->
-        <button class="justify-self-end flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
+        <button onclick="openSettingsMenu()" class="justify-self-end flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
           <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
           <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
           <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
@@ -434,6 +434,18 @@
         'salve-rainha': {
           title: 'Salve Rainha',
           text: 'Salve Rainha, Mãe de misericórdia, vida, doçura e esperança nossa, salve! A vós bradamos, os degredados filhos de Eva; a vós suspiramos, gemendo e chorando neste vale de lágrimas. Eia, pois, advogada nossa, esses vossos olhos misericordiosos a nós volvei; e depois deste desterro nos mostrai Jesus, bendito fruto do vosso ventre, ó clemente, ó piedosa, ó doce sempre Virgem Maria. Rogai por nós, Santa Mãe de Deus, para que sejamos dignos das promessas de Cristo. Amém.'
+        },
+        'espirito-santo': {
+          title: 'Oração ao Espírito Santo',
+          text: 'Vinde, Espírito Santo, enchei os corações dos vossos fiéis e acendei neles o fogo do vosso amor.\n\nEnviai o vosso Espírito e tudo será criado.\nE renovareis a face da terra.\n\nOremos: Ó Deus, que instruístes os corações dos vossos fiéis com a luz do Espírito Santo, fazei que pelo mesmo Espírito apreciemos o que é reto e gozemos sempre da sua consolação. Por Cristo Senhor nosso. Amém.'
+        },
+        'sao-jose': {
+          title: 'Oração a São José',
+          text: 'A vós, bem-aventurado São José, recorremos na nossa tribulação e, após implorarmos o auxílio de vossa santíssima Esposa, solicitamos também com confiança o vosso patrocínio.\n\nPor aquela caridade que vos uniu à Imaculada Virgem Maria, Mãe de Deus, e por aquele amor paterno com que amastes o Menino Jesus, suplicamos-vos que olheis com olhos de bondade para a herança que Jesus Cristo adquiriu com o seu sangue e que nos auxilieis nas nossas necessidades com o vosso poder e auxílio.\n\nGuardai a Igreja do Sagrado Coração de Jesus, defendei-a de todo o erro e corrupção, e a nós, vossos filhos devotos, amparai do alto do Céu com o vosso poderoso patrocínio. Amém.'
+        },
+        'sao-miguel': {
+          title: 'Oração a São Miguel Arcanjo',
+          text: 'São Miguel Arcanjo, defendei-nos no combate, sede o nosso refúgio contra as maldades e ciladas do demônio.\n\nQue Deus lhe repreenda, assim o pedimos humildemente.\nE vós, Príncipe da Milícia Celestial, pelo poder divino, precipitai no inferno a Satanás e aos outros espíritos malignos que andam pelo mundo para perder as almas. Amém.'
         }
       };
 
@@ -860,8 +872,8 @@
       let activeBeadId = 0;
       let completedBeads = new Set();
       let beadsList = [];
+      let oracoesAdicionaisEnabled = localStorage.getItem('oracoesAdicionais') === 'true';
 
-      // Sequência exata de 61 contas litúrgicas
       function createBeads() {
         const list = [];
         let index = 0;
@@ -883,6 +895,13 @@
 
         // Conclusão
         list.push({ id: index++, type: 'salve-rainha' });
+
+        // Orações adicionais (opcionais)
+        if (oracoesAdicionaisEnabled) {
+          list.push({ id: index++, type: 'espirito-santo' });
+          list.push({ id: index++, type: 'sao-jose' });
+          list.push({ id: index++, type: 'sao-miguel' });
+        }
 
         return list;
       }
@@ -1275,6 +1294,18 @@
             } else if (bead.type === 'salve-rainha') {
               title = COMMON_PRAYERS['salve-rainha'].title;
               content = COMMON_PRAYERS['salve-rainha'].text;
+              iconHeader = '✥  ✥  ✥';
+            } else if (bead.type === 'espirito-santo') {
+              title = COMMON_PRAYERS['espirito-santo'].title;
+              content = COMMON_PRAYERS['espirito-santo'].text;
+              iconHeader = '✥  ✥  ✥';
+            } else if (bead.type === 'sao-jose') {
+              title = COMMON_PRAYERS['sao-jose'].title;
+              content = COMMON_PRAYERS['sao-jose'].text;
+              iconHeader = '✥  ✥  ✥';
+            } else if (bead.type === 'sao-miguel') {
+              title = COMMON_PRAYERS['sao-miguel'].title;
+              content = COMMON_PRAYERS['sao-miguel'].text;
               iconHeader = '✥  ✥  ✥';
             }
 
@@ -1768,6 +1799,53 @@
           }
         }, { passive: true });
       })();
+
+      // --- Menu de Configurações ---
+      function openSettingsMenu() {
+        const overlay = document.getElementById('settingsOverlay');
+        const sheet = document.getElementById('settingsSheet');
+        overlay.style.display = 'flex';
+        updateSettingsToggleUI();
+        requestAnimationFrame(() => {
+          sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+          sheet.style.transform = 'translateY(0)';
+        });
+      }
+
+      function closeSettingsMenu() {
+        const overlay = document.getElementById('settingsOverlay');
+        const sheet = document.getElementById('settingsSheet');
+        sheet.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 310);
+      }
+
+      function toggleOracoesAdicionais() {
+        oracoesAdicionaisEnabled = !oracoesAdicionaisEnabled;
+        localStorage.setItem('oracoesAdicionais', oracoesAdicionaisEnabled ? 'true' : 'false');
+        updateSettingsToggleUI();
+        // Recria as contas e volta para a primeira
+        beadsList = createBeads();
+        activeBeadId = 0;
+        completedBeads = new Set();
+        renderBeads(0, true);
+        renderPanel();
+      }
+
+      function updateSettingsToggleUI() {
+        const btn = document.getElementById('toggleOracoesAdicionais');
+        const knob = document.getElementById('toggleKnob');
+        if (!btn || !knob) return;
+        if (oracoesAdicionaisEnabled) {
+          btn.style.background = '#D97706';
+          btn.setAttribute('aria-checked', 'true');
+          knob.style.transform = 'translateX(20px)';
+        } else {
+          btn.style.background = '#D1C9BD';
+          btn.setAttribute('aria-checked', 'false');
+          knob.style.transform = 'translateX(0)';
+        }
+      }
     </script>
     <!-- Modal de Seleção do Estilo Meditativo -->
     <div id="meditativoSelectorOverlay" style="display:none; position:fixed; inset:0; z-index:100; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="closeMeditativoSelector()">
@@ -1801,6 +1879,29 @@
         </button>
 
         <div style="height: env(safe-area-inset-bottom, 8px);"></div>
+      </div>
+    </div>
+
+    <!-- Modal de Configurações -->
+    <div id="settingsOverlay" style="display:none; position:fixed; inset:0; z-index:100; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="closeSettingsMenu()">
+      <div id="settingsSheet" style="transform:translateY(100%);" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60" onclick="event.stopPropagation()">
+        <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
+        <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-0.5">Configurações</h3>
+        <p class="text-center text-[11px] font-serif text-stone-400 mb-6 tracking-wide">Personalize seu terço</p>
+
+        <!-- Toggle: Orações Adicionais -->
+        <div class="flex items-center justify-between px-1 py-3 border-b border-stone-100">
+          <div class="flex-1 pr-4">
+            <div class="font-serif text-orange-950 text-sm font-medium">Orações Adicionais</div>
+            <div class="text-[11px] font-serif text-stone-400 mt-0.5">Espírito Santo, São José e São Miguel ao final</div>
+          </div>
+          <button id="toggleOracoesAdicionais" onclick="toggleOracoesAdicionais()" role="switch" aria-checked="false"
+            style="position:relative; width:51px; height:31px; border-radius:999px; border:none; cursor:pointer; transition:background 0.25s; flex-shrink:0; background:#D1C9BD; padding:0;">
+            <span id="toggleKnob" style="position:absolute; top:3px; left:3px; width:25px; height:25px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.22); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);"></span>
+          </button>
+        </div>
+
+        <div style="height: env(safe-area-inset-bottom, 8px); margin-top: 8px;"></div>
       </div>
     </div>
   </body>
