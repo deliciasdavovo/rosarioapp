@@ -434,6 +434,22 @@
         'salve-rainha': {
           title: 'Salve Rainha',
           text: 'Salve Rainha, Mãe de misericórdia, vida, doçura e esperança nossa, salve! A vós bradamos, os degredados filhos de Eva; a vós suspiramos, gemendo e chorando neste vale de lágrimas. Eia, pois, advogada nossa, esses vossos olhos misericordiosos a nós volvei; e depois deste desterro nos mostrai Jesus, bendito fruto do vosso ventre, ó clemente, ó piedosa, ó doce sempre Virgem Maria. Rogai por nós, Santa Mãe de Deus, para que sejamos dignos das promessas de Cristo. Amém.'
+        },
+        gloria: {
+          title: 'Glória',
+          text: 'Glória ao Pai, ao Filho e ao Espírito Santo. Como era no princípio, agora e sempre, e por todos os séculos dos séculos. Amém.'
+        },
+        'o-meu-jesus': {
+          title: 'Ó Meu Jesus',
+          text: 'Ó meu Jesus, perdoai-nos, livrai-nos do fogo do Inferno, levai as almas todas para o Céu, especialmente as que mais precisarem da Vossa Misericórdia. Amém.'
+        },
+        oferecimento: {
+          title: 'Oferecimento',
+          text: 'Uno-me a todos os santos que estão no Céu, a todos os justos que estão sobre a Terra, a todas as almas fiéis que estão neste lugar. Uno-me a Vós, meu Jesus, para louvar dignamente Vossa Santa Mãe e a Vós, nela e por Ela. Renuncio a todas as distrações que me vierem durante este Rosário, que quero recitar com modéstia, atenção e devoção, como se fosse o último da minha vida. Nós Vos oferecemos, Trindade Santíssima, este Credo, para honrar os mistérios todos de nossa Fé; este Pai Nosso e estas três Ave-Marias, para honrar a unidade de vossa essência e a trindade de vossas pessoas. Pedimos-Vos uma fé viva, uma esperança firme e uma caridade ardente. Assim seja.\n\nDivino Jesus, nós Vos oferecemos este rosário que vamos rezar, meditando nos mistérios da nossa Redenção. Concedei-nos, por intercessão da Virgem Maria, Mãe de Deus e nossa Mãe, as virtudes que nos são necessárias para bem rezá-lo e a graça de ganharmos as indulgências desta santa devoção. Oferecemos particularmente, em desagravo dos pecados cometidos contra o Santíssimo Coração de Jesus e Imaculado Coração de Maria, pela paz do mundo, pela conversão dos pecadores, pelas almas do Purgatório, pelas intenções do Santo Padre, pelo aumento e santificação do Clero, pelo nosso vigário, pela santificação das famílias, pelas missões, pelos doentes, pelos agonizantes, por todos aqueles que pediram nossas orações, pelo nosso país e por todas as nossas intenções particulares.\n\nPausa para meditar.'
+        },
+        agradecimento: {
+          title: 'Agradecimento',
+          text: 'Infinitas graças vos damos, ó Soberana Rainha, pelos benefícios que todos os dias recebemos de vossas mãos maternais. Dignai-vos, agora e para sempre tomar-nos debaixo do vosso poderoso amparo e para mais vos agradecer, vos saudamos com uma Salve Rainha.'
         }
       };
 
@@ -861,10 +877,13 @@
       let completedBeads = new Set();
       let beadsList = [];
 
-      // Sequência exata de 61 contas litúrgicas
+      // Sequência completa de contas litúrgicas
       function createBeads() {
         const list = [];
         let index = 0;
+
+        // Abertura
+        list.push({ id: index++, type: 'oferecimento' });
 
         // Introdução
         list.push({ id: index++, type: 'cruz' });
@@ -872,6 +891,8 @@
         list.push({ id: index++, type: 'ave-maria', introIndex: 0 }); // Fé
         list.push({ id: index++, type: 'ave-maria', introIndex: 1 }); // Esperança
         list.push({ id: index++, type: 'ave-maria', introIndex: 2 }); // Caridade
+        list.push({ id: index++, type: 'gloria' });
+        list.push({ id: index++, type: 'o-meu-jesus' });
 
         // 5 Dezenas de Mistérios
         for (let m = 0; m < 5; m++) {
@@ -879,9 +900,12 @@
           for (let a = 0; a < 10; a++) {
             list.push({ id: index++, type: 'ave-maria', mysteryIndex: m, beadIndex: a });
           }
+          list.push({ id: index++, type: 'gloria' });
+          list.push({ id: index++, type: 'o-meu-jesus' });
         }
 
         // Conclusão
+        list.push({ id: index++, type: 'agradecimento' });
         list.push({ id: index++, type: 'salve-rainha' });
 
         return list;
@@ -1276,6 +1300,21 @@
               title = COMMON_PRAYERS['salve-rainha'].title;
               content = COMMON_PRAYERS['salve-rainha'].text;
               iconHeader = '✥  ✥  ✥';
+            } else if (bead.type === 'gloria') {
+              title = COMMON_PRAYERS['gloria'].title;
+              content = COMMON_PRAYERS['gloria'].text;
+              iconHeader = '✥  ✥  ✥';
+            } else if (bead.type === 'o-meu-jesus') {
+              title = COMMON_PRAYERS['o-meu-jesus'].title;
+              content = COMMON_PRAYERS['o-meu-jesus'].text;
+            } else if (bead.type === 'oferecimento') {
+              title = COMMON_PRAYERS['oferecimento'].title;
+              content = COMMON_PRAYERS['oferecimento'].text;
+              iconHeader = '✥  ✥  ✥';
+            } else if (bead.type === 'agradecimento') {
+              title = COMMON_PRAYERS['agradecimento'].title;
+              content = COMMON_PRAYERS['agradecimento'].text;
+              iconHeader = '✥  ✥  ✥';
             }
 
             layout = `
@@ -1335,13 +1374,14 @@
         var endIdx    = Math.min(beadsList.length - 1, activeIdx + SIDE);
 
         function beadSize(type) {
-          return type === 'cruz' ? 36 : (type === 'pai-nosso' || type === 'misterio') ? 30 : 26;
+          return type === 'cruz' ? 36 : (type === 'pai-nosso' || type === 'misterio' || type === 'oferecimento') ? 30 : 26;
         }
 
         function gapBetween(a, b) {
           var ta = beadsList[a] && beadsList[a].type;
           var tb = beadsList[b] && beadsList[b].type;
-          var isPn = ta === 'pai-nosso' || ta === 'misterio' || tb === 'pai-nosso' || tb === 'misterio';
+          var isPn = ta === 'pai-nosso' || ta === 'misterio' || tb === 'pai-nosso' || tb === 'misterio'
+                  || ta === 'oferecimento' || tb === 'oferecimento';
           return STEP + (isPn ? PN_EXTRA : 0);
         }
 
@@ -1548,7 +1588,9 @@
         function gap(a, b) {
           var ta = beadsList[a] && beadsList[a].type;
           var tb = beadsList[b] && beadsList[b].type;
-          return STEP + ((ta === 'pai-nosso' || tb === 'pai-nosso') ? PN_EXTRA : 0);
+          var isPn = ta === 'pai-nosso' || ta === 'misterio' || tb === 'pai-nosso' || tb === 'misterio'
+                  || ta === 'oferecimento' || tb === 'oferecimento';
+          return STEP + (isPn ? PN_EXTRA : 0);
         }
 
         // Listener no wrapper pai — cobre o papel E o terço (z-index não bloqueia eventos touch)
