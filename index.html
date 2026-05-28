@@ -904,8 +904,6 @@
         list.push({ id: index++, type: 'ave-maria', introIndex: 0 }); // Fé
         list.push({ id: index++, type: 'ave-maria', introIndex: 1 }); // Esperança
         list.push({ id: index++, type: 'ave-maria', introIndex: 2 }); // Caridade
-        list.push({ id: index++, type: 'gloria' });
-        list.push({ id: index++, type: 'o-meu-jesus' });
 
         // 5 Dezenas de Mistérios
         for (let m = 0; m < 5; m++) {
@@ -913,8 +911,6 @@
           for (let a = 0; a < 10; a++) {
             list.push({ id: index++, type: 'ave-maria', mysteryIndex: m, beadIndex: a });
           }
-          list.push({ id: index++, type: 'gloria' });
-          list.push({ id: index++, type: 'o-meu-jesus' });
         }
 
         // Conclusão
@@ -1306,6 +1302,19 @@
             let content = '';
             let iconHeader = '✦  ✦  ✦';
 
+            let gloriaExtra = '';
+            const isLastAve = bead.type === 'ave-maria' && (bead.introIndex === 2 || bead.beadIndex === 9);
+            if (activeMode === 'oracao' && isLastAve) {
+              gloriaExtra = `
+                <div class="w-12 h-px bg-orange-200/50 mx-auto my-3"></div>
+                <h3 class="text-[13px] font-serif text-orange-850 font-medium uppercase tracking-widest mb-3">${COMMON_PRAYERS['gloria'].title}</h3>
+                <p class="text-base text-stone-700 font-serif font-light leading-relaxed tracking-wide">${COMMON_PRAYERS['gloria'].text}</p>
+                <div class="w-12 h-px bg-orange-200/50 mx-auto my-3"></div>
+                <h3 class="text-[13px] font-serif text-orange-850 font-medium uppercase tracking-widest mb-3">${COMMON_PRAYERS['o-meu-jesus'].title}</h3>
+                <p class="text-base text-stone-700 font-serif font-light leading-relaxed tracking-wide">${COMMON_PRAYERS['o-meu-jesus'].text}</p>
+              `;
+            }
+
             if (bead.type === 'cruz') {
               title = COMMON_PRAYERS.cruz.title;
               content = COMMON_PRAYERS.cruz.text;
@@ -1320,13 +1329,6 @@
               title = COMMON_PRAYERS['salve-rainha'].title;
               content = COMMON_PRAYERS['salve-rainha'].text;
               iconHeader = '✥  ✥  ✥';
-            } else if (bead.type === 'gloria') {
-              title = COMMON_PRAYERS['gloria'].title;
-              content = COMMON_PRAYERS['gloria'].text;
-              iconHeader = '✥  ✥  ✥';
-            } else if (bead.type === 'o-meu-jesus') {
-              title = COMMON_PRAYERS['o-meu-jesus'].title;
-              content = COMMON_PRAYERS['o-meu-jesus'].text;
             } else if (bead.type === 'oferecimento') {
               title = COMMON_PRAYERS['oferecimento'].title;
               content = COMMON_PRAYERS['oferecimento'].text;
@@ -1372,6 +1374,7 @@
                     <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">
                       ${content}
                     </p>
+                    ${gloriaExtra}
                   </div>
                 </div>
 
