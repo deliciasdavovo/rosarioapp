@@ -1850,6 +1850,9 @@
           if (navigator.vibrate) {
             try { navigator.vibrate([30, 50, 30]); } catch(err) {}
           }
+          if (completedBeads.size === beadsList.length) {
+            setTimeout(showRosaryCompleteSheet, 700);
+          }
         }
 
         // Avanço automático com discreto intervalo visual agradável
@@ -2163,6 +2166,7 @@
         const drawer = document.getElementById('acervoDrawer');
         overlay.style.display = 'block';
         updateAcervoDrawerSelection();
+        updateSettingsToggleUI();
         requestAnimationFrame(() => {
           drawer.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
           drawer.style.transform = 'translateX(0)';
@@ -2294,7 +2298,7 @@
         if (oracoesAdicionaisEnabled) {
           btn.style.background = '#D97706';
           btn.setAttribute('aria-checked', 'true');
-          knob.style.transform = 'translateX(20px)';
+          knob.style.transform = 'translateX(18px)';
         } else {
           btn.style.background = '#D1C9BD';
           btn.setAttribute('aria-checked', 'false');
@@ -2439,9 +2443,41 @@
           const el = document.getElementById('chant-' + c.id);
           if (!el) return;
           const sel = selectedChant === c.id;
-          el.style.background = sel ? '#FEF9EE' : '#F5F1EC';
+          el.style.background = sel ? '#D97706' : '#F5F1EC';
           el.style.borderColor = sel ? '#D97706' : '#E7E0D5';
+          el.style.color = sel ? '#FFFFFF' : '#7C6E5E';
+          el.style.fontWeight = sel ? '600' : '500';
         });
+      }
+
+      // ============= CONCLUSÃO DO TERÇO =============
+      function showRosaryCompleteSheet() {
+        const today = fmtDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+        if (rosasData.has(today)) return;
+        const overlay = document.getElementById('rosaryCompleteOverlay');
+        const sheet = document.getElementById('rosaryCompleteSheet');
+        if (!overlay || !sheet) return;
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => {
+          sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+          sheet.style.transform = 'translateY(0)';
+        });
+      }
+
+      function confirmRosaToday() {
+        const today = fmtDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+        rosasData.add(today);
+        saveRosas();
+        dismissRosaryComplete();
+      }
+
+      function dismissRosaryComplete() {
+        const overlay = document.getElementById('rosaryCompleteOverlay');
+        const sheet = document.getElementById('rosaryCompleteSheet');
+        if (!overlay || !sheet) return;
+        sheet.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 310);
       }
 
       // ============= HABIT TRACKER (Rosas para Maria) =============
@@ -2526,8 +2562,8 @@
         if (statsEl) {
           statsEl.textContent = monthCount === 0
             ? 'Nenhuma rosa este mês'
-            : monthCount === 1 ? '1 rosa este mês 🌹'
-            : monthCount + ' rosas este mês 🌹';
+            : monthCount === 1 ? '1 rosa este mês'
+            : monthCount + ' rosas este mês';
         }
 
         const today = new Date();
@@ -2562,11 +2598,11 @@
               const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
               const hasRosa = rosasData.has(dk);
               const isToday = d.toDateString() === today.toDateString();
-              const bg = hasRosa ? '#FECDD3' : (isToday ? '#FFF7ED' : '#EAE6DF');
-              const bdr = hasRosa ? '1.5px solid #FDA4AF' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
-              const content = hasRosa
-                ? '<span style="font-size:11px;line-height:1;">🌹</span>'
-                : `<span style="font-family:Outfit;font-size:13px;font-weight:${isToday?'700':'400'};line-height:1;">${d.getDate()}</span>`;
+              const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
+              const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+              const fw = (hasRosa || isToday) ? '700' : '400';
+              const col = hasRosa ? '#FFFFFF' : (isToday ? '#92400E' : '#7C6E5E');
+              const content = `<span style="font-family:Outfit;font-size:13px;font-weight:${fw};line-height:1;color:${col};">${d.getDate()}</span>`;
               html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:8px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:32px;">${content}</button>`);
             });
             html.push('</div>');
@@ -2585,11 +2621,11 @@
             const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
             const hasRosa = rosasData.has(dk);
             const isToday = d.toDateString() === today.toDateString();
-            const bg = hasRosa ? '#FECDD3' : (isToday ? '#FFF7ED' : '#EAE6DF');
-            const bdr = hasRosa ? '1.5px solid #FDA4AF' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
-            const content = hasRosa
-              ? '<span style="font-size:16px;line-height:1;">🌹</span>'
-              : `<span style="font-family:Outfit;font-size:15px;font-weight:${isToday?'700':'400'};line-height:1;">${d.getDate()}</span>`;
+            const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
+            const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+            const fw = (hasRosa || isToday) ? '700' : '400';
+            const col = hasRosa ? '#FFFFFF' : (isToday ? '#92400E' : '#7C6E5E');
+            const content = `<span style="font-family:Outfit;font-size:15px;font-weight:${fw};line-height:1;color:${col};">${d.getDate()}</span>`;
             html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:10px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:52px;">${content}</button>`);
           }
           html.push('</div>');
@@ -2641,18 +2677,6 @@
         <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-0.5">Configurações</h3>
         <p class="text-center text-[11px] font-serif text-stone-400 mb-6 tracking-wide">Personalize seu terço</p>
 
-        <!-- Toggle: Orações Adicionais -->
-        <div class="flex items-center justify-between px-1 py-3 border-b border-stone-100">
-          <div class="flex-1 pr-4">
-            <div class="font-serif text-orange-950 text-sm font-medium">Orações Adicionais</div>
-            <div class="text-[11px] font-serif text-stone-400 mt-0.5">Espírito Santo, São José e São Miguel ao final</div>
-          </div>
-          <button id="toggleOracoesAdicionais" onclick="toggleOracoesAdicionais()" role="switch" aria-checked="false"
-            style="position:relative; width:51px; height:31px; border-radius:999px; border:none; cursor:pointer; transition:background 0.25s; flex-shrink:0; background:#D1C9BD; padding:0;">
-            <span id="toggleKnob" style="position:absolute; top:3px; left:3px; width:25px; height:25px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.22); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);"></span>
-          </button>
-        </div>
-
         <!-- Seção: Som Gregoriano -->
         <div class="py-3 border-b border-stone-100">
           <div class="flex items-center justify-between px-1 mb-3">
@@ -2665,31 +2689,23 @@
               <span id="ambientKnob" style="position:absolute; top:3px; left:3px; width:25px; height:25px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.22); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);"></span>
             </button>
           </div>
-          <!-- Grade de cantos 2x2 -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <!-- Chips de seleção inline -->
+          <div style="display:flex; gap:7px; overflow-x:auto; padding-bottom:2px;" class="hide-scrollbar">
             <button id="chant-kyrie" onclick="selectChant('kyrie')"
-              style="background:#F5F1EC; border:1.5px solid #E7E0D5; border-radius:14px; padding:10px 12px; text-align:left; cursor:pointer; transition:all 0.18s;">
-              <div style="font-size:16px; margin-bottom:4px;">✝</div>
-              <div style="font-family:Outfit,serif; font-size:12px; font-weight:500; color:#1C0A00;">Kyrie Eleison</div>
-              <div style="font-family:Outfit,serif; font-size:10px; color:#A8A29E; margin-top:1px;">Modo Dórico</div>
+              style="flex-shrink:0; padding:6px 14px; border-radius:999px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:12px; font-weight:500; color:#7C6E5E; background:#F5F1EC; cursor:pointer; white-space:nowrap; transition:all 0.18s;">
+              Kyrie Eleison
             </button>
             <button id="chant-avemaria" onclick="selectChant('avemaria')"
-              style="background:#F5F1EC; border:1.5px solid #E7E0D5; border-radius:14px; padding:10px 12px; text-align:left; cursor:pointer; transition:all 0.18s;">
-              <div style="font-size:16px; margin-bottom:4px;">🌸</div>
-              <div style="font-family:Outfit,serif; font-size:12px; font-weight:500; color:#1C0A00;">Ave Maria</div>
-              <div style="font-family:Outfit,serif; font-size:10px; color:#A8A29E; margin-top:1px;">Modo Lídio</div>
+              style="flex-shrink:0; padding:6px 14px; border-radius:999px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:12px; font-weight:500; color:#7C6E5E; background:#F5F1EC; cursor:pointer; white-space:nowrap; transition:all 0.18s;">
+              Ave Maria
             </button>
             <button id="chant-salveregina" onclick="selectChant('salveregina')"
-              style="background:#F5F1EC; border:1.5px solid #E7E0D5; border-radius:14px; padding:10px 12px; text-align:left; cursor:pointer; transition:all 0.18s;">
-              <div style="font-size:16px; margin-bottom:4px;">👑</div>
-              <div style="font-family:Outfit,serif; font-size:12px; font-weight:500; color:#1C0A00;">Salve Regina</div>
-              <div style="font-family:Outfit,serif; font-size:10px; color:#A8A29E; margin-top:1px;">Modo Mixolídio</div>
+              style="flex-shrink:0; padding:6px 14px; border-radius:999px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:12px; font-weight:500; color:#7C6E5E; background:#F5F1EC; cursor:pointer; white-space:nowrap; transition:all 0.18s;">
+              Salve Regina
             </button>
             <button id="chant-panglingua" onclick="selectChant('panglingua')"
-              style="background:#F5F1EC; border:1.5px solid #E7E0D5; border-radius:14px; padding:10px 12px; text-align:left; cursor:pointer; transition:all 0.18s;">
-              <div style="font-size:16px; margin-bottom:4px;">✨</div>
-              <div style="font-family:Outfit,serif; font-size:12px; font-weight:500; color:#1C0A00;">Pange Lingua</div>
-              <div style="font-family:Outfit,serif; font-size:10px; color:#A8A29E; margin-top:1px;">Modo Frígio</div>
+              style="flex-shrink:0; padding:6px 14px; border-radius:999px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:12px; font-weight:500; color:#7C6E5E; background:#F5F1EC; cursor:pointer; white-space:nowrap; transition:all 0.18s;">
+              Pange Lingua
             </button>
           </div>
         </div>
@@ -2711,8 +2727,8 @@
         <!-- Botão Rosas para Maria -->
         <button onclick="closeSettingsMenu(); setTimeout(openHabitsView, 320);" class="w-full flex items-center justify-between px-4 py-3.5 mt-3 rounded-2xl bg-rose-50 border border-rose-100 hover:bg-rose-100/60 active:bg-rose-100/80 transition-colors">
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-rose-100/80 text-base">
-              🌹
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-rose-100/80">
+              <svg class="w-4 h-4 text-rose-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </div>
             <div>
               <div class="font-serif text-rose-900 text-sm font-medium text-left">Rosas para Maria</div>
@@ -2784,6 +2800,17 @@
           <h3 class="font-serif text-orange-950 text-lg font-medium">Orações</h3>
         </div>
         <div id="acervoDrawerList" class="overflow-y-auto hide-scrollbar flex-1 px-3 py-3 space-y-1"></div>
+        <!-- Toggle: Orações ao final -->
+        <div class="px-4 py-3 border-t border-stone-100 flex-shrink-0 flex items-center justify-between">
+          <div class="flex-1 pr-3">
+            <div class="font-serif text-orange-950 text-xs font-medium">Orações ao final</div>
+            <div class="text-[10px] font-serif text-stone-400 mt-0.5">Esp. Santo, S. José e S. Miguel</div>
+          </div>
+          <button id="toggleOracoesAdicionais" onclick="toggleOracoesAdicionais()" role="switch" aria-checked="false"
+            style="position:relative; width:44px; height:26px; border-radius:999px; border:none; cursor:pointer; transition:background 0.25s; flex-shrink:0; background:#D1C9BD; padding:0;">
+            <span id="toggleKnob" style="position:absolute; top:2.5px; left:2.5px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.22); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);"></span>
+          </button>
+        </div>
         <div style="height: env(safe-area-inset-bottom, 8px); flex-shrink:0;"></div>
       </div>
     </div>
@@ -2800,7 +2827,7 @@
           </button>
           <div class="text-center">
             <div class="text-[9px] tracking-[0.2em] uppercase text-stone-400 font-serif leading-tight">Acompanhamento</div>
-            <div class="font-serif text-orange-950 text-base font-semibold leading-tight">Rosas 🌹</div>
+            <div class="font-serif text-orange-950 text-base font-semibold leading-tight">Rosas para Maria</div>
           </div>
           <div></div>
         </div>
@@ -2851,6 +2878,26 @@
           style="width:100%; padding:16px; border-radius:18px; background:#1C1917; color:white; font-family:Outfit,serif; font-size:13px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; border:none; cursor:pointer;">
           Fechar
         </button>
+      </div>
+    </div>
+
+    <!-- Modal: Terço Concluído — confirmar rosa do dia -->
+    <div id="rosaryCompleteOverlay" style="display:none; position:fixed; inset:0; z-index:110; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="dismissRosaryComplete()">
+      <div id="rosaryCompleteSheet" style="transform:translateY(100%);" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60" onclick="event.stopPropagation()">
+        <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
+        <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-1">Terço concluído</h3>
+        <p class="text-center text-[12px] font-serif text-stone-500 mb-6 leading-relaxed">Marcar hoje em<br>Rosas para Maria?</p>
+        <div style="display:flex; gap:10px;">
+          <button onclick="dismissRosaryComplete()"
+            style="flex:1; padding:14px; border-radius:16px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:13px; font-weight:500; color:#78716C; background:#FAF6EE; cursor:pointer;">
+            Agora não
+          </button>
+          <button onclick="confirmRosaToday()"
+            style="flex:1; padding:14px; border-radius:16px; border:none; font-family:Outfit,serif; font-size:13px; font-weight:600; color:#FFFFFF; background:#1C1917; cursor:pointer;">
+            Sim, marcar
+          </button>
+        </div>
+        <div style="height: env(safe-area-inset-bottom, 8px); margin-top: 8px;"></div>
       </div>
     </div>
   </body>
