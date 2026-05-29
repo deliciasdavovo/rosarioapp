@@ -581,6 +581,24 @@
         { key: 'ave-maria',      iconPath: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', imageUrl: 'https://images.unsplash.com/photo-1490750967868-88df5691cc8f?q=80&w=2070&auto=format&fit=crop' }
       ];
 
+      const ADICIONAL_KEYS = ['espirito-santo','sao-jose','sao-miguel'];
+
+      const ACERVO_SECTIONS = [
+        {
+          title: 'Rosário',
+          subtitle: 'Orações do terço',
+          keys: ['oferecimento','cruz','pai-nosso','ave-maria','gloria','o-meu-jesus','salve-rainha','agradecimento']
+        },
+        {
+          title: 'Orações',
+          subtitle: 'Selecione as que deseja ao final',
+          keys: ['espirito-santo','sao-jose','sao-miguel'],
+          adicional: true
+        },
+        { title: 'Novenas',  subtitle: 'Em breve', keys: [] },
+        { title: 'Terços',   subtitle: 'Em breve', keys: [] }
+      ];
+
       const MONTFORT_DATA = {
         credoPontos: [
           '1º) Fé na presença de Deus',
@@ -1004,7 +1022,11 @@
       let activeBeadId = 0;
       let completedBeads = new Set();
       let beadsList = [];
-      let oracoesAdicionaisEnabled = localStorage.getItem('oracoesAdicionais') === 'true';
+      let oracoesAdicionaisEnabled = localStorage.getItem('oracoesAdicionais') === 'true'; // compat
+      const _oaNew = localStorage.getItem('oracoesAdicionaisSet');
+      let oracoesAdicionaisSet = new Set(
+        _oaNew ? JSON.parse(_oaNew) : (oracoesAdicionaisEnabled ? ['espirito-santo','sao-jose','sao-miguel'] : [])
+      );
       let acervoOpen = false;
       let selectedAcervoPrayer = 'espirito-santo';
       let acervoMode = 'oracao';
@@ -1050,12 +1072,10 @@
         list.push({ id: index++, type: 'agradecimento' });
         list.push({ id: index++, type: 'salve-rainha' });
 
-        // Orações adicionais (opcionais)
-        if (oracoesAdicionaisEnabled) {
-          list.push({ id: index++, type: 'espirito-santo' });
-          list.push({ id: index++, type: 'sao-jose' });
-          list.push({ id: index++, type: 'sao-miguel' });
-        }
+        // Orações adicionais (opcionais — selecionadas individualmente)
+        ['espirito-santo','sao-jose','sao-miguel'].forEach(key => {
+          if (oracoesAdicionaisSet.has(key)) list.push({ id: index++, type: key });
+        });
 
         return list;
       }
@@ -2125,16 +2145,26 @@
         setTimeout(() => { overlay.style.display = 'none'; }, 310);
       }
 
-      function toggleOracoesAdicionais() {
-        oracoesAdicionaisEnabled = !oracoesAdicionaisEnabled;
-        localStorage.setItem('oracoesAdicionais', oracoesAdicionaisEnabled ? 'true' : 'false');
-        updateSettingsToggleUI();
-        // Recria as contas e volta para a primeira
+      function toggleOracaoAdicional(key) {
+        if (oracoesAdicionaisSet.has(key)) oracoesAdicionaisSet.delete(key);
+        else oracoesAdicionaisSet.add(key);
+        localStorage.setItem('oracoesAdicionaisSet', JSON.stringify([...oracoesAdicionaisSet]));
+        // Atualiza toggle inline no painel sem refazer fade
+        const enabled = oracoesAdicionaisSet.has(key);
+        const btn = document.getElementById('adicionalToggleBtn');
+        const knob = document.getElementById('adicionalToggleKnob');
+        if (btn && knob) {
+          btn.style.background = enabled ? '#D97706' : '#D1C9BD';
+          btn.setAttribute('aria-checked', String(enabled));
+          knob.style.transform = enabled ? 'translateX(18px)' : 'translateX(0)';
+        }
+        renderAcervoDrawerList();
         beadsList = createBeads();
         activeBeadId = 0;
         completedBeads = new Set();
         renderBeads(0, true);
         renderPanel();
+        if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
       }
 
       // --- Acervo / Devocionário ---
@@ -2166,7 +2196,6 @@
         const drawer = document.getElementById('acervoDrawer');
         overlay.style.display = 'block';
         updateAcervoDrawerSelection();
-        updateSettingsToggleUI();
         requestAnimationFrame(() => {
           drawer.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
           drawer.style.transform = 'translateX(0)';
@@ -2177,7 +2206,7 @@
         const overlay = document.getElementById('acervoDrawerOverlay');
         const drawer = document.getElementById('acervoDrawer');
         drawer.style.transition = 'transform 0.25s cubic-bezier(0.55,0,1,0.45)';
-        drawer.style.transform = 'translateX(-100%)';
+        drawer.style.transform = 'translateX(100%)';
         setTimeout(() => { overlay.style.display = 'none'; }, 260);
       }
 
@@ -2214,15 +2243,29 @@
       function renderAcervoDrawerList() {
         const list = document.getElementById('acervoDrawerList');
         if (!list) return;
-        list.innerHTML = ACERVO_ITEMS.map(item => {
-          const prayer = COMMON_PRAYERS[item.key];
-          return `
-            <button id="acervoItem-${item.key}" onclick="selectAcervoPrayer('${item.key}')"
-              class="w-full px-3 py-3 rounded-xl border text-left transition-colors ${item.key === selectedAcervoPrayer ? 'bg-orange-50 border-orange-200' : 'border-transparent hover:bg-stone-50'}">
-              <span class="font-serif text-orange-950 text-sm font-medium leading-snug">${prayer ? prayer.title : item.key}</span>
-            </button>
-          `;
-        }).join('');
+        let html = '';
+        ACERVO_SECTIONS.forEach((section, si) => {
+          html += `<div style="padding:${si===0?'8px':'16px'} 4px 4px;">
+            <span style="font-family:Outfit,serif;font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:#A8A29E;font-weight:500;">${section.title}</span>
+          </div>`;
+          if (section.keys.length === 0) {
+            html += `<p style="font-family:Outfit,serif;font-size:11px;color:#C8C0B8;padding:2px 8px 6px;font-style:italic;">Em breve</p>`;
+          } else {
+            section.keys.forEach(key => {
+              const prayer = COMMON_PRAYERS[key];
+              if (!prayer) return;
+              const sel = key === selectedAcervoPrayer;
+              const isAdic = ADICIONAL_KEYS.includes(key);
+              const adicEnabled = isAdic && oracoesAdicionaisSet.has(key);
+              html += `<button id="acervoItem-${key}" onclick="selectAcervoPrayer('${key}')"
+                style="width:100%;padding:9px 10px;border-radius:12px;border:1px solid ${sel?'#F0C89A':'transparent'};background:${sel?'#FEF6EC':'transparent'};display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:left;transition:background 0.15s;">
+                <span style="font-family:Outfit,serif;font-size:13px;font-weight:${sel?'600':'400'};color:#1C0A00;line-height:1.3;">${prayer.title}</span>
+                ${isAdic?`<span style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${adicEnabled?'#D97706':'#D9D3CC'};"></span>`:''}
+              </button>`;
+            });
+          }
+        });
+        list.innerHTML = html;
       }
 
       function updateAcervoDrawerSelection() {
@@ -2269,6 +2312,16 @@
               </div>
             `;
           } else {
+            const isAdic = ADICIONAL_KEYS.includes(selectedAcervoPrayer);
+            const adicEnabled = isAdic && oracoesAdicionaisSet.has(selectedAcervoPrayer);
+            const adicToggle = isAdic ? `
+              <div style="border-top:1px solid #E9DFCB;margin-top:16px;padding-top:14px;display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-family:Outfit,serif;font-size:12px;color:#78716C;letter-spacing:0.04em;">Incluir no terço</span>
+                <button id="adicionalToggleBtn" onclick="toggleOracaoAdicional('${selectedAcervoPrayer}')" role="switch" aria-checked="${adicEnabled}"
+                  style="position:relative;width:44px;height:26px;border-radius:999px;border:none;cursor:pointer;transition:background 0.25s;flex-shrink:0;background:${adicEnabled?'#D97706':'#D1C9BD'};padding:0;">
+                  <span id="adicionalToggleKnob" style="position:absolute;top:2.5px;left:2.5px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);transform:${adicEnabled?'translateX(18px)':'translateX(0)'};"></span>
+                </button>
+              </div>` : '';
             layout = `
               <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
                 <div class="flex flex-col items-center space-y-1 pt-4 pb-4">
@@ -2279,6 +2332,7 @@
                   <div class="space-y-4 pb-6">
                     <h3 class="text-[13px] font-serif text-orange-850 font-medium uppercase tracking-widest">${prayer.title}</h3>
                     <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">${prayer.text}</p>
+                    ${adicToggle}
                   </div>
                 </div>
                 <div class="text-[10px] text-orange-700/40 font-serif tracking-widest uppercase py-3">Rezar com Devoção</div>
@@ -2485,6 +2539,10 @@
       const MONTHS_SHORT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
       const DAY_HDR = ['S','T','Q','Q','S','S','D'];
 
+      // SVG de rosa para o calendário (sem emoji)
+      const ROSE_SVG_SM = "<svg viewBox='0 0 20 20' fill='currentColor' style='width:11px;height:11px;color:#9F1239;flex-shrink:0;'><ellipse cx='10' cy='4' rx='2.2' ry='3.6'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(72 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(144 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(216 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(288 10 10)'/><circle cx='10' cy='10' r='2'/></svg>";
+      const ROSE_SVG_LG = "<svg viewBox='0 0 20 20' fill='currentColor' style='width:17px;height:17px;color:#9F1239;flex-shrink:0;'><ellipse cx='10' cy='4' rx='2.2' ry='3.6'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(72 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(144 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(216 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(288 10 10)'/><circle cx='10' cy='10' r='2'/></svg>";
+
       function saveRosas() {
         localStorage.setItem('rosasParaMaria', JSON.stringify([...rosasData]));
       }
@@ -2598,11 +2656,11 @@
               const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
               const hasRosa = rosasData.has(dk);
               const isToday = d.toDateString() === today.toDateString();
-              const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
-              const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
-              const fw = (hasRosa || isToday) ? '700' : '400';
-              const col = hasRosa ? '#FFFFFF' : (isToday ? '#92400E' : '#7C6E5E');
-              const content = `<span style="font-family:Outfit;font-size:13px;font-weight:${fw};line-height:1;color:${col};">${d.getDate()}</span>`;
+              const bg = hasRosa ? '#FFF0F2' : (isToday ? '#FFF7ED' : '#EAE6DF');
+              const bdr = hasRosa ? '1.5px solid #FDA4AF' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+              const content = hasRosa
+                ? `<div style="display:flex;flex-direction:column;align-items:center;gap:1px;">${ROSE_SVG_SM}<span style="font-family:Outfit;font-size:8px;font-weight:700;color:#9F1239;line-height:1;">${d.getDate()}</span></div>`
+                : `<span style="font-family:Outfit;font-size:13px;font-weight:${isToday?'700':'400'};color:${isToday?'#92400E':'#7C6E5E'};line-height:1;">${d.getDate()}</span>`;
               html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:8px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:32px;">${content}</button>`);
             });
             html.push('</div>');
@@ -2621,11 +2679,11 @@
             const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
             const hasRosa = rosasData.has(dk);
             const isToday = d.toDateString() === today.toDateString();
-            const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
-            const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
-            const fw = (hasRosa || isToday) ? '700' : '400';
-            const col = hasRosa ? '#FFFFFF' : (isToday ? '#92400E' : '#7C6E5E');
-            const content = `<span style="font-family:Outfit;font-size:15px;font-weight:${fw};line-height:1;color:${col};">${d.getDate()}</span>`;
+            const bg = hasRosa ? '#FFF0F2' : (isToday ? '#FFF7ED' : '#EAE6DF');
+            const bdr = hasRosa ? '1.5px solid #FDA4AF' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+            const content = hasRosa
+              ? `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">${ROSE_SVG_LG}<span style="font-family:Outfit;font-size:10px;font-weight:700;color:#9F1239;line-height:1;">${d.getDate()}</span></div>`
+              : `<span style="font-family:Outfit;font-size:15px;font-weight:${isToday?'700':'400'};color:${isToday?'#92400E':'#7C6E5E'};line-height:1;">${d.getDate()}</span>`;
             html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:10px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:52px;">${content}</button>`);
           }
           html.push('</div>');
@@ -2792,25 +2850,14 @@
       </div>
     </div>
 
-    <!-- Drawer lateral do Acervo -->
+    <!-- Drawer lateral do Acervo (abre pela direita) -->
     <div id="acervoDrawerOverlay" style="display:none; position:fixed; inset:0; z-index:60; background:rgba(41,29,20,0.40);" onclick="closeAcervoDrawer()">
-      <div id="acervoDrawer" style="position:absolute; left:0; top:0; bottom:0; width:80%; max-width:300px; background:#FAF6EE; transform:translateX(-100%); display:flex; flex-direction:column; overflow:hidden;" onclick="event.stopPropagation()">
+      <div id="acervoDrawer" style="position:absolute; right:0; top:0; bottom:0; width:80%; max-width:300px; background:#FAF6EE; transform:translateX(100%); display:flex; flex-direction:column; overflow:hidden;" onclick="event.stopPropagation()">
         <div class="px-5 pt-8 pb-4 border-b border-stone-100 flex-shrink-0">
           <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-serif mb-1">Devocionário</p>
           <h3 class="font-serif text-orange-950 text-lg font-medium">Orações</h3>
         </div>
-        <div id="acervoDrawerList" class="overflow-y-auto hide-scrollbar flex-1 px-3 py-3 space-y-1"></div>
-        <!-- Toggle: Orações ao final -->
-        <div class="px-4 py-3 border-t border-stone-100 flex-shrink-0 flex items-center justify-between">
-          <div class="flex-1 pr-3">
-            <div class="font-serif text-orange-950 text-xs font-medium">Orações ao final</div>
-            <div class="text-[10px] font-serif text-stone-400 mt-0.5">Esp. Santo, S. José e S. Miguel</div>
-          </div>
-          <button id="toggleOracoesAdicionais" onclick="toggleOracoesAdicionais()" role="switch" aria-checked="false"
-            style="position:relative; width:44px; height:26px; border-radius:999px; border:none; cursor:pointer; transition:background 0.25s; flex-shrink:0; background:#D1C9BD; padding:0;">
-            <span id="toggleKnob" style="position:absolute; top:2.5px; left:2.5px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.22); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);"></span>
-          </button>
-        </div>
+        <div id="acervoDrawerList" class="overflow-y-auto hide-scrollbar flex-1 px-3 py-3"></div>
         <div style="height: env(safe-area-inset-bottom, 8px); flex-shrink:0;"></div>
       </div>
     </div>
