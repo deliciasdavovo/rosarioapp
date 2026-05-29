@@ -2659,23 +2659,12 @@
             </div>`;
         }
 
-        // Stats em 3 mini-cards
+        // Stats simples
         if (statsEl) {
-          statsEl.innerHTML = `
-            <div style="display:flex;gap:8px;padding:4px 0 0;">
-              <div style="flex:1;background:white;border-radius:14px;padding:12px 8px;text-align:center;border:1px solid #EDE8E0;">
-                <div style="font-family:Outfit,serif;font-size:20px;font-weight:700;color:#BE123C;line-height:1;">${monthCount}</div>
-                <div style="font-family:Outfit,serif;font-size:10px;color:#A8A29E;margin-top:2px;letter-spacing:0.03em;">este mês</div>
-              </div>
-              <div style="flex:1;background:white;border-radius:14px;padding:12px 8px;text-align:center;border:1px solid #EDE8E0;">
-                <div style="font-family:Outfit,serif;font-size:20px;font-weight:700;color:#BE123C;line-height:1;">${streak.current}</div>
-                <div style="font-family:Outfit,serif;font-size:10px;color:#A8A29E;margin-top:2px;letter-spacing:0.03em;">sequência</div>
-              </div>
-              <div style="flex:1;background:white;border-radius:14px;padding:12px 8px;text-align:center;border:1px solid #EDE8E0;">
-                <div style="font-family:Outfit,serif;font-size:20px;font-weight:700;color:#BE123C;line-height:1;">${totalRosas}</div>
-                <div style="font-family:Outfit,serif;font-size:10px;color:#A8A29E;margin-top:2px;letter-spacing:0.03em;">total</div>
-              </div>
-            </div>`;
+          statsEl.textContent = monthCount === 0
+            ? 'Nenhuma rosa este mês'
+            : monthCount === 1 ? '1 rosa este mês'
+            : monthCount + ' rosas este mês';
         }
 
         // Mensagem encorajadora dinâmica
@@ -2980,8 +2969,8 @@
           <!-- Grade do calendário (injetada via JS) -->
           <div id="habitsCalContainer"></div>
 
-          <!-- Estatísticas do mês (3 mini-cards) -->
-          <div id="habitsStats" style="padding:16px 4px 4px;"></div>
+          <!-- Estatísticas do mês -->
+          <div id="habitsStats" style="text-align:center; font-family:Outfit,serif; font-size:12px; color:#A8A29E; padding:20px 0 8px; letter-spacing:0.05em;"></div>
 
           <!-- Mensagem encorajadora dinâmica -->
           <div style="padding:20px 24px 8px; text-align:center;">
