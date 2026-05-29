@@ -2206,7 +2206,6 @@
 
       function selectAcervoPrayer(key) {
         selectedAcervoPrayer = key;
-        closeAcervoDrawer();
         renderAcervoPanel();
       }
 
@@ -2274,6 +2273,7 @@
       }
 
       function renderAcervoPanel() {
+        renderAcervoDrawerList();
         const panel = document.getElementById('acervoPanelContent');
         if (!panel) return;
         const item = ACERVO_ITEMS.find(i => i.key === selectedAcervoPrayer);
@@ -2759,54 +2759,57 @@
             <span class="text-stone-700 font-serif tracking-wide text-sm font-medium">Rosário</span>
           </button>
           <div></div>
-          <!-- Direita: Abrir drawer de seleção -->
-          <button onclick="openAcervoDrawer()" class="justify-self-end p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Selecionar oração">
-            <svg class="w-5 h-5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-          </button>
+          <div></div>
         </div>
       </header>
 
-      <!-- Abas de modo: Oração e Imagem -->
-      <div class="flex-none max-w-xl mx-auto w-full px-4 mb-2 z-20">
-        <div class="flex justify-between bg-white rounded-2xl shadow-sm p-1.5 border border-stone-100/80 relative">
-          <div id="acervoActiveTabBg" class="absolute top-1.5 bottom-1.5 left-1.5 bg-orange-50 rounded-xl transition-all duration-300 ease-out" style="width: calc(50% - 3px);"></div>
-          <button id="acervoTabOracao" onclick="setAcervoMode('oracao')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 text-orange-900">
-            <span class="flex flex-col items-center gap-1">
-              <svg class="w-4 h-4 text-orange-600/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-              <span class="text-[10px] font-medium tracking-wide uppercase">Oração</span>
-            </span>
-          </button>
-          <button id="acervoTabImagem" onclick="setAcervoMode('imagem')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 text-stone-400 hover:text-stone-600">
-            <span class="flex flex-col items-center gap-1">
-              <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a1 1 0 011.414 0L16 16m-2-2l1.586-1.586a1 1 0 011.414 0L21 14m-7-4a2 2 0 110-4 2 2 0 010 4z"/></svg>
-              <span class="text-[10px] font-medium tracking-wide uppercase">Imagem</span>
-            </span>
-          </button>
-        </div>
-      </div>
+      <!-- Área principal: conteúdo + sidebar -->
+      <div style="flex:1; min-height:0; display:flex; flex-direction:row; overflow:hidden;">
 
-      <!-- Papel principal -->
-      <div style="flex:1; min-height:0; padding:12px; overflow:hidden;">
-        <div class="w-full h-full bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col">
-          <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
-          <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <div id="acervoPanelContent" class="relative w-full h-full z-10 flex flex-col pt-10 px-10 pb-10 text-center fade-transition fade-in"></div>
-        </div>
-      </div>
-    </div>
+        <!-- Coluna esquerda: abas + papel -->
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden;">
 
-    <!-- Drawer lateral do Acervo (abre pela direita) -->
-    <div id="acervoDrawerOverlay" style="display:none; position:fixed; inset:0; z-index:60; background:rgba(41,29,20,0.40);" onclick="closeAcervoDrawer()">
-      <div id="acervoDrawer" style="position:absolute; right:0; top:0; bottom:0; width:80%; max-width:300px; background:#FAF6EE; transform:translateX(100%); display:flex; flex-direction:column; overflow:hidden;" onclick="event.stopPropagation()">
-        <div class="px-5 pt-8 pb-4 border-b border-stone-100 flex-shrink-0">
-          <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-serif mb-1">Devocionário</p>
-          <h3 class="font-serif text-orange-950 text-lg font-medium">Orações</h3>
+          <!-- Abas de modo: Oração e Imagem -->
+          <div class="flex-none w-full px-4 mb-2 z-20">
+            <div class="flex justify-between bg-white rounded-2xl shadow-sm p-1.5 border border-stone-100/80 relative">
+              <div id="acervoActiveTabBg" class="absolute top-1.5 bottom-1.5 left-1.5 bg-orange-50 rounded-xl transition-all duration-300 ease-out" style="width: calc(50% - 3px);"></div>
+              <button id="acervoTabOracao" onclick="setAcervoMode('oracao')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 text-orange-900">
+                <span class="flex flex-col items-center gap-1">
+                  <svg class="w-4 h-4 text-orange-600/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                  <span class="text-[10px] font-medium tracking-wide uppercase">Oração</span>
+                </span>
+              </button>
+              <button id="acervoTabImagem" onclick="setAcervoMode('imagem')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 text-stone-400 hover:text-stone-600">
+                <span class="flex flex-col items-center gap-1">
+                  <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a1 1 0 011.414 0L16 16m-2-2l1.586-1.586a1 1 0 011.414 0L21 14m-7-4a2 2 0 110-4 2 2 0 010 4z"/></svg>
+                  <span class="text-[10px] font-medium tracking-wide uppercase">Imagem</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Papel principal -->
+          <div style="flex:1; min-height:0; padding:0 0 12px 12px; overflow:hidden;">
+            <div class="w-full h-full bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col">
+              <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
+              <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+              <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+              <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+              <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
+              <div id="acervoPanelContent" class="relative w-full h-full z-10 flex flex-col pt-10 px-10 pb-10 text-center fade-transition fade-in"></div>
+            </div>
+          </div>
         </div>
-        <div id="acervoDrawerList" class="overflow-y-auto hide-scrollbar flex-1 px-3 py-3"></div>
-        <div style="height: env(safe-area-inset-bottom, 8px); flex-shrink:0;"></div>
+
+        <!-- Sidebar direita: menu de orações -->
+        <div style="width:220px; flex-shrink:0; display:flex; flex-direction:column; overflow:hidden; border-left:1px solid #E9DFCB; background:#FAF6EE;">
+          <div class="px-4 pt-6 pb-3 flex-shrink-0">
+            <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-serif mb-1">Devocionário</p>
+            <h3 class="font-serif text-orange-950 text-lg font-medium">Orações</h3>
+          </div>
+          <div id="acervoDrawerList" class="overflow-y-auto hide-scrollbar flex-1 px-2 pb-4"></div>
+        </div>
+
       </div>
     </div>
 
