@@ -2538,8 +2538,8 @@
       const DAY_HDR = ['S','T','Q','Q','S','S','D'];
 
       // SVG de rosa para o calendário (sem emoji)
-      const ROSE_SVG_SM = "<svg viewBox='0 0 20 20' fill='currentColor' style='width:11px;height:11px;color:#9F1239;flex-shrink:0;'><ellipse cx='10' cy='4' rx='2.2' ry='3.6'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(72 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(144 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(216 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(288 10 10)'/><circle cx='10' cy='10' r='2'/></svg>";
-      const ROSE_SVG_LG = "<svg viewBox='0 0 20 20' fill='currentColor' style='width:17px;height:17px;color:#9F1239;flex-shrink:0;'><ellipse cx='10' cy='4' rx='2.2' ry='3.6'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(72 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(144 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(216 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(288 10 10)'/><circle cx='10' cy='10' r='2'/></svg>";
+      const ROSE_SVG_SM = "<svg viewBox='0 0 20 20' fill='currentColor' style='width:11px;height:11px;color:#FFFFFF;flex-shrink:0;'><ellipse cx='10' cy='4' rx='2.2' ry='3.6'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(72 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(144 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(216 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(288 10 10)'/><circle cx='10' cy='10' r='2'/></svg>";
+      const ROSE_SVG_LG = "<svg viewBox='0 0 20 20' fill='currentColor' style='width:17px;height:17px;color:#FFFFFF;flex-shrink:0;'><ellipse cx='10' cy='4' rx='2.2' ry='3.6'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(72 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(144 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(216 10 10)'/><ellipse cx='10' cy='4' rx='2.2' ry='3.6' transform='rotate(288 10 10)'/><circle cx='10' cy='10' r='2'/></svg>";
 
       function saveRosas() {
         localStorage.setItem('rosasParaMaria', JSON.stringify([...rosasData]));
@@ -2654,10 +2654,10 @@
               const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
               const hasRosa = rosasData.has(dk);
               const isToday = d.toDateString() === today.toDateString();
-              const bg = hasRosa ? '#FFF0F2' : (isToday ? '#FFF7ED' : '#EAE6DF');
-              const bdr = hasRosa ? '1.5px solid #FDA4AF' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+              const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
+              const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
               const content = hasRosa
-                ? `<div style="display:flex;flex-direction:column;align-items:center;gap:1px;">${ROSE_SVG_SM}<span style="font-family:Outfit;font-size:8px;font-weight:700;color:#9F1239;line-height:1;">${d.getDate()}</span></div>`
+                ? `<div style="display:flex;flex-direction:column;align-items:center;gap:1px;">${ROSE_SVG_SM}<span style="font-family:Outfit;font-size:8px;font-weight:700;color:#FFFFFF;line-height:1;">${d.getDate()}</span></div>`
                 : `<span style="font-family:Outfit;font-size:13px;font-weight:${isToday?'700':'400'};color:${isToday?'#92400E':'#7C6E5E'};line-height:1;">${d.getDate()}</span>`;
               html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:8px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:32px;">${content}</button>`);
             });
@@ -2677,10 +2677,10 @@
             const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
             const hasRosa = rosasData.has(dk);
             const isToday = d.toDateString() === today.toDateString();
-            const bg = hasRosa ? '#FFF0F2' : (isToday ? '#FFF7ED' : '#EAE6DF');
-            const bdr = hasRosa ? '1.5px solid #FDA4AF' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+            const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
+            const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
             const content = hasRosa
-              ? `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">${ROSE_SVG_LG}<span style="font-family:Outfit;font-size:10px;font-weight:700;color:#9F1239;line-height:1;">${d.getDate()}</span></div>`
+              ? `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">${ROSE_SVG_LG}<span style="font-family:Outfit;font-size:10px;font-weight:700;color:#FFFFFF;line-height:1;">${d.getDate()}</span></div>`
               : `<span style="font-family:Outfit;font-size:15px;font-weight:${isToday?'700':'400'};color:${isToday?'#92400E':'#7C6E5E'};line-height:1;">${d.getDate()}</span>`;
             html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:10px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:52px;">${content}</button>`);
           }
