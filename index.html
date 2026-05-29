@@ -1032,12 +1032,8 @@
       let acervoMode = 'oracao';
 
       // Estado do Áudio (Cantos Gregorianos)
-      let audioCtx = null;
-      let audioMasterGain = null;
-      let activeOscillators = new Set();
-      let chantLoopTimer = null;
       let ambientEnabled = localStorage.getItem('ambientEnabled') === 'true';
-      let selectedChant = localStorage.getItem('selectedChant') || 'kyrie';
+      let selectedChant = parseInt(localStorage.getItem('selectedChant') || '0', 10);
 
       // Estado do Habit Tracker (Rosas para Maria)
       let rosasData = new Set(JSON.parse(localStorage.getItem('rosasParaMaria') || '[]'));
@@ -2358,111 +2354,54 @@
         }
       }
 
-      // ============= CANTOS GREGORIANOS (Web Audio API) =============
-      const NOTE = {
-        C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00,
-        A4:440.00, Bb4:466.16, B4:493.88, C5:523.25, D5:587.33
-      };
-
-      const GREGORIAN_CHANTS = [
-        {
-          id: 'kyrie', name: 'Kyrie Eleison', sub: 'Modo Dórico',
-          sequence: [
-            [NOTE.D4,1.5],[NOTE.E4,0.5],[NOTE.F4,1],[NOTE.E4,0.5],[NOTE.D4,1.5],
-            [NOTE.F4,0.5],[NOTE.G4,1],[NOTE.F4,0.5],[NOTE.E4,1.5],
-            [NOTE.D4,1],[NOTE.E4,0.5],[NOTE.D4,2.5]
-          ]
-        },
-        {
-          id: 'avemaria', name: 'Ave Maria', sub: 'Modo Lídio',
-          sequence: [
-            [NOTE.F4,1],[NOTE.G4,0.5],[NOTE.A4,0.5],[NOTE.G4,1],[NOTE.F4,0.5],[NOTE.G4,1.5],
-            [NOTE.A4,0.5],[NOTE.Bb4,1],[NOTE.A4,0.5],[NOTE.G4,1.5],
-            [NOTE.F4,1],[NOTE.G4,0.5],[NOTE.F4,2.5]
-          ]
-        },
-        {
-          id: 'salveregina', name: 'Salve Regina', sub: 'Modo Mixolídio',
-          sequence: [
-            [NOTE.G4,1],[NOTE.A4,0.5],[NOTE.G4,0.5],[NOTE.F4,1],[NOTE.G4,1.5],
-            [NOTE.A4,0.5],[NOTE.Bb4,1],[NOTE.A4,0.5],[NOTE.G4,1],
-            [NOTE.F4,0.5],[NOTE.E4,0.5],[NOTE.F4,1],[NOTE.G4,2]
-          ]
-        },
-        {
-          id: 'panglingua', name: 'Pange Lingua', sub: 'Modo Frígio',
-          sequence: [
-            [NOTE.F4,1],[NOTE.G4,0.5],[NOTE.F4,0.5],[NOTE.E4,1],[NOTE.F4,1.5],
-            [NOTE.G4,0.5],[NOTE.A4,1],[NOTE.G4,0.5],[NOTE.F4,1.5],
-            [NOTE.E4,1],[NOTE.F4,0.5],[NOTE.G4,0.5],[NOTE.F4,2]
-          ]
-        }
+      // ============= CANTOS GREGORIANOS (HTML5 Audio — playlist real) =============
+      const CHANT_TRACKS = [
+        { name: 'Adoro Te Devote',         url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025859/Adoro_te_devote_MP3_160K__1_antsm0.mp3' },
+        { name: 'Veni Veni Emmanuel',       url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025857/Veni_Veni_Emmanuel_-_LEGENDADO_PT_BR_MP3_160K__2_z2powq.mp3' },
+        { name: 'Media Vita',               url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025854/MEDIA_VITA_-_Canto_Cruzado_Medieval_traduzido_em_pt-br_MP3_160K_rnh0l6.mp3' },
+        { name: 'Chant des Templiers',      url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025853/Le_Chant_des_Templiers__I._Antiphona__Crucem_sanctam__MP3_160K_mqum3m.mp3' },
+        { name: 'Tenebrae Factae Sunt',     url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025849/Tenebrae_factae_sunt_-_Canto_para_a_sexta-feira_santa_-_legendado_pt_br_MP3_160K_ueagxq.mp3' },
+        { name: 'Ego Sum Alpha et Omega',   url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025849/Ego_Sum_Alpha_et_Omega_-_Eu_sou_o_Alfa_e_o_%C3%94mega_MP3_160K__1_z4orma.mp3' },
+        { name: 'Jesu Dulcis Memoria',      url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025847/Jesu_Dulcis_Memoria_MP3_160K__2_noflvk.mp3' },
+        { name: 'Ave Maria Gregoriano',     url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025842/Ave_Maria_Gregoriano_MP3_160K_hk86kz.mp3' },
+        { name: 'Flos Carmeli',             url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025841/Flos_Carmeli_-_LEGENDADO_em_pt_br_MP3_160K_lxigqe.mp3' },
+        { name: 'Litanie du Sacré Cœur',    url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025841/Litanie_du_Sacr%C3%A9_Cour_de_J%C3%A9sus_MP3_160K_pcmfix.mp3' },
+        { name: 'Hino Contra Lutero',       url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025837/UM_HINO_CONTRA_LUTERO_-_PESSIMAS_LUTHERI_FRAUDES_MP3_160K_tok7wd.mp3' },
+        { name: 'Kyrie Fons Bonitatis',     url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025836/Kyrie_Fons_Bonitatis_-_Tropo_Modo_III_1999_Remastered_Version_MP3_160K_rsgjal.mp3' },
+        { name: 'Missa Orbis Factor',       url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025832/Missa_orbis_factor_-_Kyrie_MP3_160K_pcbi3w.mp3' }
       ];
 
-      function ensureAudioCtx() {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          audioMasterGain = audioCtx.createGain();
-          audioMasterGain.gain.value = 0.62;
-          audioMasterGain.connect(audioCtx.destination);
-        }
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-      }
-
-      function scheduleChoirNote(freq, t, dur) {
-        const ng = audioCtx.createGain();
-        ng.connect(audioMasterGain);
-        const atk = Math.min(0.38, dur * 0.28);
-        const rel = Math.min(0.45, dur * 0.32);
-        ng.gain.setValueAtTime(0, t);
-        ng.gain.linearRampToValueAtTime(0.55, t + atk);
-        ng.gain.setValueAtTime(0.55, Math.max(t + atk + 0.01, t + dur - rel));
-        ng.gain.linearRampToValueAtTime(0, t + dur);
-        [[1,1.0],[2,0.13],[1.498,0.09],[3,0.04]].forEach(([harm, vol]) => {
-          const osc = audioCtx.createOscillator();
-          const og = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = freq * harm;
-          og.gain.value = vol;
-          osc.connect(og);
-          og.connect(ng);
-          osc.start(t);
-          osc.stop(t + dur + 0.1);
-          activeOscillators.add(osc);
-          osc.onended = () => activeOscillators.delete(osc);
-        });
-      }
+      let currentAudio = null;
 
       function stopAllAudio() {
-        if (chantLoopTimer) { clearTimeout(chantLoopTimer); chantLoopTimer = null; }
-        activeOscillators.forEach(osc => { try { osc.stop(); } catch(e) {} });
-        activeOscillators.clear();
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.onended = null;
+          currentAudio = null;
+        }
       }
 
-      function playChantLoop(chantId) {
-        if (selectedChant !== chantId || !ambientEnabled) return;
-        ensureAudioCtx();
-        const chant = GREGORIAN_CHANTS.find(c => c.id === chantId);
-        if (!chant) return;
-        const beat = 0.72;
-        let t = audioCtx.currentTime + 0.15;
-        let total = 0;
-        chant.sequence.forEach(([freq, beats]) => {
-          const dur = beats * beat;
-          scheduleChoirNote(freq, t, dur - 0.04);
-          t += dur;
-          total += dur;
-        });
-        chantLoopTimer = setTimeout(() => {
-          if (ambientEnabled && selectedChant === chantId) playChantLoop(chantId);
-        }, (total + 1.6) * 1000);
+      function playChantAt(index) {
+        stopAllAudio();
+        if (!ambientEnabled) return;
+        const track = CHANT_TRACKS[index];
+        if (!track) return;
+        selectedChant = index;
+        localStorage.setItem('selectedChant', String(index));
+        currentAudio = new Audio(track.url);
+        currentAudio.volume = 0.7;
+        currentAudio.onended = function() {
+          playChantAt((index + 1) % CHANT_TRACKS.length);
+        };
+        currentAudio.play().catch(function() {});
+        updateAudioUI();
       }
 
       function toggleAmbient() {
         ambientEnabled = !ambientEnabled;
         localStorage.setItem('ambientEnabled', ambientEnabled ? 'true' : 'false');
-        if (ambientEnabled && selectedChant) {
-          playChantLoop(selectedChant);
+        if (ambientEnabled) {
+          playChantAt(selectedChant);
         } else {
           stopAllAudio();
         }
@@ -2470,16 +2409,12 @@
         if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
       }
 
-      function selectChant(id) {
-        stopAllAudio();
-        selectedChant = id;
-        localStorage.setItem('selectedChant', id);
+      function selectChant(index) {
         if (!ambientEnabled) {
           ambientEnabled = true;
           localStorage.setItem('ambientEnabled', 'true');
         }
-        playChantLoop(id);
-        updateAudioUI();
+        playChantAt(index);
         if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
       }
 
@@ -2491,14 +2426,19 @@
           btn.setAttribute('aria-checked', ambientEnabled ? 'true' : 'false');
           knob.style.transform = ambientEnabled ? 'translateX(20px)' : 'translateX(0)';
         }
-        GREGORIAN_CHANTS.forEach(c => {
-          const el = document.getElementById('chant-' + c.id);
+        const nowPlaying = document.getElementById('chant-now-playing');
+        if (nowPlaying) {
+          const track = CHANT_TRACKS[selectedChant];
+          nowPlaying.textContent = (ambientEnabled && track) ? (selectedChant + 1) + '. ' + track.name : '';
+        }
+        CHANT_TRACKS.forEach(function(track, i) {
+          const el = document.getElementById('chant-' + i);
           if (!el) return;
-          const sel = selectedChant === c.id;
+          const sel = selectedChant === i && ambientEnabled;
           el.style.background = sel ? '#D97706' : '#F5F1EC';
           el.style.borderColor = sel ? '#D97706' : '#E7E0D5';
           el.style.color = sel ? '#FFFFFF' : '#7C6E5E';
-          el.style.fontWeight = sel ? '600' : '500';
+          el.style.fontWeight = sel ? '700' : '500';
         });
       }
 
@@ -2745,24 +2685,23 @@
               <span id="ambientKnob" style="position:absolute; top:3px; left:3px; width:25px; height:25px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.22); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);"></span>
             </button>
           </div>
-          <!-- Chips de seleção inline -->
-          <div style="display:flex; gap:7px; overflow-x:auto; padding-bottom:2px;" class="hide-scrollbar">
-            <button id="chant-kyrie" onclick="selectChant('kyrie')"
-              style="flex-shrink:0; padding:6px 14px; border-radius:999px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:12px; font-weight:500; color:#7C6E5E; background:#F5F1EC; cursor:pointer; white-space:nowrap; transition:all 0.18s;">
-              Kyrie Eleison
-            </button>
-            <button id="chant-avemaria" onclick="selectChant('avemaria')"
-              style="flex-shrink:0; padding:6px 14px; border-radius:999px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:12px; font-weight:500; color:#7C6E5E; background:#F5F1EC; cursor:pointer; white-space:nowrap; transition:all 0.18s;">
-              Ave Maria
-            </button>
-            <button id="chant-salveregina" onclick="selectChant('salveregina')"
-              style="flex-shrink:0; padding:6px 14px; border-radius:999px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:12px; font-weight:500; color:#7C6E5E; background:#F5F1EC; cursor:pointer; white-space:nowrap; transition:all 0.18s;">
-              Salve Regina
-            </button>
-            <button id="chant-panglingua" onclick="selectChant('panglingua')"
-              style="flex-shrink:0; padding:6px 14px; border-radius:999px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:12px; font-weight:500; color:#7C6E5E; background:#F5F1EC; cursor:pointer; white-space:nowrap; transition:all 0.18s;">
-              Pange Lingua
-            </button>
+          <!-- Faixa tocando agora -->
+          <div id="chant-now-playing" style="font-family:Outfit,serif; font-size:11px; color:#A8997A; margin-bottom:8px; padding:0 1px; min-height:14px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; letter-spacing:0.02em;"></div>
+          <!-- Chips numerados — scroll horizontal -->
+          <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:4px;" class="hide-scrollbar">
+            <button id="chant-0"  onclick="selectChant(0)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">1</button>
+            <button id="chant-1"  onclick="selectChant(1)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">2</button>
+            <button id="chant-2"  onclick="selectChant(2)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">3</button>
+            <button id="chant-3"  onclick="selectChant(3)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">4</button>
+            <button id="chant-4"  onclick="selectChant(4)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">5</button>
+            <button id="chant-5"  onclick="selectChant(5)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">6</button>
+            <button id="chant-6"  onclick="selectChant(6)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">7</button>
+            <button id="chant-7"  onclick="selectChant(7)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">8</button>
+            <button id="chant-8"  onclick="selectChant(8)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">9</button>
+            <button id="chant-9"  onclick="selectChant(9)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">10</button>
+            <button id="chant-10" onclick="selectChant(10)" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">11</button>
+            <button id="chant-11" onclick="selectChant(11)" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">12</button>
+            <button id="chant-12" onclick="selectChant(12)" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">13</button>
           </div>
         </div>
 
