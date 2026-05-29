@@ -71,6 +71,18 @@
       @keyframes ptr-spin {
         to { transform: rotate(360deg); }
       }
+      @keyframes roseBloom {
+        0%   { transform: scale(0.2); opacity: 0; }
+        60%  { transform: scale(1.18); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .rose-bloom { animation: roseBloom 0.38s cubic-bezier(0.34,1.56,0.64,1) both; }
+      @keyframes celebrateRose {
+        0%   { transform: scale(0); opacity: 0; }
+        55%  { transform: scale(1.25); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .celebrate-rose { animation: celebrateRose 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
       #ptr {
         position: fixed;
         top: 0;
@@ -1036,6 +1048,7 @@
       let habitCalMonth = new Date().getMonth();
       let habitCalYear = new Date().getFullYear();
       let habitCalView = 'mensal';
+      let lastAddedKey = null;
 
       // Sequência completa de contas litúrgicas
       function createBeads() {
@@ -2466,8 +2479,26 @@
       function confirmRosaToday() {
         const today = fmtDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
         rosasData.add(today);
+        lastAddedKey = today;
         saveRosas();
-        dismissRosaryComplete();
+        if (navigator.vibrate) try { navigator.vibrate([40, 30, 60, 30, 100]); } catch(e) {}
+        showRosaCelebration(() => dismissRosaryComplete());
+      }
+
+      function showRosaCelebration(callback) {
+        const sheet = document.getElementById('rosaryCompleteSheet');
+        if (!sheet) { callback(); return; }
+        const btns = sheet.querySelector('.rosa-btns');
+        const celebDiv = document.createElement('div');
+        celebDiv.style.cssText = 'display:flex;align-items:center;justify-content:center;padding:24px 0 8px;';
+        celebDiv.innerHTML = "<svg viewBox='0 0 100 100' fill='currentColor' class='celebrate-rose' style='width:72px;height:72px;color:#BE123C;'><path fill-rule='evenodd' d='M50 4C72 -4 100 14 96 38C100 58 84 82 62 90C50 97 26 97 14 88C-2 76 0 50 10 30C22 -2 42 4 50 4ZM56 20C42 18 28 32 28 46C28 60 38 74 52 78C66 82 80 70 80 56C80 42 70 26 56 20ZM50 42C44 42 40 47 40 53C40 60 45 65 51 65C58 65 63 59 62 52C61 45 56 41 50 42ZM50 50C48 50 47 52 47 54C47 56 49 58 51 57C53 56 54 54 53 52C52 50 51 50 50 50Z'/></svg>";
+        if (btns) btns.style.display = 'none';
+        sheet.appendChild(celebDiv);
+        setTimeout(() => {
+          sheet.removeChild(celebDiv);
+          if (btns) btns.style.display = '';
+          callback();
+        }, 900);
       }
 
       function dismissRosaryComplete() {
@@ -2497,11 +2528,12 @@
       }
 
       function toggleRosaDay(dk) {
-        if (rosasData.has(dk)) rosasData.delete(dk);
-        else rosasData.add(dk);
+        const adding = !rosasData.has(dk);
+        if (adding) { rosasData.add(dk); lastAddedKey = dk; }
+        else { rosasData.delete(dk); lastAddedKey = null; }
         saveRosas();
         renderHabitsCalendar();
-        if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
+        if (navigator.vibrate) try { navigator.vibrate(adding ? [20, 20, 60] : 8); } catch(e) {}
       }
 
       function openHabitsView() {
@@ -2539,6 +2571,43 @@
         renderHabitsCalendar();
       }
 
+      function calcStreak() {
+        const today = new Date();
+        let current = 0, best = 0, streak = 0;
+        // check consecutive days ending today or yesterday
+        const d = new Date(today);
+        // first see if today is marked; if not, start from yesterday for current
+        const todayKey = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+        if (!rosasData.has(todayKey)) d.setDate(d.getDate() - 1);
+        while (true) {
+          const k = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+          if (rosasData.has(k)) { current++; d.setDate(d.getDate() - 1); }
+          else break;
+        }
+        // compute best ever by scanning all dates
+        const sorted = [...rosasData].sort();
+        let run = 0, prev = null;
+        for (const dk of sorted) {
+          if (prev) {
+            const p = new Date(prev), c = new Date(dk);
+            const diff = Math.round((c - p) / 86400000);
+            if (diff === 1) run++;
+            else run = 1;
+          } else run = 1;
+          if (run > best) best = run;
+          prev = dk;
+        }
+        return { current, best };
+      }
+
+      function getEncouragingMessage(streak) {
+        if (streak >= 30) return 'Um jardim completo. Que devoção admirável.';
+        if (streak >= 7)  return 'Uma semana de rosas. Nossa Senhora sorri para você.';
+        if (streak >= 3)  return 'Você está cultivando um jardim para Nossa Senhora.';
+        if (streak === 1) return 'Bom começo. Continue amanhã.';
+        return 'Cada rosário é uma rosa. Comece hoje.';
+      }
+
       function renderHabitsCalendar() {
         const container = document.getElementById('habitsCalContainer');
         const titleEl = document.getElementById('habitsMonthTitle');
@@ -2562,12 +2631,56 @@
           const p = dk.split('-');
           if (parseInt(p[0]) === habitCalYear && parseInt(p[1]) === habitCalMonth + 1) monthCount++;
         });
-        if (statsEl) {
-          statsEl.textContent = monthCount === 0
-            ? 'Nenhuma rosa este mês'
-            : monthCount === 1 ? '1 rosa este mês'
-            : monthCount + ' rosas este mês';
+
+        const streak = calcStreak();
+        const totalRosas = rosasData.size;
+
+        // Card de sequência (streak)
+        const streakCardEl = document.getElementById('habitsStreakCard');
+        if (streakCardEl) {
+          const streakLabel = streak.current === 0
+            ? 'Comece hoje'
+            : streak.current === 1
+              ? '1 dia seguido'
+              : streak.current + ' dias seguidos';
+          streakCardEl.innerHTML = `
+            <div style="display:flex;align-items:center;gap:14px;">
+              <div style="flex-shrink:0;width:44px;height:44px;background:#BE123C;border-radius:14px;display:flex;align-items:center;justify-content:center;">
+                <svg viewBox='0 0 100 100' fill='white' style='width:26px;height:26px;'><path fill-rule='evenodd' d='M50 4C72 -4 100 14 96 38C100 58 84 82 62 90C50 97 26 97 14 88C-2 76 0 50 10 30C22 -2 42 4 50 4ZM56 20C42 18 28 32 28 46C28 60 38 74 52 78C66 82 80 70 80 56C80 42 70 26 56 20ZM50 42C44 42 40 47 40 53C40 60 45 65 51 65C58 65 63 59 62 52C61 45 56 41 50 42ZM50 50C48 50 47 52 47 54C47 56 49 58 51 57C53 56 54 54 53 52C52 50 51 50 50 50Z'/></svg>
+              </div>
+              <div style="flex:1;">
+                <div style="font-family:Outfit,serif;font-size:18px;font-weight:700;color:#1C0A00;line-height:1.1;">${streak.current === 0 ? '—' : streak.current}</div>
+                <div style="font-family:Outfit,serif;font-size:11px;color:#9F1239;font-weight:500;letter-spacing:0.04em;">${streakLabel}</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-family:Outfit,serif;font-size:13px;font-weight:600;color:#78716C;">${streak.best}</div>
+                <div style="font-family:Outfit,serif;font-size:10px;color:#A8A29E;letter-spacing:0.03em;">melhor</div>
+              </div>
+            </div>`;
         }
+
+        // Stats em 3 mini-cards
+        if (statsEl) {
+          statsEl.innerHTML = `
+            <div style="display:flex;gap:8px;padding:4px 0 0;">
+              <div style="flex:1;background:white;border-radius:14px;padding:12px 8px;text-align:center;border:1px solid #EDE8E0;">
+                <div style="font-family:Outfit,serif;font-size:20px;font-weight:700;color:#BE123C;line-height:1;">${monthCount}</div>
+                <div style="font-family:Outfit,serif;font-size:10px;color:#A8A29E;margin-top:2px;letter-spacing:0.03em;">este mês</div>
+              </div>
+              <div style="flex:1;background:white;border-radius:14px;padding:12px 8px;text-align:center;border:1px solid #EDE8E0;">
+                <div style="font-family:Outfit,serif;font-size:20px;font-weight:700;color:#BE123C;line-height:1;">${streak.current}</div>
+                <div style="font-family:Outfit,serif;font-size:10px;color:#A8A29E;margin-top:2px;letter-spacing:0.03em;">sequência</div>
+              </div>
+              <div style="flex:1;background:white;border-radius:14px;padding:12px 8px;text-align:center;border:1px solid #EDE8E0;">
+                <div style="font-family:Outfit,serif;font-size:20px;font-weight:700;color:#BE123C;line-height:1;">${totalRosas}</div>
+                <div style="font-family:Outfit,serif;font-size:10px;color:#A8A29E;margin-top:2px;letter-spacing:0.03em;">total</div>
+              </div>
+            </div>`;
+        }
+
+        // Mensagem encorajadora dinâmica
+        const msgEl = document.getElementById('habitsMessage');
+        if (msgEl) msgEl.textContent = getEncouragingMessage(streak.current);
 
         const today = new Date();
         const html = [];
@@ -2601,10 +2714,13 @@
               const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
               const hasRosa = rosasData.has(dk);
               const isToday = d.toDateString() === today.toDateString();
+              const isNew = dk === lastAddedKey;
               const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
               const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+              const bloomClass = (hasRosa && isNew) ? ' class="rose-bloom"' : '';
+              const svgContent = `<span${bloomClass}>${ROSE_SVG_SM}</span>`;
               const content = hasRosa
-                ? ROSE_SVG_SM
+                ? svgContent
                 : `<span style="font-family:Outfit;font-size:13px;font-weight:${isToday?'700':'400'};color:${isToday?'#92400E':'#7C6E5E'};line-height:1;">${d.getDate()}</span>`;
               html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:8px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:32px;">${content}</button>`);
             });
@@ -2624,10 +2740,13 @@
             const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
             const hasRosa = rosasData.has(dk);
             const isToday = d.toDateString() === today.toDateString();
+            const isNew = dk === lastAddedKey;
             const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
             const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+            const bloomClass = (hasRosa && isNew) ? ' class="rose-bloom"' : '';
+            const svgContent = `<span${bloomClass}>${ROSE_SVG_LG}</span>`;
             const content = hasRosa
-              ? ROSE_SVG_LG
+              ? svgContent
               : `<span style="font-family:Outfit;font-size:15px;font-weight:${isToday?'700':'400'};color:${isToday?'#92400E':'#7C6E5E'};line-height:1;">${d.getDate()}</span>`;
             html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:10px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:52px;">${content}</button>`);
           }
@@ -2855,16 +2974,23 @@
             </button>
           </div>
 
+          <!-- Card de sequência -->
+          <div id="habitsStreakCard" style="background:white;border-radius:18px;padding:14px 16px;margin:0 4px 14px;border:1px solid #EDE8E0;box-shadow:0 1px 4px rgba(0,0,0,0.06);"></div>
+
           <!-- Grade do calendário (injetada via JS) -->
           <div id="habitsCalContainer"></div>
 
-          <!-- Estatísticas do mês -->
-          <div id="habitsStats" style="text-align:center; font-family:Outfit,serif; font-size:12px; color:#A8A29E; padding:20px 0 8px; letter-spacing:0.05em;"></div>
-          <!-- Texto inspirador -->
-          <div style="padding:16px 24px 36px; text-align:center;">
-            <div style="width:28px; height:1px; background:#D3C7AE; margin:0 auto 18px;"></div>
-            <p style="font-family:Outfit,sans-serif; font-size:12px; color:#A8A29E; line-height:1.8; letter-spacing:0.01em;">A palavra Rosário quer dizer coroa de rosas. Cada Ave Maria rezada com devoção é uma rosa. Ao término de cada Rosário, uma bela coroa é depositada nas cabeças de Jesus e de Maria.</p>
-            <p style="font-family:Outfit,sans-serif; font-size:10px; color:#C0B8B0; margin-top:12px; letter-spacing:0.06em;">— O Segredo Admirável do Santíssimo Rosário</p>
+          <!-- Estatísticas do mês (3 mini-cards) -->
+          <div id="habitsStats" style="padding:16px 4px 4px;"></div>
+
+          <!-- Mensagem encorajadora dinâmica -->
+          <div style="padding:20px 24px 8px; text-align:center;">
+            <div style="width:28px; height:1px; background:#D3C7AE; margin:0 auto 16px;"></div>
+            <p id="habitsMessage" style="font-family:Outfit,sans-serif; font-size:12px; color:#A8A29E; line-height:1.8; letter-spacing:0.01em;"></p>
+          </div>
+          <!-- Citação fixa -->
+          <div style="padding:0 24px 36px; text-align:center;">
+            <p style="font-family:Outfit,sans-serif; font-size:10px; color:#C0B8B0; letter-spacing:0.06em;">— O Segredo Admirável do Santíssimo Rosário</p>
           </div>
         </div>
       </div>
@@ -2884,7 +3010,7 @@
         <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
         <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-1">Terço concluído</h3>
         <p class="text-center text-[12px] font-serif text-stone-500 mb-6 leading-relaxed">Marcar hoje em<br>Rosas para Maria?</p>
-        <div style="display:flex; gap:10px;">
+        <div class="rosa-btns" style="display:flex; gap:10px;">
           <button onclick="dismissRosaryComplete()"
             style="flex:1; padding:14px; border-radius:16px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:13px; font-weight:500; color:#78716C; background:#FAF6EE; cursor:pointer;">
             Agora não
