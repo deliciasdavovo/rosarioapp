@@ -1741,14 +1741,13 @@
               var oval = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
               oval.setAttribute('cx', '12'); oval.setAttribute('cy', '19');
               oval.setAttribute('rx', '10'); oval.setAttribute('ry', '16');
-              oval.setAttribute('fill', 'none'); oval.setAttribute('stroke', 'currentColor'); oval.setAttribute('stroke-width', '1.8');
+              oval.setAttribute('fill', 'currentColor'); oval.setAttribute('stroke', 'none');
               svgM.appendChild(oval);
-              var mPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-              mPath.setAttribute('d', 'M7 27 L7 13 L12 21 L17 13 L17 27');
-              mPath.setAttribute('stroke', 'currentColor'); mPath.setAttribute('stroke-width', '1.5');
-              mPath.setAttribute('stroke-linecap', 'round'); mPath.setAttribute('stroke-linejoin', 'round');
-              mPath.setAttribute('fill', 'none');
-              svgM.appendChild(mPath);
+              var innerOval = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+              innerOval.setAttribute('cx', '12'); innerOval.setAttribute('cy', '19');
+              innerOval.setAttribute('rx', '7'); innerOval.setAttribute('ry', '12');
+              innerOval.setAttribute('fill', 'none'); innerOval.setAttribute('stroke', 'rgba(255,255,255,0.35)'); innerOval.setAttribute('stroke-width', '1');
+              svgM.appendChild(innerOval);
               b.appendChild(svgM);
             } else if (isNonBead) {
               b.style.background = 'transparent'; b.style.border = 'none'; b.style.borderRadius = '0';
@@ -1757,8 +1756,7 @@
               svgD.style.cssText = 'width:100%;height:100%;display:block;pointer-events:none;';
               var diamond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
               diamond.setAttribute('d', 'M7 1 L13 7 L7 13 L1 7 Z');
-              diamond.setAttribute('stroke', 'currentColor'); diamond.setAttribute('fill', 'none');
-              diamond.setAttribute('stroke-width', '1.5'); diamond.setAttribute('stroke-linejoin', 'round');
+              diamond.setAttribute('fill', 'currentColor'); diamond.setAttribute('stroke', 'none');
               svgD.appendChild(diamond);
               b.appendChild(svgD);
             }
