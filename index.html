@@ -2442,6 +2442,17 @@
         });
       }
 
+      // Inicia áudio na primeira interação do usuário se estiver ligado
+      if (ambientEnabled) {
+        const _startOnInteraction = function() {
+          playChantAt(selectedChant);
+          document.removeEventListener('touchstart', _startOnInteraction);
+          document.removeEventListener('click', _startOnInteraction);
+        };
+        document.addEventListener('touchstart', _startOnInteraction, { once: true });
+        document.addEventListener('click', _startOnInteraction, { once: true });
+      }
+
       // ============= CONCLUSÃO DO TERÇO =============
       function showRosaryCompleteSheet() {
         const today = fmtDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
