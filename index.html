@@ -143,7 +143,7 @@
         </div>
 
         <!-- Centro: Título -->
-        <h1 class="text-2xl font-serif text-amber-950 font-bold tracking-wide text-center whitespace-nowrap">meu rosário</h1>
+        <h1 class="text-2xl font-serif text-amber-950 font-bold tracking-wide text-center whitespace-nowrap cursor-pointer select-none active:opacity-60 transition-opacity" onclick="triggerRefresh()">meu rosário</h1>
 
         <!-- Direita: Menu Hambúrguer -->
         <button onclick="openSettingsMenu()" class="justify-self-end flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
@@ -577,6 +577,24 @@
         { key: 'ave-maria',      iconPath: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', imageUrl: 'https://images.unsplash.com/photo-1490750967868-88df5691cc8f?q=80&w=2070&auto=format&fit=crop' }
       ];
 
+      const ADICIONAL_KEYS = ['espirito-santo','sao-jose','sao-miguel'];
+
+      const ACERVO_SECTIONS = [
+        {
+          title: 'Rosário',
+          subtitle: 'Orações do terço',
+          keys: ['oferecimento','cruz','pai-nosso','ave-maria','gloria','o-meu-jesus','salve-rainha','agradecimento']
+        },
+        {
+          title: 'Orações',
+          subtitle: 'Selecione as que deseja ao final',
+          keys: ['espirito-santo','sao-jose','sao-miguel'],
+          adicional: true
+        },
+        { title: 'Novenas',  subtitle: 'Em breve', keys: [] },
+        { title: 'Terços',   subtitle: 'Em breve', keys: [] }
+      ];
+
       const MONTFORT_DATA = {
         credoPontos: [
           '1º) Fé na presença de Deus',
@@ -995,15 +1013,29 @@
 
       // Estado Global da Aplicação
       let selectedDay = new Date().getDay();
-      let activeMode = 'meditativo';
+      let activeMode = 'curta';
       let meditativoVariant = 'fatima'; // 'montfort' | 'fatima'
       let activeBeadId = 0;
       let completedBeads = new Set();
       let beadsList = [];
-      let oracoesAdicionaisEnabled = localStorage.getItem('oracoesAdicionais') === 'true';
+      let oracoesAdicionaisEnabled = localStorage.getItem('oracoesAdicionais') === 'true'; // compat
+      const _oaNew = localStorage.getItem('oracoesAdicionaisSet');
+      let oracoesAdicionaisSet = new Set(
+        _oaNew ? JSON.parse(_oaNew) : (oracoesAdicionaisEnabled ? ['espirito-santo','sao-jose','sao-miguel'] : [])
+      );
       let acervoOpen = false;
       let selectedAcervoPrayer = 'espirito-santo';
       let acervoMode = 'oracao';
+
+      // Estado do Áudio (Cantos Gregorianos)
+      let ambientEnabled = localStorage.getItem('ambientEnabled') === 'true';
+      let selectedChant = parseInt(localStorage.getItem('selectedChant') || '0', 10);
+
+      // Estado do Habit Tracker (Rosas para Maria)
+      let rosasData = new Set(JSON.parse(localStorage.getItem('rosasParaMaria') || '[]'));
+      let habitCalMonth = new Date().getMonth();
+      let habitCalYear = new Date().getFullYear();
+      let habitCalView = 'mensal';
 
       // Sequência completa de contas litúrgicas
       function createBeads() {
@@ -1032,12 +1064,10 @@
         list.push({ id: index++, type: 'agradecimento' });
         list.push({ id: index++, type: 'salve-rainha' });
 
-        // Orações adicionais (opcionais)
-        if (oracoesAdicionaisEnabled) {
-          list.push({ id: index++, type: 'espirito-santo' });
-          list.push({ id: index++, type: 'sao-jose' });
-          list.push({ id: index++, type: 'sao-miguel' });
-        }
+        // Orações adicionais (opcionais — selecionadas individualmente)
+        ['espirito-santo','sao-jose','sao-miguel'].forEach(key => {
+          if (oracoesAdicionaisSet.has(key)) list.push({ id: index++, type: key });
+        });
 
         return list;
       }
@@ -1336,23 +1366,23 @@
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Sagrada Escritura</span>
-                      <p class="text-[11px] text-stone-400 font-serif italic">${fatimaMystery.ref}</p>
-                      <p class="text-base text-stone-700 font-serif leading-relaxed whitespace-pre-line">"${fatimaMystery.scripture}"</p>
+                      <p class="text-[11px] text-stone-400 font-serif">${fatimaMystery.ref}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">"${fatimaMystery.scripture}"</p>
                     </div>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Reflexão</span>
-                      <p class="text-base text-stone-600 font-serif leading-relaxed whitespace-pre-line">${fatimaMystery.reflexao}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">${fatimaMystery.reflexao}</p>
                     </div>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Meditação</span>
-                      <p class="text-base text-stone-600 font-serif leading-relaxed whitespace-pre-line">${fatimaMystery.perguntas[0]}\n\n${fatimaMystery.perguntas[1]}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">${fatimaMystery.perguntas[0]}\n\n${fatimaMystery.perguntas[1]}</p>
                     </div>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Oração</span>
-                      <p class="text-base text-stone-600 font-serif leading-relaxed">${fatimaMystery.oracao}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed">${fatimaMystery.oracao}</p>
                     </div>
                   </div>
                 </div>
@@ -1374,23 +1404,23 @@
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Sagrada Escritura</span>
-                      <p class="text-[11px] text-stone-400 font-serif italic">${fatimaMystery.ref}</p>
-                      <p class="text-base text-stone-700 font-serif leading-relaxed whitespace-pre-line">"${fatimaMystery.scripture}"</p>
+                      <p class="text-[11px] text-stone-400 font-serif">${fatimaMystery.ref}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">"${fatimaMystery.scripture}"</p>
                     </div>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Reflexão</span>
-                      <p class="text-base text-stone-600 font-serif leading-relaxed whitespace-pre-line">${fatimaMystery.reflexao}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">${fatimaMystery.reflexao}</p>
                     </div>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Meditação</span>
-                      <p class="text-base text-stone-600 font-serif leading-relaxed whitespace-pre-line">${fatimaMystery.perguntas[0]}\n\n${fatimaMystery.perguntas[1]}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">${fatimaMystery.perguntas[0]}\n\n${fatimaMystery.perguntas[1]}</p>
                     </div>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Oração</span>
-                      <p class="text-base text-stone-600 font-serif leading-relaxed">${fatimaMystery.oracao}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed">${fatimaMystery.oracao}</p>
                     </div>
                   </div>
                 </div>
@@ -1412,23 +1442,23 @@
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     <div class="space-y-2 text-left">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Sagrada Escritura</span>
-                      <p class="text-[11px] text-stone-400 font-serif italic text-center">${fatimaMystery.ref}</p>
-                      <p class="text-sm text-stone-700 font-serif leading-relaxed whitespace-pre-line">"${fatimaMystery.scripture}"</p>
+                      <p class="text-[11px] text-stone-400 font-serif text-center">${fatimaMystery.ref}</p>
+                      <p class="text-sm text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">"${fatimaMystery.scripture}"</p>
                     </div>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
                     <div class="space-y-2 text-left">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Reflexão</span>
-                      <p class="text-sm text-stone-600 font-serif leading-relaxed whitespace-pre-line">${fatimaMystery.reflexao}</p>
+                      <p class="text-sm text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">${fatimaMystery.reflexao}</p>
                     </div>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Meditação</span>
-                      <p class="text-base text-stone-600 font-serif leading-relaxed whitespace-pre-line">${fatimaMystery.perguntas[0]}\n\n${fatimaMystery.perguntas[1]}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">${fatimaMystery.perguntas[0]}\n\n${fatimaMystery.perguntas[1]}</p>
                     </div>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Oração</span>
-                      <p class="text-base text-stone-600 font-serif leading-relaxed">${fatimaMystery.oracao}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed">${fatimaMystery.oracao}</p>
                     </div>
                   </div>
                 </div>
@@ -1601,14 +1631,18 @@
         var endIdx    = Math.min(beadsList.length - 1, activeIdx + SIDE);
 
         function beadSize(type) {
-          return type === 'cruz' ? 36 : (type === 'pai-nosso' || type === 'misterio' || type === 'oferecimento') ? 30 : 26;
+          return type === 'cruz' ? 36
+            : (type === 'pai-nosso' || type === 'misterio') ? 30
+            : (type === 'salve-rainha') ? 24
+            : (type === 'oferecimento' || type === 'espirito-santo' || type === 'sao-jose' || type === 'sao-miguel') ? 14
+            : 26;
         }
 
         function gapBetween(a, b) {
           var ta = beadsList[a] && beadsList[a].type;
           var tb = beadsList[b] && beadsList[b].type;
           var isPn = ta === 'pai-nosso' || ta === 'misterio' || tb === 'pai-nosso' || tb === 'misterio'
-                  || ta === 'oferecimento' || tb === 'oferecimento';
+                  || ta === 'salve-rainha' || tb === 'salve-rainha';
           return STEP + (isPn ? PN_EXTRA : 0);
         }
 
@@ -1654,6 +1688,8 @@
           var isCompleted = completedBeads.has(bead.id);
           var isActive    = centerId === bead.id;
           var isCruz      = bead.type === 'cruz';
+          var isNonBead   = bead.type === 'oferecimento' || bead.type === 'espirito-santo' || bead.type === 'sao-jose' || bead.type === 'sao-miguel';
+          var isMedalha   = bead.type === 'salve-rainha';
           var sz          = beadSize(bead.type);
           var tfm         = 'translate(' + (p.x + swipeDx) + 'px,' + p.y + 'px) scale(' + p.s + ')';
 
@@ -1705,6 +1741,36 @@
               cr.setAttribute('fill', 'none');
               svg.appendChild(cr);
               b.appendChild(svg);
+            } else if (isMedalha) {
+              wrap.style.width = '24px'; wrap.style.height = '38px';
+              wrap.style.marginLeft = '-12px'; wrap.style.marginTop = '-19px';
+              b.style.width = '24px'; b.style.height = '38px';
+              b.style.borderRadius = '50%';
+              b.style.background = 'transparent'; b.style.border = 'none';
+              var svgM = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+              svgM.setAttribute('viewBox', '0 0 24 38');
+              svgM.style.cssText = 'width:100%;height:100%;display:block;overflow:visible;pointer-events:none;';
+              var oval = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+              oval.setAttribute('cx', '12'); oval.setAttribute('cy', '19');
+              oval.setAttribute('rx', '10'); oval.setAttribute('ry', '16');
+              oval.setAttribute('fill', 'currentColor'); oval.setAttribute('stroke', 'none');
+              svgM.appendChild(oval);
+              var innerOval = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+              innerOval.setAttribute('cx', '12'); innerOval.setAttribute('cy', '19');
+              innerOval.setAttribute('rx', '7'); innerOval.setAttribute('ry', '12');
+              innerOval.setAttribute('fill', 'none'); innerOval.setAttribute('stroke', 'rgba(255,255,255,0.35)'); innerOval.setAttribute('stroke-width', '1');
+              svgM.appendChild(innerOval);
+              b.appendChild(svgM);
+            } else if (isNonBead) {
+              b.style.background = 'transparent'; b.style.border = 'none'; b.style.borderRadius = '0';
+              var svgD = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+              svgD.setAttribute('viewBox', '0 0 14 14');
+              svgD.style.cssText = 'width:100%;height:100%;display:block;pointer-events:none;';
+              var diamond = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              diamond.setAttribute('d', 'M7 1 L13 7 L7 13 L1 7 Z');
+              diamond.setAttribute('fill', 'currentColor'); diamond.setAttribute('stroke', 'none');
+              svgD.appendChild(diamond);
+              b.appendChild(svgD);
             }
             b.style.transform        = tfm;
             b.style.opacity          = String(p.o);
@@ -1738,6 +1804,9 @@
             b.style.color        = isCompleted ? 'rgba(234,88,12,0.30)' : isActive ? '#ea580c' : '#fb923c';
             b.style.borderRadius = isActive ? '50%' : '0';
             b.style.boxShadow    = isActive ? '0 0 0 5px rgba(234,88,12,0.18)' : 'none';
+          } else if (isMedalha || isNonBead) {
+            b.style.color     = isCompleted ? 'rgba(234,88,12,0.25)' : isActive ? '#ea580c' : '#fb923c';
+            b.style.boxShadow = (isActive && isMedalha) ? '0 0 0 4px rgba(234,88,12,0.18)' : 'none';
           } else if (isCompleted) {
             b.style.background = 'rgba(234,88,12,0.14)';
             b.style.border     = '1.5px solid rgba(234,88,12,0.28)';
@@ -1753,7 +1822,9 @@
           }
 
           // Recriar fio antes desta conta (largura = gap entre bordas das contas)
-          if (idx > startIdx) {
+          var prevType = beadsList[idx - 1] && beadsList[idx - 1].type;
+          var prevIsNonBead = prevType === 'oferecimento' || prevType === 'espirito-santo' || prevType === 'sao-jose' || prevType === 'sao-miguel';
+          if (idx > startIdx && !isNonBead && !prevIsNonBead) {
             var pp    = calcPos(idx - 1);
             var beadSz = (beadSize(beadsList[idx - 1].type) + beadSize(bead.type)) / 2;
             var gap   = gapBetween(idx - 1, idx);
@@ -1789,6 +1860,9 @@
           if (navigator.vibrate) {
             try { navigator.vibrate([30, 50, 30]); } catch(err) {}
           }
+          if (completedBeads.size === beadsList.length) {
+            setTimeout(showRosaryCompleteSheet, 700);
+          }
         }
 
         // Avanço automático com discreto intervalo visual agradável
@@ -1816,7 +1890,7 @@
           var ta = beadsList[a] && beadsList[a].type;
           var tb = beadsList[b] && beadsList[b].type;
           var isPn = ta === 'pai-nosso' || ta === 'misterio' || tb === 'pai-nosso' || tb === 'misterio'
-                  || ta === 'oferecimento' || tb === 'oferecimento';
+                  || ta === 'salve-rainha' || tb === 'salve-rainha';
           return STEP + (isPn ? PN_EXTRA : 0);
         }
 
@@ -1989,7 +2063,7 @@
       }
 
       // Inicializar
-      setMode('meditativo');
+      setMode('curta');
       renderBeads();
       addSwipeNavigation();
 
@@ -1999,41 +2073,43 @@
         });
       }
 
-      // Pull-to-refresh: arrasta pra baixo a partir do topo → pílula → reload
-      (function () {
+      function triggerRefresh() {
         const ptr = document.getElementById('ptr');
         const spinner = document.getElementById('ptr-spinner');
+        ptr.style.transition = 'none';
+        ptr.style.opacity = '1';
+        ptr.style.transform = 'translate(-50%, -60px)';
+        requestAnimationFrame(() => {
+          ptr.style.transition = '';
+          ptr.classList.add('ptr-show');
+          spinner.classList.add('spinning');
+        });
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistration().then(reg => {
+            if (reg) reg.update();
+          });
+        }
+        setTimeout(() => window.location.reload(true), 1400);
+      }
+
+      // Pull-to-refresh: arrasta pra baixo a partir do topo → pílula → reload
+      (function () {
         let startY = 0;
         let startInHeader = false;
         let triggered = false;
 
         document.addEventListener('touchstart', e => {
           startY = e.touches[0].clientY;
-          startInHeader = startY < 72; // só ativa se o toque começar na área do cabeçalho
+          startInHeader = startY < 72;
           triggered = false;
         }, { passive: true });
 
         document.addEventListener('touchmove', e => {
           if (!startInHeader || triggered) return;
-          const dy = e.touches[0].clientY - startY; // positivo = deslizou pra baixo
+          const dy = e.touches[0].clientY - startY;
           if (dy > 55) {
             triggered = true;
-            ptr.style.transition = 'none';
-            ptr.style.opacity = '1';
-            ptr.style.transform = 'translate(-50%, -60px)';
-            // Pequena animação de entrada
-            requestAnimationFrame(() => {
-              ptr.style.transition = '';
-              ptr.classList.add('ptr-show');
-              spinner.classList.add('spinning');
-            });
-            // Força update do service worker + reload
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.getRegistration().then(reg => {
-                if (reg) reg.update();
-              });
-            }
-            setTimeout(() => window.location.reload(true), 1400);
+            triggerRefresh();
           }
         }, { passive: true });
       })();
@@ -2044,6 +2120,7 @@
         const sheet = document.getElementById('settingsSheet');
         overlay.style.display = 'flex';
         updateSettingsToggleUI();
+        updateAudioUI();
         requestAnimationFrame(() => {
           sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
           sheet.style.transform = 'translateY(0)';
@@ -2058,16 +2135,26 @@
         setTimeout(() => { overlay.style.display = 'none'; }, 310);
       }
 
-      function toggleOracoesAdicionais() {
-        oracoesAdicionaisEnabled = !oracoesAdicionaisEnabled;
-        localStorage.setItem('oracoesAdicionais', oracoesAdicionaisEnabled ? 'true' : 'false');
-        updateSettingsToggleUI();
-        // Recria as contas e volta para a primeira
+      function toggleOracaoAdicional(key) {
+        if (oracoesAdicionaisSet.has(key)) oracoesAdicionaisSet.delete(key);
+        else oracoesAdicionaisSet.add(key);
+        localStorage.setItem('oracoesAdicionaisSet', JSON.stringify([...oracoesAdicionaisSet]));
+        // Atualiza toggle inline no painel sem refazer fade
+        const enabled = oracoesAdicionaisSet.has(key);
+        const btn = document.getElementById('adicionalToggleBtn');
+        const knob = document.getElementById('adicionalToggleKnob');
+        if (btn && knob) {
+          btn.style.background = enabled ? '#D97706' : '#D1C9BD';
+          btn.setAttribute('aria-checked', String(enabled));
+          knob.style.transform = enabled ? 'translateX(18px)' : 'translateX(0)';
+        }
+        renderAcervoDrawerList();
         beadsList = createBeads();
         activeBeadId = 0;
         completedBeads = new Set();
         renderBeads(0, true);
         renderPanel();
+        if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
       }
 
       // --- Acervo / Devocionário ---
@@ -2109,7 +2196,7 @@
         const overlay = document.getElementById('acervoDrawerOverlay');
         const drawer = document.getElementById('acervoDrawer');
         drawer.style.transition = 'transform 0.25s cubic-bezier(0.55,0,1,0.45)';
-        drawer.style.transform = 'translateX(-100%)';
+        drawer.style.transform = 'translateX(100%)';
         setTimeout(() => { overlay.style.display = 'none'; }, 260);
       }
 
@@ -2146,15 +2233,29 @@
       function renderAcervoDrawerList() {
         const list = document.getElementById('acervoDrawerList');
         if (!list) return;
-        list.innerHTML = ACERVO_ITEMS.map(item => {
-          const prayer = COMMON_PRAYERS[item.key];
-          return `
-            <button id="acervoItem-${item.key}" onclick="selectAcervoPrayer('${item.key}')"
-              class="w-full px-3 py-3 rounded-xl border text-left transition-colors ${item.key === selectedAcervoPrayer ? 'bg-orange-50 border-orange-200' : 'border-transparent hover:bg-stone-50'}">
-              <span class="font-serif text-orange-950 text-sm font-medium leading-snug">${prayer ? prayer.title : item.key}</span>
-            </button>
-          `;
-        }).join('');
+        let html = '';
+        ACERVO_SECTIONS.forEach((section, si) => {
+          html += `<div style="padding:${si===0?'8px':'16px'} 4px 4px;text-align:right;">
+            <span style="font-family:Outfit,serif;font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:#A8A29E;font-weight:500;">${section.title}</span>
+          </div>`;
+          if (section.keys.length === 0) {
+            html += `<p style="font-family:Outfit,serif;font-size:11px;color:#C8C0B8;padding:2px 8px 6px;font-style:italic;text-align:right;">Em breve</p>`;
+          } else {
+            section.keys.forEach(key => {
+              const prayer = COMMON_PRAYERS[key];
+              if (!prayer) return;
+              const sel = key === selectedAcervoPrayer;
+              const isAdic = ADICIONAL_KEYS.includes(key);
+              const adicEnabled = isAdic && oracoesAdicionaisSet.has(key);
+              html += `<button id="acervoItem-${key}" onclick="selectAcervoPrayer('${key}')"
+                style="width:100%;padding:9px 10px;border-radius:12px;border:1px solid ${sel?'#F0C89A':'transparent'};background:${sel?'#FEF6EC':'transparent'};display:flex;align-items:center;justify-content:flex-end;gap:8px;cursor:pointer;text-align:right;transition:background 0.15s;">
+                ${isAdic?`<span style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${adicEnabled?'#D97706':'#D9D3CC'};"></span>`:''}
+                <span style="font-family:Outfit,serif;font-size:13px;font-weight:${sel?'600':'400'};color:#1C0A00;line-height:1.3;">${prayer.title}</span>
+              </button>`;
+            });
+          }
+        });
+        list.innerHTML = html;
       }
 
       function updateAcervoDrawerSelection() {
@@ -2201,6 +2302,16 @@
               </div>
             `;
           } else {
+            const isAdic = ADICIONAL_KEYS.includes(selectedAcervoPrayer);
+            const adicEnabled = isAdic && oracoesAdicionaisSet.has(selectedAcervoPrayer);
+            const adicToggle = isAdic ? `
+              <div style="border-top:1px solid #E9DFCB;margin-top:16px;padding-top:14px;display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-family:Outfit,serif;font-size:12px;color:#78716C;letter-spacing:0.04em;">Incluir no terço</span>
+                <button id="adicionalToggleBtn" onclick="toggleOracaoAdicional('${selectedAcervoPrayer}')" role="switch" aria-checked="${adicEnabled}"
+                  style="position:relative;width:44px;height:26px;border-radius:999px;border:none;cursor:pointer;transition:background 0.25s;flex-shrink:0;background:${adicEnabled?'#D97706':'#D1C9BD'};padding:0;">
+                  <span id="adicionalToggleKnob" style="position:absolute;top:2.5px;left:2.5px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);transform:${adicEnabled?'translateX(18px)':'translateX(0)'};"></span>
+                </button>
+              </div>` : '';
             layout = `
               <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
                 <div class="flex flex-col items-center space-y-1 pt-4 pb-4">
@@ -2211,6 +2322,7 @@
                   <div class="space-y-4 pb-6">
                     <h3 class="text-[13px] font-serif text-orange-850 font-medium uppercase tracking-widest">${prayer.title}</h3>
                     <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">${prayer.text}</p>
+                    ${adicToggle}
                   </div>
                 </div>
                 <div class="text-[10px] text-orange-700/40 font-serif tracking-widest uppercase py-3">Rezar com Devoção</div>
@@ -2230,12 +2342,300 @@
         if (oracoesAdicionaisEnabled) {
           btn.style.background = '#D97706';
           btn.setAttribute('aria-checked', 'true');
-          knob.style.transform = 'translateX(20px)';
+          knob.style.transform = 'translateX(18px)';
         } else {
           btn.style.background = '#D1C9BD';
           btn.setAttribute('aria-checked', 'false');
           knob.style.transform = 'translateX(0)';
         }
+      }
+
+      // ============= CANTOS GREGORIANOS (HTML5 Audio — playlist real) =============
+      const CHANT_TRACKS = [
+        { name: 'Adoro Te Devote',         url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025859/Adoro_te_devote_MP3_160K__1_antsm0.mp3' },
+        { name: 'Veni Veni Emmanuel',       url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025857/Veni_Veni_Emmanuel_-_LEGENDADO_PT_BR_MP3_160K__2_z2powq.mp3' },
+        { name: 'Media Vita',               url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025854/MEDIA_VITA_-_Canto_Cruzado_Medieval_traduzido_em_pt-br_MP3_160K_rnh0l6.mp3' },
+        { name: 'Chant des Templiers',      url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025853/Le_Chant_des_Templiers__I._Antiphona__Crucem_sanctam__MP3_160K_mqum3m.mp3' },
+        { name: 'Tenebrae Factae Sunt',     url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025849/Tenebrae_factae_sunt_-_Canto_para_a_sexta-feira_santa_-_legendado_pt_br_MP3_160K_ueagxq.mp3' },
+        { name: 'Ego Sum Alpha et Omega',   url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025849/Ego_Sum_Alpha_et_Omega_-_Eu_sou_o_Alfa_e_o_%C3%94mega_MP3_160K__1_z4orma.mp3' },
+        { name: 'Jesu Dulcis Memoria',      url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025847/Jesu_Dulcis_Memoria_MP3_160K__2_noflvk.mp3' },
+        { name: 'Ave Maria Gregoriano',     url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025842/Ave_Maria_Gregoriano_MP3_160K_hk86kz.mp3' },
+        { name: 'Flos Carmeli',             url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025841/Flos_Carmeli_-_LEGENDADO_em_pt_br_MP3_160K_lxigqe.mp3' },
+        { name: 'Litanie du Sacré Cœur',    url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025841/Litanie_du_Sacr%C3%A9_Cour_de_J%C3%A9sus_MP3_160K_pcmfix.mp3' },
+        { name: 'Hino Contra Lutero',       url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025837/UM_HINO_CONTRA_LUTERO_-_PESSIMAS_LUTHERI_FRAUDES_MP3_160K_tok7wd.mp3' },
+        { name: 'Kyrie Fons Bonitatis',     url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025836/Kyrie_Fons_Bonitatis_-_Tropo_Modo_III_1999_Remastered_Version_MP3_160K_rsgjal.mp3' },
+        { name: 'Missa Orbis Factor',       url: 'https://res.cloudinary.com/ds53z2vv8/video/upload/v1780025832/Missa_orbis_factor_-_Kyrie_MP3_160K_pcbi3w.mp3' }
+      ];
+
+      let currentAudio = null;
+
+      function stopAllAudio() {
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio.onended = null;
+          currentAudio = null;
+        }
+      }
+
+      function playChantAt(index) {
+        stopAllAudio();
+        if (!ambientEnabled) return;
+        const track = CHANT_TRACKS[index];
+        if (!track) return;
+        selectedChant = index;
+        localStorage.setItem('selectedChant', String(index));
+        currentAudio = new Audio(track.url);
+        currentAudio.volume = 0.7;
+        currentAudio.onended = function() {
+          playChantAt((index + 1) % CHANT_TRACKS.length);
+        };
+        currentAudio.play().catch(function() {});
+        updateAudioUI();
+      }
+
+      function toggleAmbient() {
+        ambientEnabled = !ambientEnabled;
+        localStorage.setItem('ambientEnabled', ambientEnabled ? 'true' : 'false');
+        if (ambientEnabled) {
+          playChantAt(selectedChant);
+        } else {
+          stopAllAudio();
+        }
+        updateAudioUI();
+        if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
+      }
+
+      function selectChant(index) {
+        if (!ambientEnabled) {
+          ambientEnabled = true;
+          localStorage.setItem('ambientEnabled', 'true');
+        }
+        playChantAt(index);
+        if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
+      }
+
+      function updateAudioUI() {
+        const btn = document.getElementById('toggleAmbient');
+        const knob = document.getElementById('ambientKnob');
+        if (btn && knob) {
+          btn.style.background = ambientEnabled ? '#D97706' : '#D1C9BD';
+          btn.setAttribute('aria-checked', ambientEnabled ? 'true' : 'false');
+          knob.style.transform = ambientEnabled ? 'translateX(20px)' : 'translateX(0)';
+        }
+        const nowPlaying = document.getElementById('chant-now-playing');
+        if (nowPlaying) {
+          const track = CHANT_TRACKS[selectedChant];
+          nowPlaying.textContent = (ambientEnabled && track) ? (selectedChant + 1) + '. ' + track.name : '';
+        }
+        CHANT_TRACKS.forEach(function(track, i) {
+          const el = document.getElementById('chant-' + i);
+          if (!el) return;
+          const sel = selectedChant === i && ambientEnabled;
+          el.style.background = sel ? '#D97706' : '#F5F1EC';
+          el.style.borderColor = sel ? '#D97706' : '#E7E0D5';
+          el.style.color = sel ? '#FFFFFF' : '#7C6E5E';
+          el.style.fontWeight = sel ? '700' : '500';
+        });
+      }
+
+      // Inicia áudio na primeira interação do usuário se estiver ligado
+      if (ambientEnabled) {
+        const _startOnInteraction = function() {
+          playChantAt(selectedChant);
+          document.removeEventListener('touchstart', _startOnInteraction);
+          document.removeEventListener('click', _startOnInteraction);
+        };
+        document.addEventListener('touchstart', _startOnInteraction, { once: true });
+        document.addEventListener('click', _startOnInteraction, { once: true });
+      }
+
+      // ============= CONCLUSÃO DO TERÇO =============
+      function showRosaryCompleteSheet() {
+        const today = fmtDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+        if (rosasData.has(today)) return;
+        const overlay = document.getElementById('rosaryCompleteOverlay');
+        const sheet = document.getElementById('rosaryCompleteSheet');
+        if (!overlay || !sheet) return;
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => {
+          sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+          sheet.style.transform = 'translateY(0)';
+        });
+      }
+
+      function confirmRosaToday() {
+        const today = fmtDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+        rosasData.add(today);
+        saveRosas();
+        dismissRosaryComplete();
+      }
+
+      function dismissRosaryComplete() {
+        const overlay = document.getElementById('rosaryCompleteOverlay');
+        const sheet = document.getElementById('rosaryCompleteSheet');
+        if (!overlay || !sheet) return;
+        sheet.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 310);
+      }
+
+      // ============= HABIT TRACKER (Rosas para Maria) =============
+      const MONTHS_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const MONTHS_SHORT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const DAY_HDR = ['S','T','Q','Q','S','S','D'];
+
+      // SVG de rosa para o calendário (sem emoji)
+      const ROSE_SVG_SM = "<svg viewBox='26 7 58 62' fill='currentColor' style='width:20px;height:20px;color:#FFFFFF;flex-shrink:0;'><path d='M42.78 67.73c-2.62-0.37-5.19-1.33-7.41-2.75-5.30-3.39-8.91-8.89-10.26-15.57-0.49-2.44-0.65-4.55-0.59-7.51 0.09-3.66 0.42-6 1.44-9.95 0.61-2.35 1.69-5.50 2.05-5.94 0.05-0.06 0.24-0.11 0.44-0.11l0.35 0 0.09 0.47c0.95 4.79 2.12 7.82 3.97 10.28 1.08 1.45 2.47 2.69 5.31 4.77 3.85 2.82 5.80 4.53 8.97 7.82 3.34 3.49 5.17 6.39 5.81 9.21 0.24 1.03 0.27 2.86 0.08 3.85-0.59 2.96-2.71 4.84-6.10 5.40-0.82 0.13-3.32 0.15-4.17 0.03z'/><path d='M54.98 67.70c-1.29-0.24-1.74-0.53-1.86-1.16-0.09-0.50 0.02-0.94 0.52-1.99 0.90-1.89 1.19-2.93 1.18-4.19-0.01-1.70-0.59-3.59-1.83-5.86-1.34-2.46-3.05-4.69-5.75-7.49-1.80-1.87-2.01-2.24-1.96-3.44 0.07-1.50 1.05-2.28 3.21-2.54 0.93-0.11 5.10-0.11 8.86 0 5.93 0.17 10.68-0.34 14.18-1.54 0.62-0.21 0.64-0.22 0.35-0.24-0.46-0.04-0.38-0.21 0.16-0.37 0.25-0.08 0.51-0.17 0.57-0.19 0.06-0.02 0.10 0.03 0.10 0.16 0 0.21 0 0.21 0.31 0.10 0.16-0.06 0.65-0.26 1.07-0.44 0.70-0.30 0.75-0.33 0.47-0.33-0.38 0-0.40-0.14-0.02-0.29 0.37-0.15 0.37-0.15 0.37 0.08l0 0.20 0.79-0.33c1.45-0.59 3.14-1.05 3.86-1.05 0.40 0 0.40 0 0.39 0.27-0.01 0.22-0.10 0.33-0.59 0.76-1.34 1.13-2.62 2.99-3.43 4.96-0.79 1.95-1.30 4.08-1.76 7.33-0.55 3.95-0.96 5.74-1.77 7.69-1.41 3.44-4.29 6.34-8.21 8.26-1.40 0.69-2.50 1.09-3.95 1.44-0.94 0.23-1.15 0.24-2.85 0.28-1.32 0.02-1.99 0-2.42-0.08z'/><path d='M45.51 38.50c-1.73-0.31-3.37-2.17-4.93-5.62-1.20-2.66-1.81-5.23-1.89-8.10-0.07-2.35-0.02-2.47 1-2.47 0.57 0 0.65 0.02 1.07 0.30 0.25 0.16 1.56 1.39 2.90 2.73 3.49 3.48 4.59 4.37 6.68 5.40 2.96 1.45 7.70 2.65 14.04 3.57 2.12 0.31 3.42 0.45 4.60 0.50 0.59 0.02 1.21 0.07 1.41 0.09l0.35 0.04-0.02 0.38c-0.02 0.36-0.05 0.39-0.34 0.54-0.29 0.15-0.60 0.16-2.97 0.22-6.84 0.15-10.66 0.56-16.33 1.74-1.20 0.25-2.47 0.51-2.81 0.57-0.81 0.15-2.21 0.21-2.77 0.11z'/><path d='M35.77 35.94c-0.59-0.29-0.69-0.58-3.18-7.97-3-8.96-3.53-10.95-3.53-13.31 0-2.08 0.47-3.39 1.64-4.57 0.61-0.62 1.34-1.05 2.34-1.40 0.66-0.23 0.80-0.24 2.21-0.28 1.78-0.04 2.04-0.01 5.29 0.76 3.06 0.72 4.80 1.06 6.67 1.29 0.97 0.13 1.65 0.26 1.77 0.33 0.15 0.10 0.19 0.20 0.19 0.49l0 0.36-0.75 0.52c-1.59 1.10-2.42 1.63-3.33 2.09-1.89 0.96-2.70 1.12-6.04 1.21l-2.38 0.06-0.55 0.26c-1.48 0.69-2.42 2.53-2.30 4.53 0.11 2.09 1.09 5.91 2.98 11.67 0.69 2.09 0.81 2.55 0.81 2.99 0 0.46-0.02 0.55-0.24 0.79-0.21 0.24-0.28 0.26-0.79 0.28-0.40 0.02-0.64-0.01-0.82-0.11z'/><path d='M75.23 32.69c-4.80-0.65-7.30-0.95-9.89-1.18-1.03-0.09-2-0.20-2.16-0.25-0.42-0.14-0.79-0.45-0.99-0.83-0.26-0.49-0.26-1.51-0.01-1.99l0.18-0.34-0.22-0.02-0.22-0.02 0.33-0.33 0.33-0.33 0.02 0.24c0.02 0.17 0.06 0.21 0.16 0.17 0.37-0.15 0.77-0.21 2.62-0.37 3.74-0.31 5.72-0.77 6.98-1.60 1.07-0.71 1.64-1.84 1.47-2.92-0.07-0.44-0.15-0.70-0.63-2-0.33-0.91-0.19-1.50 0.44-1.74 0.30-0.11 0.53-0.13 1.20-0.09 2.28 0.12 4.51 1.58 6.14 4.01 1.08 1.61 1.66 3.54 1.54 5.19-0.11 1.51-0.49 2.39-1.47 3.37-0.64 0.64-0.68 0.67-1.47 0.93-1.12 0.37-2.33 0.41-4.36 0.12z'/><path d='M57.03 25.91c-1.46-0.19-5.46-1.20-7.65-1.95-1.53-0.51-1.91-0.77-1.91-1.25 0-0.16 0.04-0.33 0.10-0.39 0.07-0.07 0.04-0.10-0.18-0.10-0.27 0-0.27 0-0.11-0.17 0.13-0.15 0.59-0.40 0.72-0.40 0.02 0 0.04 0.09 0.04 0.20 0 0.11-0.04 0.20-0.10 0.20-0.05 0-0.07 0.02-0.06 0.04 0.02 0.02 0.24-0.02 0.48-0.08 0.24-0.07 1.73-0.36 3.30-0.65 1.57-0.29 4.09-0.81 5.59-1.15 1.51-0.33 3.27-0.69 3.91-0.81 2.02-0.33 4.17-0.35 5.32-0.03 0.18 0.05 0.46 0.23 0.63 0.40 0.29 0.29 0.31 0.33 0.31 0.83 0 0.41-0.05 0.62-0.22 0.96-0.28 0.56-1.33 1.67-2.18 2.30-1.19 0.90-3.38 1.83-4.71 2.01-0.59 0.08-2.72 0.11-3.27 0.03z'/><path d='M44.23 20.99c-0.17-0.08-0.19-0.15-0.19-0.64 0-0.94 0.58-1.97 1.77-3.14 1.56-1.53 3.75-2.69 6.71-3.52 3.12-0.88 6.07-1.31 9.03-1.31 2.69 0 3.95 0.23 5.50 0.98 0.99 0.49 1.70 1.02 2.51 1.87 0.90 0.96 1.30 1.86 1.03 2.37-0.07 0.13-0.18 0.15-0.61 0.15-0.43 0-0.75-0.08-1.85-0.48-2.67-0.96-4.45-1.30-7.08-1.37-1.98-0.05-3.18 0.03-5.11 0.35-5.09 0.84-8.05 2.05-9.89 4.05-0.30 0.32-0.63 0.63-0.72 0.68-0.21 0.12-0.84 0.12-1.08 0.01z'/></svg>";
+      const ROSE_SVG_LG = "<svg viewBox='26 7 58 62' fill='currentColor' style='width:30px;height:30px;color:#FFFFFF;flex-shrink:0;'><path d='M42.78 67.73c-2.62-0.37-5.19-1.33-7.41-2.75-5.30-3.39-8.91-8.89-10.26-15.57-0.49-2.44-0.65-4.55-0.59-7.51 0.09-3.66 0.42-6 1.44-9.95 0.61-2.35 1.69-5.50 2.05-5.94 0.05-0.06 0.24-0.11 0.44-0.11l0.35 0 0.09 0.47c0.95 4.79 2.12 7.82 3.97 10.28 1.08 1.45 2.47 2.69 5.31 4.77 3.85 2.82 5.80 4.53 8.97 7.82 3.34 3.49 5.17 6.39 5.81 9.21 0.24 1.03 0.27 2.86 0.08 3.85-0.59 2.96-2.71 4.84-6.10 5.40-0.82 0.13-3.32 0.15-4.17 0.03z'/><path d='M54.98 67.70c-1.29-0.24-1.74-0.53-1.86-1.16-0.09-0.50 0.02-0.94 0.52-1.99 0.90-1.89 1.19-2.93 1.18-4.19-0.01-1.70-0.59-3.59-1.83-5.86-1.34-2.46-3.05-4.69-5.75-7.49-1.80-1.87-2.01-2.24-1.96-3.44 0.07-1.50 1.05-2.28 3.21-2.54 0.93-0.11 5.10-0.11 8.86 0 5.93 0.17 10.68-0.34 14.18-1.54 0.62-0.21 0.64-0.22 0.35-0.24-0.46-0.04-0.38-0.21 0.16-0.37 0.25-0.08 0.51-0.17 0.57-0.19 0.06-0.02 0.10 0.03 0.10 0.16 0 0.21 0 0.21 0.31 0.10 0.16-0.06 0.65-0.26 1.07-0.44 0.70-0.30 0.75-0.33 0.47-0.33-0.38 0-0.40-0.14-0.02-0.29 0.37-0.15 0.37-0.15 0.37 0.08l0 0.20 0.79-0.33c1.45-0.59 3.14-1.05 3.86-1.05 0.40 0 0.40 0 0.39 0.27-0.01 0.22-0.10 0.33-0.59 0.76-1.34 1.13-2.62 2.99-3.43 4.96-0.79 1.95-1.30 4.08-1.76 7.33-0.55 3.95-0.96 5.74-1.77 7.69-1.41 3.44-4.29 6.34-8.21 8.26-1.40 0.69-2.50 1.09-3.95 1.44-0.94 0.23-1.15 0.24-2.85 0.28-1.32 0.02-1.99 0-2.42-0.08z'/><path d='M45.51 38.50c-1.73-0.31-3.37-2.17-4.93-5.62-1.20-2.66-1.81-5.23-1.89-8.10-0.07-2.35-0.02-2.47 1-2.47 0.57 0 0.65 0.02 1.07 0.30 0.25 0.16 1.56 1.39 2.90 2.73 3.49 3.48 4.59 4.37 6.68 5.40 2.96 1.45 7.70 2.65 14.04 3.57 2.12 0.31 3.42 0.45 4.60 0.50 0.59 0.02 1.21 0.07 1.41 0.09l0.35 0.04-0.02 0.38c-0.02 0.36-0.05 0.39-0.34 0.54-0.29 0.15-0.60 0.16-2.97 0.22-6.84 0.15-10.66 0.56-16.33 1.74-1.20 0.25-2.47 0.51-2.81 0.57-0.81 0.15-2.21 0.21-2.77 0.11z'/><path d='M35.77 35.94c-0.59-0.29-0.69-0.58-3.18-7.97-3-8.96-3.53-10.95-3.53-13.31 0-2.08 0.47-3.39 1.64-4.57 0.61-0.62 1.34-1.05 2.34-1.40 0.66-0.23 0.80-0.24 2.21-0.28 1.78-0.04 2.04-0.01 5.29 0.76 3.06 0.72 4.80 1.06 6.67 1.29 0.97 0.13 1.65 0.26 1.77 0.33 0.15 0.10 0.19 0.20 0.19 0.49l0 0.36-0.75 0.52c-1.59 1.10-2.42 1.63-3.33 2.09-1.89 0.96-2.70 1.12-6.04 1.21l-2.38 0.06-0.55 0.26c-1.48 0.69-2.42 2.53-2.30 4.53 0.11 2.09 1.09 5.91 2.98 11.67 0.69 2.09 0.81 2.55 0.81 2.99 0 0.46-0.02 0.55-0.24 0.79-0.21 0.24-0.28 0.26-0.79 0.28-0.40 0.02-0.64-0.01-0.82-0.11z'/><path d='M75.23 32.69c-4.80-0.65-7.30-0.95-9.89-1.18-1.03-0.09-2-0.20-2.16-0.25-0.42-0.14-0.79-0.45-0.99-0.83-0.26-0.49-0.26-1.51-0.01-1.99l0.18-0.34-0.22-0.02-0.22-0.02 0.33-0.33 0.33-0.33 0.02 0.24c0.02 0.17 0.06 0.21 0.16 0.17 0.37-0.15 0.77-0.21 2.62-0.37 3.74-0.31 5.72-0.77 6.98-1.60 1.07-0.71 1.64-1.84 1.47-2.92-0.07-0.44-0.15-0.70-0.63-2-0.33-0.91-0.19-1.50 0.44-1.74 0.30-0.11 0.53-0.13 1.20-0.09 2.28 0.12 4.51 1.58 6.14 4.01 1.08 1.61 1.66 3.54 1.54 5.19-0.11 1.51-0.49 2.39-1.47 3.37-0.64 0.64-0.68 0.67-1.47 0.93-1.12 0.37-2.33 0.41-4.36 0.12z'/><path d='M57.03 25.91c-1.46-0.19-5.46-1.20-7.65-1.95-1.53-0.51-1.91-0.77-1.91-1.25 0-0.16 0.04-0.33 0.10-0.39 0.07-0.07 0.04-0.10-0.18-0.10-0.27 0-0.27 0-0.11-0.17 0.13-0.15 0.59-0.40 0.72-0.40 0.02 0 0.04 0.09 0.04 0.20 0 0.11-0.04 0.20-0.10 0.20-0.05 0-0.07 0.02-0.06 0.04 0.02 0.02 0.24-0.02 0.48-0.08 0.24-0.07 1.73-0.36 3.30-0.65 1.57-0.29 4.09-0.81 5.59-1.15 1.51-0.33 3.27-0.69 3.91-0.81 2.02-0.33 4.17-0.35 5.32-0.03 0.18 0.05 0.46 0.23 0.63 0.40 0.29 0.29 0.31 0.33 0.31 0.83 0 0.41-0.05 0.62-0.22 0.96-0.28 0.56-1.33 1.67-2.18 2.30-1.19 0.90-3.38 1.83-4.71 2.01-0.59 0.08-2.72 0.11-3.27 0.03z'/><path d='M44.23 20.99c-0.17-0.08-0.19-0.15-0.19-0.64 0-0.94 0.58-1.97 1.77-3.14 1.56-1.53 3.75-2.69 6.71-3.52 3.12-0.88 6.07-1.31 9.03-1.31 2.69 0 3.95 0.23 5.50 0.98 0.99 0.49 1.70 1.02 2.51 1.87 0.90 0.96 1.30 1.86 1.03 2.37-0.07 0.13-0.18 0.15-0.61 0.15-0.43 0-0.75-0.08-1.85-0.48-2.67-0.96-4.45-1.30-7.08-1.37-1.98-0.05-3.18 0.03-5.11 0.35-5.09 0.84-8.05 2.05-9.89 4.05-0.30 0.32-0.63 0.63-0.72 0.68-0.21 0.12-0.84 0.12-1.08 0.01z'/></svg>";
+
+      function saveRosas() {
+        localStorage.setItem('rosasParaMaria', JSON.stringify([...rosasData]));
+      }
+
+      function fmtDateKey(y, m, d) {
+        return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      }
+
+      function toggleRosaDay(dk) {
+        if (rosasData.has(dk)) rosasData.delete(dk);
+        else rosasData.add(dk);
+        saveRosas();
+        renderHabitsCalendar();
+        if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
+      }
+
+      function openHabitsView() {
+        habitCalMonth = new Date().getMonth();
+        habitCalYear = new Date().getFullYear();
+        habitCalView = 'mensal';
+        const view = document.getElementById('habitsView');
+        view.style.display = 'flex';
+        view.style.transform = 'translateX(100%)';
+        renderHabitsCalendar();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            view.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+            view.style.transform = 'translateX(0)';
+          });
+        });
+      }
+
+      function closeHabitsView() {
+        const view = document.getElementById('habitsView');
+        view.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
+        view.style.transform = 'translateX(100%)';
+        setTimeout(() => { view.style.display = 'none'; }, 310);
+      }
+
+      function setHabitView(v) {
+        habitCalView = v;
+        renderHabitsCalendar();
+      }
+
+      function navigateHabitMonth(dir) {
+        habitCalMonth += dir;
+        if (habitCalMonth > 11) { habitCalMonth = 0; habitCalYear++; }
+        if (habitCalMonth < 0) { habitCalMonth = 11; habitCalYear--; }
+        renderHabitsCalendar();
+      }
+
+      function renderHabitsCalendar() {
+        const container = document.getElementById('habitsCalContainer');
+        const titleEl = document.getElementById('habitsMonthTitle');
+        const statsEl = document.getElementById('habitsStats');
+        if (!container) return;
+
+        if (titleEl) titleEl.textContent = MONTHS_PT[habitCalMonth].toUpperCase() + ' DE ' + habitCalYear;
+
+        ['semana','mensal'].forEach(v => {
+          const tab = document.getElementById('habitsTab-' + v);
+          if (!tab) return;
+          const active = habitCalView === v;
+          tab.style.fontWeight = active ? '600' : '400';
+          tab.style.color = active ? '#1C0A00' : '#A8A29E';
+          tab.style.background = active ? 'white' : 'transparent';
+          tab.style.boxShadow = active ? '0 1px 4px rgba(0,0,0,0.12)' : 'none';
+        });
+
+        let monthCount = 0;
+        rosasData.forEach(dk => {
+          const p = dk.split('-');
+          if (parseInt(p[0]) === habitCalYear && parseInt(p[1]) === habitCalMonth + 1) monthCount++;
+        });
+        if (statsEl) {
+          statsEl.textContent = monthCount === 0
+            ? 'Nenhuma rosa este mês'
+            : monthCount === 1 ? '1 rosa este mês'
+            : monthCount + ' rosas este mês';
+        }
+
+        const today = new Date();
+        const html = [];
+
+        html.push('<div style="display:grid;grid-template-columns:40px repeat(7,1fr);gap:3px;padding:0 4px 6px;">');
+        html.push('<div></div>');
+        DAY_HDR.forEach(h => {
+          html.push(`<div style="text-align:center;font-family:Outfit,serif;font-size:12px;color:#A8A29E;padding:4px 0;font-weight:500;">${h}</div>`);
+        });
+        html.push('</div>');
+
+        if (habitCalView === 'mensal') {
+          const firstDow = (new Date(habitCalYear, habitCalMonth, 1).getDay() + 6) % 7;
+          const startDate = new Date(habitCalYear, habitCalMonth, 1 - firstDow);
+          html.push('<div style="display:flex;flex-direction:column;gap:3px;padding:0 4px;">');
+          for (let w = 0; w < 6; w++) {
+            const rowDates = [];
+            for (let i = 0; i < 7; i++) {
+              const d = new Date(startDate);
+              d.setDate(startDate.getDate() + w * 7 + i);
+              rowDates.push(d);
+            }
+            const hasMth = rowDates.some(d => d.getMonth() === habitCalMonth && d.getFullYear() === habitCalYear);
+            if (!hasMth && w > 0) break;
+            const lbl = MONTHS_SHORT[rowDates[0].getMonth()] + ' ' + rowDates[0].getDate();
+            html.push('<div style="display:grid;grid-template-columns:40px repeat(7,1fr);gap:3px;">');
+            html.push(`<div style="display:flex;align-items:center;justify-content:flex-end;padding-right:5px;font-family:Outfit,serif;font-size:9px;color:#B8AFA7;white-space:nowrap;">${lbl}</div>`);
+            rowDates.forEach(d => {
+              const inMth = d.getMonth() === habitCalMonth && d.getFullYear() === habitCalYear;
+              if (!inMth) { html.push('<div style="aspect-ratio:1;border-radius:8px;background:#F0EDE8;min-height:32px;"></div>'); return; }
+              const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+              const hasRosa = rosasData.has(dk);
+              const isToday = d.toDateString() === today.toDateString();
+              const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
+              const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+              const content = hasRosa
+                ? ROSE_SVG_SM
+                : `<span style="font-family:Outfit;font-size:13px;font-weight:${isToday?'700':'400'};color:${isToday?'#92400E':'#7C6E5E'};line-height:1;">${d.getDate()}</span>`;
+              html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:8px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:32px;">${content}</button>`);
+            });
+            html.push('</div>');
+          }
+          html.push('</div>');
+        } else {
+          const dow = (today.getDay() + 6) % 7;
+          const monday = new Date(today);
+          monday.setDate(today.getDate() - dow);
+          html.push('<div style="padding:0 4px;">');
+          html.push('<div style="display:grid;grid-template-columns:40px repeat(7,1fr);gap:4px;">');
+          html.push(`<div style="display:flex;align-items:center;justify-content:flex-end;padding-right:5px;font-family:Outfit,serif;font-size:9px;color:#B8AFA7;white-space:nowrap;">${MONTHS_SHORT[monday.getMonth()]} ${monday.getDate()}</div>`);
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const dk = fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+            const hasRosa = rosasData.has(dk);
+            const isToday = d.toDateString() === today.toDateString();
+            const bg = hasRosa ? '#BE123C' : (isToday ? '#FFF7ED' : '#EAE6DF');
+            const bdr = hasRosa ? '1.5px solid #9F1239' : (isToday ? '1.5px solid #FDBA74' : '1.5px solid transparent');
+            const content = hasRosa
+              ? ROSE_SVG_LG
+              : `<span style="font-family:Outfit;font-size:15px;font-weight:${isToday?'700':'400'};color:${isToday?'#92400E':'#7C6E5E'};line-height:1;">${d.getDate()}</span>`;
+            html.push(`<button onclick="toggleRosaDay('${dk}')" style="aspect-ratio:1;border-radius:10px;background:${bg};border:${bdr};display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:52px;">${content}</button>`);
+          }
+          html.push('</div>');
+          html.push('</div>');
+        }
+
+        container.innerHTML = html.join('');
       }
     </script>
     <!-- Modal de Seleção do Estilo Meditativo -->
@@ -2275,21 +2675,41 @@
 
     <!-- Modal de Configurações -->
     <div id="settingsOverlay" style="display:none; position:fixed; inset:0; z-index:100; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="closeSettingsMenu()">
-      <div id="settingsSheet" style="transform:translateY(100%);" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60" onclick="event.stopPropagation()">
+      <div id="settingsSheet" style="transform:translateY(100%); max-height:90vh; overflow-y:auto;" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60 hide-scrollbar" onclick="event.stopPropagation()">
         <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
         <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-0.5">Configurações</h3>
         <p class="text-center text-[11px] font-serif text-stone-400 mb-6 tracking-wide">Personalize seu terço</p>
 
-        <!-- Toggle: Orações Adicionais -->
-        <div class="flex items-center justify-between px-1 py-3 border-b border-stone-100">
-          <div class="flex-1 pr-4">
-            <div class="font-serif text-orange-950 text-sm font-medium">Orações Adicionais</div>
-            <div class="text-[11px] font-serif text-stone-400 mt-0.5">Espírito Santo, São José e São Miguel ao final</div>
+        <!-- Seção: Som Gregoriano -->
+        <div class="py-3 border-b border-stone-100">
+          <div class="flex items-center justify-between px-1 mb-3">
+            <div class="flex-1 pr-4">
+              <div class="font-serif text-orange-950 text-sm font-medium">Som Gregoriano</div>
+              <div class="text-[11px] font-serif text-stone-400 mt-0.5">Cantos contemplativos em loop</div>
+            </div>
+            <button id="toggleAmbient" onclick="toggleAmbient()" role="switch" aria-checked="false"
+              style="position:relative; width:51px; height:31px; border-radius:999px; border:none; cursor:pointer; transition:background 0.25s; flex-shrink:0; background:#D1C9BD; padding:0;">
+              <span id="ambientKnob" style="position:absolute; top:3px; left:3px; width:25px; height:25px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.22); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);"></span>
+            </button>
           </div>
-          <button id="toggleOracoesAdicionais" onclick="toggleOracoesAdicionais()" role="switch" aria-checked="false"
-            style="position:relative; width:51px; height:31px; border-radius:999px; border:none; cursor:pointer; transition:background 0.25s; flex-shrink:0; background:#D1C9BD; padding:0;">
-            <span id="toggleKnob" style="position:absolute; top:3px; left:3px; width:25px; height:25px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.22); transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);"></span>
-          </button>
+          <!-- Faixa tocando agora -->
+          <div id="chant-now-playing" style="font-family:Outfit,serif; font-size:11px; color:#A8997A; margin-bottom:8px; padding:0 1px; min-height:14px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; letter-spacing:0.02em;"></div>
+          <!-- Chips numerados — scroll horizontal -->
+          <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:4px;" class="hide-scrollbar">
+            <button id="chant-0"  onclick="selectChant(0)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">1</button>
+            <button id="chant-1"  onclick="selectChant(1)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">2</button>
+            <button id="chant-2"  onclick="selectChant(2)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">3</button>
+            <button id="chant-3"  onclick="selectChant(3)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">4</button>
+            <button id="chant-4"  onclick="selectChant(4)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">5</button>
+            <button id="chant-5"  onclick="selectChant(5)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">6</button>
+            <button id="chant-6"  onclick="selectChant(6)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">7</button>
+            <button id="chant-7"  onclick="selectChant(7)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">8</button>
+            <button id="chant-8"  onclick="selectChant(8)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">9</button>
+            <button id="chant-9"  onclick="selectChant(9)"  style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">10</button>
+            <button id="chant-10" onclick="selectChant(10)" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">11</button>
+            <button id="chant-11" onclick="selectChant(11)" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">12</button>
+            <button id="chant-12" onclick="selectChant(12)" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid #E7E0D5;font-family:Outfit,serif;font-size:12px;font-weight:500;color:#7C6E5E;background:#F5F1EC;cursor:pointer;transition:all 0.18s;">13</button>
+          </div>
         </div>
 
         <!-- Botão Devocionário -->
@@ -2304,6 +2724,20 @@
             </div>
           </div>
           <svg class="w-4 h-4 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <!-- Botão Rosas para Maria -->
+        <button onclick="closeSettingsMenu(); setTimeout(openHabitsView, 320);" class="w-full flex items-center justify-between px-4 py-3.5 mt-3 rounded-2xl bg-rose-50 border border-rose-100 hover:bg-rose-100/60 active:bg-rose-100/80 transition-colors">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-rose-100/80">
+              <svg class="w-4 h-4 text-rose-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+            <div>
+              <div class="font-serif text-rose-900 text-sm font-medium text-left">Rosas para Maria</div>
+              <div class="text-[11px] font-serif text-stone-400 mt-0.5 text-left">Acompanhe seus dias de devoção</div>
+            </div>
+          </div>
+          <svg class="w-4 h-4 text-rose-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
         <div style="height: env(safe-area-inset-bottom, 8px); margin-top: 8px;"></div>
@@ -2360,15 +2794,107 @@
       </div>
     </div>
 
-    <!-- Drawer lateral do Acervo -->
+    <!-- Drawer lateral do Acervo (abre pela direita) -->
     <div id="acervoDrawerOverlay" style="display:none; position:fixed; inset:0; z-index:60; background:rgba(41,29,20,0.40);" onclick="closeAcervoDrawer()">
-      <div id="acervoDrawer" style="position:absolute; left:0; top:0; bottom:0; width:80%; max-width:300px; background:#FAF6EE; transform:translateX(-100%); display:flex; flex-direction:column; overflow:hidden;" onclick="event.stopPropagation()">
-        <div class="px-5 pt-8 pb-4 border-b border-stone-100 flex-shrink-0">
+      <div id="acervoDrawer" style="position:absolute; right:0; top:0; bottom:0; width:80%; max-width:300px; background:#FAF6EE; transform:translateX(100%); display:flex; flex-direction:column; overflow:hidden;" onclick="event.stopPropagation()">
+        <div class="px-5 pt-8 pb-4 border-b border-stone-100 flex-shrink-0 text-right">
           <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-serif mb-1">Devocionário</p>
           <h3 class="font-serif text-orange-950 text-lg font-medium">Orações</h3>
         </div>
-        <div id="acervoDrawerList" class="overflow-y-auto hide-scrollbar flex-1 px-3 py-3 space-y-1"></div>
+        <div id="acervoDrawerList" class="overflow-y-auto hide-scrollbar flex-1 px-3 py-3"></div>
         <div style="height: env(safe-area-inset-bottom, 8px); flex-shrink:0;"></div>
+      </div>
+    </div>
+
+    <!-- Tela de Hábitos — Rosas para Maria -->
+    <div id="habitsView" style="display:none; position:fixed; inset:0; z-index:50; background:#EFECE6; transform:translateX(100%); flex-direction:column; overflow:hidden;">
+
+      <!-- Header -->
+      <header class="flex-none px-4 py-3 z-30">
+        <div class="max-w-2xl mx-auto grid grid-cols-3 items-center">
+          <button onclick="closeHabitsView()" class="justify-self-start flex items-center gap-1.5 hover:bg-stone-100/70 px-3 py-1.5 rounded-full transition-colors">
+            <svg class="w-3.5 h-3.5 text-orange-600/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+            <span class="text-stone-700 font-serif tracking-wide text-sm font-medium">Rosário</span>
+          </button>
+          <div class="text-center">
+            <div class="text-[9px] tracking-[0.2em] uppercase text-stone-400 font-serif leading-tight">Acompanhamento</div>
+            <div class="font-serif text-orange-950 text-base font-semibold leading-tight">Rosas para Maria</div>
+          </div>
+          <div></div>
+        </div>
+      </header>
+
+      <!-- Tabs Semana / Mensal -->
+      <div class="flex-none max-w-xl mx-auto w-full px-4 mb-3">
+        <div style="display:flex; background:rgba(214,211,208,0.35); border-radius:16px; padding:4px; gap:4px;">
+          <button id="habitsTab-semana" onclick="setHabitView('semana')"
+            style="flex:1; padding:8px; border-radius:12px; font-family:Outfit,serif; font-size:14px; border:none; cursor:pointer; transition:all 0.2s; font-weight:400; color:#A8A29E; background:transparent;">
+            Semana
+          </button>
+          <button id="habitsTab-mensal" onclick="setHabitView('mensal')"
+            style="flex:1; padding:8px; border-radius:12px; font-family:Outfit,serif; font-size:14px; border:none; cursor:pointer; transition:all 0.2s; font-weight:600; color:#1C0A00; background:white; box-shadow:0 1px 4px rgba(0,0,0,0.12);">
+            Mensal
+          </button>
+        </div>
+      </div>
+
+      <!-- Área scrollável com navegação + calendário -->
+      <div style="flex:1; min-height:0; overflow-y:auto;" class="hide-scrollbar">
+        <div class="max-w-xl mx-auto px-2">
+
+          <!-- Navegação de mês -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:0 8px 16px;">
+            <button onclick="navigateHabitMonth(-1)"
+              style="width:40px; height:40px; border-radius:14px; background:white; border:1px solid rgba(214,211,208,0.8); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+              <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div id="habitsMonthTitle" style="font-family:Outfit,serif; font-size:13px; font-weight:600; color:#1C0A00; letter-spacing:0.08em;">MAIO DE 2026</div>
+            <button onclick="navigateHabitMonth(1)"
+              style="width:40px; height:40px; border-radius:14px; background:white; border:1px solid rgba(214,211,208,0.8); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+              <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Grade do calendário (injetada via JS) -->
+          <div id="habitsCalContainer"></div>
+
+          <!-- Estatísticas do mês -->
+          <div id="habitsStats" style="text-align:center; font-family:Outfit,serif; font-size:12px; color:#A8A29E; padding:20px 0 8px; letter-spacing:0.05em;"></div>
+          <!-- Texto inspirador -->
+          <div style="padding:16px 24px 36px; text-align:center;">
+            <div style="width:28px; height:1px; background:#D3C7AE; margin:0 auto 18px;"></div>
+            <p style="font-family:Outfit,sans-serif; font-size:12px; color:#A8A29E; line-height:1.8; letter-spacing:0.01em;">A palavra Rosário quer dizer coroa de rosas. Cada Ave Maria rezada com devoção é uma rosa. Ao término de cada Rosário, uma bela coroa é depositada nas cabeças de Jesus e de Maria.</p>
+            <p style="font-family:Outfit,sans-serif; font-size:10px; color:#C0B8B0; margin-top:12px; letter-spacing:0.06em;">— O Segredo Admirável do Santíssimo Rosário</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão Fechar -->
+      <div class="flex-none px-4 pt-3 max-w-xl mx-auto w-full" style="padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));">
+        <button onclick="closeHabitsView()"
+          style="width:100%; padding:16px; border-radius:18px; background:#1C1917; color:white; font-family:Outfit,serif; font-size:13px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; border:none; cursor:pointer;">
+          Fechar
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: Terço Concluído — confirmar rosa do dia -->
+    <div id="rosaryCompleteOverlay" style="display:none; position:fixed; inset:0; z-index:110; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="dismissRosaryComplete()">
+      <div id="rosaryCompleteSheet" style="transform:translateY(100%);" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60" onclick="event.stopPropagation()">
+        <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
+        <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-1">Terço concluído</h3>
+        <p class="text-center text-[12px] font-serif text-stone-500 mb-6 leading-relaxed">Marcar hoje em<br>Rosas para Maria?</p>
+        <div style="display:flex; gap:10px;">
+          <button onclick="dismissRosaryComplete()"
+            style="flex:1; padding:14px; border-radius:16px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:13px; font-weight:500; color:#78716C; background:#FAF6EE; cursor:pointer;">
+            Agora não
+          </button>
+          <button onclick="confirmRosaToday()"
+            style="flex:1; padding:14px; border-radius:16px; border:none; font-family:Outfit,serif; font-size:13px; font-weight:600; color:#FFFFFF; background:#1C1917; cursor:pointer;">
+            Sim, marcar
+          </button>
+        </div>
+        <div style="height: env(safe-area-inset-bottom, 8px); margin-top: 8px;"></div>
       </div>
     </div>
   </body>
