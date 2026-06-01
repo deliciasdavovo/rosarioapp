@@ -1050,6 +1050,10 @@
       let habitCalView = 'mensal';
       let lastAddedKey = null;
 
+      // Estado Imagem Tela Cheia
+      let isImageFullscreen = false;
+      let _fullscreenMysteryIdx = null;
+
       // Sequência completa de contas litúrgicas
       function createBeads() {
         const list = [];
@@ -1243,6 +1247,9 @@
                     class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]"
                     referrerpolicy="no-referrer"
                   />
+                  <button onclick="event.stopPropagation(); openImageFullscreen()" class="absolute bottom-3 right-3 z-30 w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-transform" style="background:rgba(255,251,245,0.32); backdrop-filter:blur(4px); border:1px solid rgba(180,130,70,0.35); touch-action:manipulation;">
+                    <svg width="13" height="13" fill="none" stroke="rgba(80,40,10,0.7)" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>
+                  </button>
                 </div>
 
                 <div class="flex flex-col items-center space-y-1">
@@ -1624,6 +1631,7 @@
           panelContent.innerHTML = layout;
           panelContent.classList.remove('fade-out');
           panelContent.classList.add('fade-in');
+          if (isImageFullscreen) renderFullscreenImage();
         }, 300);
       }
 
@@ -1807,6 +1815,7 @@
                   activeBeadId = beadCopy.id;
                   renderBeads();
                   if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
+                  if (isImageFullscreen) renderFullscreenImage();
                 }
               });
             })(bead, b);
@@ -1885,6 +1894,7 @@
             activeBeadId = id + 1;
             renderBeads();
             if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
+            if (isImageFullscreen) renderFullscreenImage();
             centerBead(activeBeadId);
           }, 250);
         } else {
@@ -2075,10 +2085,159 @@
         });
       }
 
+      // === Modo Imagem Tela Cheia ===
+      function renderFullscreenImage() {
+        if (!isImageFullscreen) return;
+        const bead = beadsList[activeBeadId];
+        const mSet = MYSTERY_SETS[getMysterySetIdForDay(selectedDay)];
+        const isMystery = bead && bead.mysteryIndex !== undefined;
+        if (!isMystery) return;
+        const mysteryIdx = bead.mysteryIndex;
+        const mystery = mSet.mysteries[mysteryIdx];
+        const fruit = mSet.fruits[mysteryIdx] || '';
+        if (mysteryIdx !== _fullscreenMysteryIdx) {
+          const imgEl = document.getElementById('fullscreenImg');
+          imgEl.style.transition = '';
+          imgEl.style.opacity = '0';
+          const imgSrc = Array.isArray(mystery.imageUrls)
+            ? mystery.imageUrls[Math.floor(Math.random() * mystery.imageUrls.length)]
+            : mystery.imageUrl;
+          imgEl.src = imgSrc;
+          imgEl.onload = function() {
+            imgEl.style.transition = 'opacity 0.5s ease';
+            imgEl.style.opacity = '0.9';
+          };
+          _fullscreenMysteryIdx = mysteryIdx;
+        }
+        document.getElementById('fullscreenMysteryNum').textContent = 'Mistério ' + (mysteryIdx + 1);
+        document.getElementById('fullscreenTitle').textContent = mystery.title;
+        document.getElementById('fullscreenFruit').textContent = fruit ? 'Fruto — ' + fruit : '';
+      }
+
+      function openImageFullscreen() {
+        isImageFullscreen = true;
+        _fullscreenMysteryIdx = null;
+        const bc = document.getElementById('beadsContainer');
+        bc.style.position = 'fixed';
+        bc.style.zIndex = '210';
+        const overlay = document.getElementById('imageFullscreenOverlay');
+        overlay.style.display = 'block';
+        renderFullscreenImage();
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() { overlay.style.opacity = '1'; });
+        });
+      }
+
+      function closeImageFullscreen() {
+        isImageFullscreen = false;
+        const bc = document.getElementById('beadsContainer');
+        bc.style.position = 'absolute';
+        bc.style.zIndex = '30';
+        const overlay = document.getElementById('imageFullscreenOverlay');
+        overlay.style.opacity = '0';
+        setTimeout(function() { overlay.style.display = 'none'; }, 310);
+      }
+
+      function addFullscreenNavigation() {
+        var overlay = document.getElementById('imageFullscreenOverlay');
+        var STEP = 38, PN_EXTRA = 42;
+        function fsGap(a, b) {
+          var ta = beadsList[a] && beadsList[a].type;
+          var tb = beadsList[b] && beadsList[b].type;
+          var isPn = ta === 'pai-nosso' || ta === 'misterio' || tb === 'pai-nosso' || tb === 'misterio'
+                  || ta === 'salve-rainha' || tb === 'salve-rainha';
+          return STEP + (isPn ? PN_EXTRA : 0);
+        }
+        var fsStartX = 0, fsStartY = 0, fsStartT = 0;
+        var fsLastX = 0, fsLastT = 0;
+        var fsTouchTarget = null;
+        var fsVelX = 0;
+        var fsDragging = false;
+        var fsAnchor = 0, fsPreview = 0, fsPrev = 0;
+
+        overlay.addEventListener('touchstart', function(e) {
+          if (e.target.closest('button')) return;
+          fsStartX = fsLastX = e.touches[0].clientX;
+          fsStartY = e.touches[0].clientY;
+          fsStartT = fsLastT = Date.now();
+          fsTouchTarget = e.target;
+          fsDragging = false;
+          fsVelX = 0;
+          fsAnchor = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
+          fsPreview = fsPrev = fsAnchor;
+        }, { passive: true });
+
+        overlay.addEventListener('touchmove', function(e) {
+          var cx = e.touches[0].clientX;
+          var cy = e.touches[0].clientY;
+          var dx = cx - fsStartX;
+          var dy = cy - fsStartY;
+          if (!fsDragging) {
+            if (Math.abs(dx) < 8) return;
+            if (Math.abs(dy) > Math.abs(dx) * 0.8) return;
+            fsDragging = true;
+          }
+          var now = Date.now();
+          fsVelX = (cx - fsLastX) / Math.max(1, now - fsLastT);
+          fsLastX = cx; fsLastT = now;
+          var cur = fsAnchor, rem = dx;
+          while (rem < 0 && cur < beadsList.length - 1) {
+            var g = fsGap(cur, cur + 1);
+            if (-rem >= g) { rem += g; cur++; } else break;
+          }
+          while (rem > 0 && cur > 0) {
+            var g = fsGap(cur - 1, cur);
+            if (rem >= g) { rem -= g; cur--; } else break;
+          }
+          fsPreview = cur;
+          var offset = rem;
+          if (cur === 0 && rem > 0) offset = rem * 0.25;
+          if (cur === beadsList.length - 1 && rem < 0) offset = rem * 0.25;
+          if (cur !== fsPrev) {
+            if (navigator.vibrate) try { navigator.vibrate(5); } catch(er) {}
+            fsPrev = cur;
+          }
+          renderBeads(offset, true, beadsList[cur].id);
+        }, { passive: true });
+
+        function fsOnEnd(e) {
+          var endX = e.changedTouches ? e.changedTouches[0].clientX : fsLastX;
+          var endY = e.changedTouches ? e.changedTouches[0].clientY : fsStartY;
+          var totalDx = Math.abs(endX - fsStartX);
+          var totalDy = Math.abs(endY - fsStartY);
+          var elapsed = Date.now() - fsStartT;
+          var isTap = !fsDragging && totalDx < 10 && totalDy < 10 && elapsed < 400;
+          if (isTap && !(fsTouchTarget && fsTouchTarget.closest('.bw'))) {
+            var curIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
+            if (endX < window.innerWidth / 2) {
+              if (curIdx > 0) { activeBeadId = beadsList[curIdx - 1].id; if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {} renderBeads(0, false); renderFullscreenImage(); }
+            } else {
+              if (curIdx < beadsList.length - 1) { activeBeadId = beadsList[curIdx + 1].id; if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {} renderBeads(0, false); renderFullscreenImage(); }
+            }
+            return;
+          }
+          if (!fsDragging) return;
+          fsDragging = false;
+          var finalIdx = fsPreview;
+          if (fsVelX < -0.5 && finalIdx < beadsList.length - 1) finalIdx++;
+          if (fsVelX > 0.5 && finalIdx > 0) finalIdx--;
+          var newId = beadsList[finalIdx].id;
+          if (newId !== activeBeadId) {
+            activeBeadId = newId;
+            if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {}
+            renderFullscreenImage();
+          }
+          renderBeads(0, false);
+        }
+        overlay.addEventListener('touchend', fsOnEnd, { passive: true });
+        overlay.addEventListener('touchcancel', fsOnEnd, { passive: true });
+      }
+
       // Inicializar
       setMode('curta');
       renderBeads();
       addSwipeNavigation();
+      addFullscreenNavigation();
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -2746,6 +2905,25 @@
         container.innerHTML = html.join('');
       }
     </script>
+    <!-- Overlay Imagem Tela Cheia -->
+    <div id="imageFullscreenOverlay" style="display:none; position:fixed; inset:0; z-index:200; background:#0d0a07; opacity:0; transition:opacity 0.3s ease; overflow:hidden;">
+      <img id="fullscreenImg" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:grayscale(15%) brightness(0.93); opacity:0;" referrerpolicy="no-referrer" />
+      <!-- gradiente topo e base -->
+      <div style="position:absolute; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,0.32) 0%, transparent 28%, transparent 52%, rgba(0,0,0,0.68) 100%); pointer-events:none;"></div>
+      <!-- barra superior -->
+      <div style="position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:center; padding: max(env(safe-area-inset-top, 0px), 16px) 16px 16px 20px;">
+        <span id="fullscreenMysteryNum" style="color:rgba(255,255,255,0.5); font-family:Outfit,serif; font-size:10px; letter-spacing:0.28em; text-transform:uppercase;"></span>
+        <button onclick="closeImageFullscreen()" style="width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; touch-action:manipulation;">
+          <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- conteúdo inferior: título + fruto (beads flutuam acima via z-index) -->
+      <div style="position:absolute; bottom:0; left:0; right:0; padding:0 24px; padding-bottom:max(calc(env(safe-area-inset-bottom, 0px) + 104px), 112px); text-align:center; pointer-events:none;">
+        <div id="fullscreenTitle" style="color:rgba(255,248,238,0.93); font-family:Outfit,serif; font-size:19px; font-weight:500; letter-spacing:0.03em; margin-bottom:5px; line-height:1.3;"></div>
+        <div id="fullscreenFruit" style="color:rgba(255,195,130,0.75); font-family:Outfit,serif; font-size:11px; letter-spacing:0.12em;"></div>
+      </div>
+    </div>
+
     <!-- Modal de Seleção do Estilo Meditativo -->
     <div id="meditativoSelectorOverlay" style="display:none; position:fixed; inset:0; z-index:100; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="closeMeditativoSelector()">
       <div id="meditativoSelectorSheet" style="transform:translateY(100%);" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60" onclick="event.stopPropagation()">
