@@ -1087,6 +1087,59 @@
 
       beadsList = createBeads();
 
+      // ============= PERSISTÊNCIA DE ESTADO =============
+      function saveBeadState() {
+        const today = new Date();
+        const dateKey = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        try {
+          localStorage.setItem('beadState', JSON.stringify({
+            date: dateKey,
+            activeBeadId: activeBeadId,
+            completedBeads: [...completedBeads],
+            selectedDay: selectedDay
+          }));
+        } catch (e) {}
+      }
+
+      function restoreBeadState() {
+        try {
+          const raw = localStorage.getItem('beadState');
+          if (!raw) return;
+          const state = JSON.parse(raw);
+          const today = new Date();
+          const dateKey = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+          if (state.date !== dateKey) return; // só restaura no mesmo dia
+          if (typeof state.selectedDay === 'number') {
+            selectedDay = state.selectedDay;
+          }
+          if (Array.isArray(state.completedBeads)) {
+            completedBeads = new Set(state.completedBeads.filter(id => id >= 0 && id < beadsList.length));
+          }
+          if (typeof state.activeBeadId === 'number' && state.activeBeadId >= 0 && state.activeBeadId < beadsList.length) {
+            activeBeadId = state.activeBeadId;
+          }
+        } catch (e) {}
+      }
+
+      restoreBeadState();
+
+      // ============= WAKE LOCK (tela não apaga durante a reza) =============
+      let _wakeLock = null;
+
+      async function _requestWakeLock() {
+        if (!('wakeLock' in navigator)) return;
+        try {
+          _wakeLock = await navigator.wakeLock.request('screen');
+          _wakeLock.addEventListener('release', () => { _wakeLock = null; });
+        } catch (e) {}
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') _requestWakeLock();
+      });
+
+      _requestWakeLock();
+
       // Referências de UI
       const beadsContainer = document.getElementById('beadsContainer');
       const panelContent = document.getElementById('panelContent');
@@ -1141,13 +1194,14 @@
             renderPanel();
             renderDayDropdown();
             closeDropdown();
+            saveBeadState();
           });
           dayDropdown.appendChild(optionBtn);
         });
       }
 
       currentDayLabel.innerText = DAYS_OF_WEEK[selectedDay];
-      renderDayDropdown();
+      renderDayDropdown(); // atualiza label e dropdown com o dia restaurado (pode ser de localStorage)
 
       // Mudança de Abas / Modos
       function setMode(mode) {
@@ -1807,6 +1861,7 @@
                   activeBeadId = beadCopy.id;
                   renderBeads();
                   if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
+                  saveBeadState();
                 }
               });
             })(bead, b);
@@ -1881,15 +1936,18 @@
         // Avanço automático com discreto intervalo visual agradável
         if (id === activeBeadId && id < beadsList.length - 1) {
           setTimeout(() => {
+            if (activeBeadId !== id) return; // usuário navegou manualmente durante o delay
             const prevKey = getPanelKey(activeBeadId);
             activeBeadId = id + 1;
             renderBeads();
             if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
             centerBead(activeBeadId);
+            saveBeadState();
           }, 250);
         } else {
           renderBeads();
         }
+        saveBeadState();
       }
 
       function centerBead(id) { /* no-op */ }
@@ -1983,6 +2041,7 @@
           if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {}
           renderBeads(0, false);
           if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
+          saveBeadState();
         }
 
         function onEnd(e) {
@@ -2021,6 +2080,7 @@
             activeBeadId = newId;
             if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {}
             if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
+            saveBeadState();
           }
           renderBeads(0, false);
         }
@@ -2167,6 +2227,7 @@
         completedBeads = new Set();
         renderBeads(0, true);
         renderPanel();
+        saveBeadState();
         if (navigator.vibrate) try { navigator.vibrate(8); } catch(e) {}
       }
 
