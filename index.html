@@ -1053,6 +1053,18 @@
       // Estado Imagem Tela Cheia
       let isImageFullscreen = false;
       let _fullscreenMysteryIdx = null;
+      let _mystImgCache = {};
+      let _fullscreenNavReady = false;
+
+      function getMysteryImgSrc(mysteryIdx, mystery) {
+        const key = getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx;
+        if (!_mystImgCache[key]) {
+          _mystImgCache[key] = Array.isArray(mystery.imageUrls)
+            ? mystery.imageUrls[Math.floor(Math.random() * mystery.imageUrls.length)]
+            : mystery.imageUrl;
+        }
+        return _mystImgCache[key];
+      }
 
       // Sequência completa de contas litúrgicas
       function createBeads() {
@@ -1194,6 +1206,7 @@
           `;
           optionBtn.addEventListener('click', () => {
             selectedDay = idx;
+            _mystImgCache = {};
             currentDayLabel.innerText = day;
             renderPanel();
             renderDayDropdown();
@@ -1296,7 +1309,7 @@
                   <span class="absolute bottom-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
 
                   <img
-                    src="${Array.isArray(mystery.imageUrls) ? mystery.imageUrls[Math.floor(Math.random() * mystery.imageUrls.length)] : mystery.imageUrl}"
+                    src="${getMysteryImgSrc(bead.mysteryIndex, mystery)}"
                     alt="${mystery.title}"
                     class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]"
                     referrerpolicy="no-referrer"
@@ -2063,7 +2076,7 @@
 
           // Tap: movimento pequeno e toque curto, fora de uma conta individual
           var isTap = !dragging && totalDx < 10 && totalDy < 10 && elapsed < 400;
-          if (isTap && !(touchTarget && touchTarget.closest('.bw'))) {
+          if (isTap && !(touchTarget && touchTarget.closest('.bw')) && !(touchTarget && touchTarget.closest('button'))) {
             var curIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
             if (endX < window.innerWidth / 2) {
               if (curIdx > 0) navigate(curIdx - 1);
@@ -2157,16 +2170,16 @@
         const fruit = mSet.fruits[mysteryIdx] || '';
         if (mysteryIdx !== _fullscreenMysteryIdx) {
           const imgEl = document.getElementById('fullscreenImg');
-          imgEl.style.transition = '';
-          imgEl.style.opacity = '0';
-          const imgSrc = Array.isArray(mystery.imageUrls)
-            ? mystery.imageUrls[Math.floor(Math.random() * mystery.imageUrls.length)]
-            : mystery.imageUrl;
-          imgEl.src = imgSrc;
-          imgEl.onload = function() {
-            imgEl.style.transition = 'opacity 0.5s ease';
-            imgEl.style.opacity = '0.9';
-          };
+          const imgSrc = getMysteryImgSrc(mysteryIdx, mystery);
+          if (imgEl.src !== imgSrc) {
+            imgEl.style.transition = '';
+            imgEl.style.opacity = '0';
+            imgEl.src = imgSrc;
+            imgEl.onload = function() {
+              imgEl.style.transition = 'opacity 0.5s ease';
+              imgEl.style.opacity = '0.9';
+            };
+          }
           _fullscreenMysteryIdx = mysteryIdx;
         }
         document.getElementById('fullscreenMysteryNum').textContent = 'Mistério ' + (mysteryIdx + 1);
@@ -2175,11 +2188,16 @@
       }
 
       function openImageFullscreen() {
+        if (!_fullscreenNavReady) {
+          addFullscreenNavigation();
+          _fullscreenNavReady = true;
+        }
         isImageFullscreen = true;
         _fullscreenMysteryIdx = null;
         const bc = document.getElementById('beadsContainer');
         bc.style.position = 'fixed';
         bc.style.zIndex = '210';
+        bc.style.pointerEvents = 'none';
         const overlay = document.getElementById('imageFullscreenOverlay');
         overlay.style.display = 'block';
         renderFullscreenImage();
@@ -2193,6 +2211,7 @@
         const bc = document.getElementById('beadsContainer');
         bc.style.position = 'absolute';
         bc.style.zIndex = '30';
+        bc.style.pointerEvents = '';
         const overlay = document.getElementById('imageFullscreenOverlay');
         overlay.style.opacity = '0';
         setTimeout(function() { overlay.style.display = 'none'; }, 310);
@@ -2269,10 +2288,16 @@
           var isTap = !fsDragging && totalDx < 10 && totalDy < 10 && elapsed < 400;
           if (isTap && !(fsTouchTarget && fsTouchTarget.closest('.bw'))) {
             var curIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
-            if (endX < window.innerWidth / 2) {
-              if (curIdx > 0) { activeBeadId = beadsList[curIdx - 1].id; if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {} renderBeads(0, false); renderFullscreenImage(); }
-            } else {
-              if (curIdx < beadsList.length - 1) { activeBeadId = beadsList[curIdx + 1].id; if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {} renderBeads(0, false); renderFullscreenImage(); }
+            var tapTarget = -1;
+            if (endX < window.innerWidth / 2) { if (curIdx > 0) tapTarget = curIdx - 1; }
+            else { if (curIdx < beadsList.length - 1) tapTarget = curIdx + 1; }
+            if (tapTarget >= 0) {
+              var prevKey2 = getPanelKey(activeBeadId);
+              activeBeadId = beadsList[tapTarget].id;
+              if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {}
+              renderBeads(0, false);
+              renderFullscreenImage();
+              if (getPanelKey(activeBeadId) !== prevKey2) renderPanel();
             }
             return;
           }
@@ -2283,9 +2308,11 @@
           if (fsVelX > 0.5 && finalIdx > 0) finalIdx--;
           var newId = beadsList[finalIdx].id;
           if (newId !== activeBeadId) {
+            var prevKey3 = getPanelKey(activeBeadId);
             activeBeadId = newId;
             if (navigator.vibrate) try { navigator.vibrate(10); } catch(er) {}
             renderFullscreenImage();
+            if (getPanelKey(activeBeadId) !== prevKey3) renderPanel();
           }
           renderBeads(0, false);
         }
@@ -2297,7 +2324,6 @@
       setMode('curta');
       renderBeads();
       addSwipeNavigation();
-      addFullscreenNavigation();
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
