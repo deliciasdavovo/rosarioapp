@@ -1931,31 +1931,31 @@
 
       function toggleBead(id) {
         if (completedBeads.has(id)) {
+          // desmarcar: remove e atualiza visual, sem avançar
           completedBeads.delete(id);
+          renderBeads();
         } else {
+          // marcar: feedback visual imediato, depois avança
           completedBeads.add(id);
+          renderBeads(); // a conta já aparece marcada (apagada) na hora
           if (navigator.vibrate) {
             try { navigator.vibrate([30, 50, 30]); } catch(err) {}
           }
           if (completedBeads.size === beadsList.length) {
             setTimeout(showRosaryCompleteSheet, 700);
           }
-        }
-
-        // Avanço automático com discreto intervalo visual agradável
-        if (id === activeBeadId && id < beadsList.length - 1) {
-          setTimeout(() => {
-            if (activeBeadId !== id) return; // usuário navegou manualmente durante o delay
-            const prevKey = getPanelKey(activeBeadId);
-            activeBeadId = id + 1;
-            renderBeads();
-            if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
-            if (isImageFullscreen) renderFullscreenImage();
-            centerBead(activeBeadId);
-            saveBeadState();
-          }, 250);
-        } else {
-          renderBeads();
+          if (id === activeBeadId && id < beadsList.length - 1) {
+            setTimeout(() => {
+              if (activeBeadId !== id) return; // usuário navegou manualmente durante o delay
+              const prevKey = getPanelKey(activeBeadId);
+              activeBeadId = id + 1;
+              renderBeads();
+              if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
+              if (isImageFullscreen) renderFullscreenImage();
+              centerBead(activeBeadId);
+              saveBeadState();
+            }, 250);
+          }
         }
         saveBeadState();
       }
