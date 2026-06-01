@@ -1054,6 +1054,7 @@
       let isImageFullscreen = false;
       let _fullscreenMysteryIdx = null;
       let _mystImgCache = {};
+      let _fullscreenNavReady = false;
 
       function getMysteryImgSrc(mysteryIdx, mystery) {
         const key = getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx;
@@ -2075,7 +2076,7 @@
 
           // Tap: movimento pequeno e toque curto, fora de uma conta individual
           var isTap = !dragging && totalDx < 10 && totalDy < 10 && elapsed < 400;
-          if (isTap && !(touchTarget && touchTarget.closest('.bw'))) {
+          if (isTap && !(touchTarget && touchTarget.closest('.bw')) && !(touchTarget && touchTarget.closest('button'))) {
             var curIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
             if (endX < window.innerWidth / 2) {
               if (curIdx > 0) navigate(curIdx - 1);
@@ -2187,6 +2188,10 @@
       }
 
       function openImageFullscreen() {
+        if (!_fullscreenNavReady) {
+          addFullscreenNavigation();
+          _fullscreenNavReady = true;
+        }
         isImageFullscreen = true;
         _fullscreenMysteryIdx = null;
         const bc = document.getElementById('beadsContainer');
@@ -2319,7 +2324,6 @@
       setMode('curta');
       renderBeads();
       addSwipeNavigation();
-      addFullscreenNavigation();
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
