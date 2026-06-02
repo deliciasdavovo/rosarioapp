@@ -224,7 +224,6 @@
           <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
           <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
           <div class="absolute top-0 left-6 right-6 h-px bg-stone-100 z-20">
-            <div id="pBarFill" class="absolute left-0 top-0 bottom-0 bg-orange-300 transition-all duration-700 ease-out" style="width:0%"></div>
           </div>
           <div id="panelContent" class="relative w-full h-full z-10 flex flex-col pt-10 px-10 pb-20 text-center fade-transition fade-in"></div>
         </div>
@@ -1028,7 +1027,6 @@
       let activeMode = 'curta';
       let meditativoVariant = 'fatima'; // 'montfort' | 'fatima'
       let activeBeadId = 0;
-      let completedBeads = new Set();
       let beadsList = [];
       let oracoesAdicionaisEnabled = localStorage.getItem('oracoesAdicionais') === 'true'; // compat
       const _oaNew = localStorage.getItem('oracoesAdicionaisSet');
@@ -1111,7 +1109,6 @@
           localStorage.setItem('beadState', JSON.stringify({
             date: dateKey,
             activeBeadId: activeBeadId,
-            completedBeads: [...completedBeads],
             selectedDay: selectedDay
           }));
         } catch (e) {}
@@ -1127,9 +1124,6 @@
           if (state.date !== dateKey) return; // só restaura no mesmo dia
           if (typeof state.selectedDay === 'number') {
             selectedDay = state.selectedDay;
-          }
-          if (Array.isArray(state.completedBeads)) {
-            completedBeads = new Set(state.completedBeads.filter(id => id >= 0 && id < beadsList.length));
           }
           if (typeof state.activeBeadId === 'number' && state.activeBeadId >= 0 && state.activeBeadId < beadsList.length) {
             activeBeadId = state.activeBeadId;
@@ -1164,7 +1158,6 @@
       const daySelectorBtn = document.getElementById('daySelectorBtn');
       const chevronIcon = document.getElementById('chevronIcon');
       const activeTabBg = document.getElementById('activeTabBg');
-      const pBarFill = document.getElementById('pBarFill');
 
       // Gerenciar Estado do Dropdown de Dias
       daySelectorBtn.addEventListener('click', (e) => {
@@ -1773,7 +1766,6 @@
         for (var idx = startIdx; idx <= endIdx; idx++) {
           var bead        = beadsList[idx];
           var p           = calcPos(idx);
-          var isCompleted = completedBeads.has(bead.id);
           var isActive    = centerId === bead.id;
           var isCruz      = bead.type === 'cruz';
           var isNonBead   = bead.type === 'oferecimento' || bead.type === 'espirito-santo' || bead.type === 'sao-jose' || bead.type === 'sao-miguel';
@@ -1875,9 +1867,7 @@
               });
               bEl.addEventListener('pointerup', function(e) {
                 if (Math.sqrt(Math.pow(e.clientX-sx,2)+Math.pow(e.clientY-sy,2)) > 14) return;
-                if (activeBeadId === beadCopy.id) {
-                  toggleBead(beadCopy.id);
-                } else {
+                if (activeBeadId !== beadCopy.id) {
                   const prevKey = getPanelKey(activeBeadId);
                   activeBeadId = beadCopy.id;
                   renderBeads();
@@ -1891,16 +1881,12 @@
 
           // Cores (aplicadas sempre para refletir mudança de estado)
           if (isCruz) {
-            b.style.color        = isCompleted ? 'rgba(234,88,12,0.30)' : isActive ? '#ea580c' : '#fb923c';
+            b.style.color        = isActive ? '#ea580c' : '#fb923c';
             b.style.borderRadius = isActive ? '50%' : '0';
             b.style.boxShadow    = isActive ? '0 0 0 5px rgba(234,88,12,0.18)' : 'none';
           } else if (isMedalha || isNonBead) {
-            b.style.color     = isCompleted ? 'rgba(234,88,12,0.25)' : isActive ? '#ea580c' : '#fb923c';
+            b.style.color     = isActive ? '#ea580c' : '#fb923c';
             b.style.boxShadow = (isActive && isMedalha) ? '0 0 0 4px rgba(234,88,12,0.18)' : 'none';
-          } else if (isCompleted) {
-            b.style.background = 'rgba(234,88,12,0.14)';
-            b.style.border     = '1.5px solid rgba(234,88,12,0.28)';
-            b.style.boxShadow  = 'none';
           } else if (isActive) {
             b.style.background = '#ea580c';
             b.style.border     = '2px solid transparent';
@@ -1939,34 +1925,6 @@
           }
         }
 
-        pBarFill.style.width = (completedBeads.size / beadsList.length * 100) + '%';
-      }
-
-      function toggleBead(id) {
-        if (completedBeads.has(id)) return; // já marcada — não faz nada
-
-        // marcar: feedback visual imediato, depois avança
-        completedBeads.add(id);
-        renderBeads();
-        if (navigator.vibrate) {
-          try { navigator.vibrate([30, 50, 30]); } catch(err) {}
-        }
-        if (completedBeads.size === beadsList.length) {
-          setTimeout(showRosaryCompleteSheet, 700);
-        }
-        if (id === activeBeadId && id < beadsList.length - 1) {
-          setTimeout(() => {
-              if (activeBeadId !== id) return; // usuário navegou manualmente durante o delay
-              const prevKey = getPanelKey(activeBeadId);
-              activeBeadId = id + 1;
-              renderBeads();
-              if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
-              if (isImageFullscreen) renderFullscreenImage();
-              centerBead(activeBeadId);
-              saveBeadState();
-            }, 250);
-          }
-        saveBeadState();
       }
 
       function centerBead(id) { /* no-op */ }
@@ -2405,7 +2363,6 @@
         renderAcervoDrawerList();
         beadsList = createBeads();
         activeBeadId = 0;
-        completedBeads = new Set();
         renderBeads(0, true);
         renderPanel();
         saveBeadState();
@@ -2702,54 +2659,6 @@
         };
         document.addEventListener('touchstart', _startOnInteraction, { once: true });
         document.addEventListener('click', _startOnInteraction, { once: true });
-      }
-
-      // ============= CONCLUSÃO DO TERÇO =============
-      function showRosaryCompleteSheet() {
-        const today = fmtDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-        if (rosasData.has(today)) return;
-        const overlay = document.getElementById('rosaryCompleteOverlay');
-        const sheet = document.getElementById('rosaryCompleteSheet');
-        if (!overlay || !sheet) return;
-        overlay.style.display = 'flex';
-        requestAnimationFrame(() => {
-          sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
-          sheet.style.transform = 'translateY(0)';
-        });
-      }
-
-      function confirmRosaToday() {
-        const today = fmtDateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-        rosasData.add(today);
-        lastAddedKey = today;
-        saveRosas();
-        if (navigator.vibrate) try { navigator.vibrate([40, 30, 60, 30, 100]); } catch(e) {}
-        showRosaCelebration(() => dismissRosaryComplete());
-      }
-
-      function showRosaCelebration(callback) {
-        const sheet = document.getElementById('rosaryCompleteSheet');
-        if (!sheet) { callback(); return; }
-        const btns = sheet.querySelector('.rosa-btns');
-        const celebDiv = document.createElement('div');
-        celebDiv.style.cssText = 'display:flex;align-items:center;justify-content:center;padding:24px 0 8px;';
-        celebDiv.innerHTML = "<svg viewBox='0 0 100 100' fill='currentColor' class='celebrate-rose' style='width:72px;height:72px;color:#BE123C;'><path fill-rule='evenodd' d='M50 4C72 -4 100 14 96 38C100 58 84 82 62 90C50 97 26 97 14 88C-2 76 0 50 10 30C22 -2 42 4 50 4ZM56 20C42 18 28 32 28 46C28 60 38 74 52 78C66 82 80 70 80 56C80 42 70 26 56 20ZM50 42C44 42 40 47 40 53C40 60 45 65 51 65C58 65 63 59 62 52C61 45 56 41 50 42ZM50 50C48 50 47 52 47 54C47 56 49 58 51 57C53 56 54 54 53 52C52 50 51 50 50 50Z'/></svg>";
-        if (btns) btns.style.display = 'none';
-        sheet.appendChild(celebDiv);
-        setTimeout(() => {
-          sheet.removeChild(celebDiv);
-          if (btns) btns.style.display = '';
-          callback();
-        }, 900);
-      }
-
-      function dismissRosaryComplete() {
-        const overlay = document.getElementById('rosaryCompleteOverlay');
-        const sheet = document.getElementById('rosaryCompleteSheet');
-        if (!overlay || !sheet) return;
-        sheet.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
-        sheet.style.transform = 'translateY(100%)';
-        setTimeout(() => { overlay.style.display = 'none'; }, 310);
       }
 
       // ============= HABIT TRACKER (Rosas para Maria) =============
@@ -3254,24 +3163,5 @@
       </div>
     </div>
 
-    <!-- Modal: Terço Concluído — confirmar rosa do dia -->
-    <div id="rosaryCompleteOverlay" style="display:none; position:fixed; inset:0; z-index:110; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="dismissRosaryComplete()">
-      <div id="rosaryCompleteSheet" style="transform:translateY(100%);" class="bg-[#FAF6EE] rounded-t-3xl px-5 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60" onclick="event.stopPropagation()">
-        <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
-        <h3 class="text-center font-serif text-orange-950 text-base font-medium mb-1">Terço concluído</h3>
-        <p class="text-center text-[12px] font-serif text-stone-500 mb-6 leading-relaxed">Marcar hoje em<br>Rosas para Maria?</p>
-        <div class="rosa-btns" style="display:flex; gap:10px;">
-          <button onclick="dismissRosaryComplete()"
-            style="flex:1; padding:14px; border-radius:16px; border:1.5px solid #E7E0D5; font-family:Outfit,serif; font-size:13px; font-weight:500; color:#78716C; background:#FAF6EE; cursor:pointer;">
-            Agora não
-          </button>
-          <button onclick="confirmRosaToday()"
-            style="flex:1; padding:14px; border-radius:16px; border:none; font-family:Outfit,serif; font-size:13px; font-weight:600; color:#FFFFFF; background:#1C1917; cursor:pointer;">
-            Sim, marcar
-          </button>
-        </div>
-        <div style="height: env(safe-area-inset-bottom, 8px); margin-top: 8px;"></div>
-      </div>
-    </div>
   </body>
 </html>
