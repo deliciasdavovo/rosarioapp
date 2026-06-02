@@ -1715,7 +1715,7 @@
           return type === 'cruz' ? 36
             : (type === 'pai-nosso' || type === 'misterio') ? 30
             : (type === 'salve-rainha') ? 24
-            : (type === 'oferecimento' || type === 'espirito-santo' || type === 'sao-jose' || type === 'sao-miguel') ? 14
+            : (type === 'oferecimento' || type === 'agradecimento' || type === 'espirito-santo' || type === 'sao-jose' || type === 'sao-miguel') ? 14
             : 26;
         }
 
@@ -1768,7 +1768,7 @@
           var p           = calcPos(idx);
           var isActive    = centerId === bead.id;
           var isCruz      = bead.type === 'cruz';
-          var isNonBead   = bead.type === 'oferecimento' || bead.type === 'espirito-santo' || bead.type === 'sao-jose' || bead.type === 'sao-miguel';
+          var isNonBead   = bead.type === 'oferecimento' || bead.type === 'agradecimento' || bead.type === 'espirito-santo' || bead.type === 'sao-jose' || bead.type === 'sao-miguel';
           var isMedalha   = bead.type === 'salve-rainha';
           var sz          = beadSize(bead.type);
           var tfm         = 'translate(' + (p.x + swipeDx) + 'px,' + p.y + 'px) scale(' + p.s + ')';
@@ -1900,7 +1900,7 @@
 
           // Recriar fio antes desta conta (largura = gap entre bordas das contas)
           var prevType = beadsList[idx - 1] && beadsList[idx - 1].type;
-          var prevIsNonBead = prevType === 'oferecimento' || prevType === 'espirito-santo' || prevType === 'sao-jose' || prevType === 'sao-miguel';
+          var prevIsNonBead = prevType === 'oferecimento' || prevType === 'agradecimento' || prevType === 'espirito-santo' || prevType === 'sao-jose' || prevType === 'sao-miguel';
           if (idx > startIdx && !isNonBead && !prevIsNonBead) {
             var pp    = calcPos(idx - 1);
             var beadSz = (beadSize(beadsList[idx - 1].type) + beadSize(bead.type)) / 2;
