@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "Meu Rosário",
+    "slug": "meu-rosario",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "../icon-512.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "../icon-512.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#EFECE6"
+    },
+    "ios": {
+      "bundleIdentifier": "com.meurosario.app",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Este app não usa a câmera.",
+        "UIStatusBarStyle": "UIStatusBarStyleDarkContent"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "../icon-512.png",
+        "backgroundColor": "#EFECE6"
+      },
+      "package": "com.meurosario.app",
+      "statusBar": {
+        "barStyle": "dark-content",
+        "backgroundColor": "#EFECE6"
+      }
+    },
+    "plugins": [
+      "react-native-webview"
+    ],
+    "assetBundlePatterns": [
+      "../index.html",
+      "../manifest.json",
+      "../icon-192.png",
+      "../icon-512.png",
+      "../icon.svg",
+      "../logoapprosario.jpeg",
+      "../sw.js"
+    ]
+  }
+}
