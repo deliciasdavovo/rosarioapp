@@ -1908,18 +1908,18 @@
 
           // Cores (aplicadas sempre para refletir mudança de estado)
           if (isCruz) {
-            b.style.color        = isActive ? '#9F1239' : '#BE123C';
+            b.style.color        = isActive ? '#ea580c' : '#fb923c';
             b.style.borderRadius = isActive ? '50%' : '0';
-            b.style.boxShadow    = isActive ? '0 0 0 5px rgba(159,18,57,0.18)' : 'none';
+            b.style.boxShadow    = isActive ? '0 0 0 5px rgba(234,88,12,0.18)' : 'none';
           } else if (isMedalha || isNonBead) {
-            b.style.color     = isActive ? '#9F1239' : '#BE123C';
-            b.style.boxShadow = (isActive && isMedalha) ? '0 0 0 4px rgba(159,18,57,0.18)' : 'none';
+            b.style.color     = isActive ? '#ea580c' : '#fb923c';
+            b.style.boxShadow = (isActive && isMedalha) ? '0 0 0 4px rgba(234,88,12,0.18)' : 'none';
           } else if (isActive) {
-            b.style.background = '#9F1239';
+            b.style.background = '#ea580c';
             b.style.border     = '2px solid transparent';
-            b.style.boxShadow  = '0 0 0 5px rgba(159,18,57,0.18)';
+            b.style.boxShadow  = '0 0 0 5px rgba(234,88,12,0.18)';
           } else {
-            b.style.background = '#BE123C';
+            b.style.background = '#fb923c';
             b.style.border     = '2px solid transparent';
             b.style.boxShadow  = 'none';
           }
@@ -1943,7 +1943,7 @@
             thread.style.top           = '50%';
             thread.style.width         = tw + 'px';
             thread.style.height        = '1.5px';
-            thread.style.background    = 'rgba(159,18,57,0.38)';
+            thread.style.background    = 'rgba(234,88,12,0.38)';
             thread.style.borderRadius  = '1px';
             thread.style.pointerEvents = 'none';
             thread.style.transform     = 'translate(' + (cx2 - tw / 2) + 'px,' + (cy2 - 0.75) + 'px) rotate(' + angle + 'deg)';
