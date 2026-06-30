@@ -2537,7 +2537,6 @@
             layout = `
               <div class="flex flex-col items-center justify-between w-full h-full py-8 text-center">
                 <div class="flex flex-col items-center space-y-1">
-                  <span class="text-[10px] tracking-[0.25em] uppercase text-orange-950/60 font-serif">Devocionário</span>
                   <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
                 </div>
                 <div class="relative w-full max-w-xs aspect-[4/5] rounded-sm p-2 bg-stone-100/50 border border-orange-200/40 shadow-inner flex items-center justify-center my-4 overflow-hidden">
@@ -2549,7 +2548,10 @@
                   <img src="${item.imageUrl}" alt="${prayer.title}" class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]" referrerpolicy="no-referrer"/>
                 </div>
                 <div class="flex flex-col items-center space-y-1">
-                  <h3 class="text-base font-serif font-medium text-orange-950 tracking-wide">${prayer.title}</h3>
+                  <button onclick="openAcervoDrawer()" style="background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s;" onmouseenter="this.style.background='rgba(146,64,14,0.06)'" onmouseleave="this.style.background='none'">
+                    <span class="text-base font-serif font-medium text-orange-950 tracking-wide">${prayer.title}</span>
+                    <svg style="width:12px; height:12px; color:#92400e; opacity:0.5; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                  </button>
                 </div>
               </div>
             `;
@@ -2567,12 +2569,14 @@
             layout = `
               <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
                 <div class="flex flex-col items-center space-y-1 pt-4 pb-4">
-                  <span class="text-[9px] tracking-[0.3em] uppercase text-orange-955/40 font-serif">Devocionário</span>
                   <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
                 </div>
                 <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
                   <div class="space-y-4 pb-6">
-                    <h3 class="text-[13px] font-serif text-orange-850 font-medium uppercase tracking-widest">${prayer.title}</h3>
+                    <button onclick="openAcervoDrawer()" style="background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s;" onmouseenter="this.style.background='rgba(146,64,14,0.06)'" onmouseleave="this.style.background='none'">
+                      <span class="text-[13px] font-serif text-orange-900 font-medium uppercase tracking-widest">${prayer.title}</span>
+                      <svg style="width:12px; height:12px; color:#92400e; opacity:0.5; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
                     <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">${prayer.text}</p>
                     ${adicToggle}
                   </div>
@@ -3122,10 +3126,13 @@
             <svg class="w-3.5 h-3.5 text-orange-600/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
             <span class="text-stone-700 font-serif tracking-wide text-sm font-medium">Rosário</span>
           </button>
-          <div></div>
-          <!-- Direita: Abrir drawer de seleção -->
+          <div class="text-center">
+            <div class="text-[9px] tracking-[0.2em] uppercase text-stone-400 font-serif leading-tight">meu rosário</div>
+            <div class="font-serif text-orange-950 text-base font-semibold leading-tight">Devocionário</div>
+          </div>
+          <!-- Direita: Abrir drawer de seleção (secundário) -->
           <button onclick="openAcervoDrawer()" class="justify-self-end p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Selecionar oração">
-            <svg class="w-5 h-5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <svg class="w-4 h-4 text-stone-400/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
           </button>
         </div>
       </header>
@@ -3149,9 +3156,30 @@
         </div>
       </div>
 
-      <!-- Papel principal -->
-      <div style="flex:1; min-height:0; padding:12px; overflow:hidden;">
-        <div class="w-full h-full bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col">
+      <!-- Papel principal com marca-página -->
+      <div style="flex:1; min-height:0; padding:0 12px 12px; overflow:hidden; display:flex; flex-direction:column; align-items:center;">
+
+        <!-- Marca-página: fita com ponta em V sobreposta ao topo do card -->
+        <div style="
+          width: 38px;
+          height: 56px;
+          background: linear-gradient(160deg, #92400e 0%, #78350f 100%);
+          clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          padding-top: 11px;
+          margin-bottom: -22px;
+          position: relative;
+          z-index: 20;
+          flex-shrink: 0;
+          filter: drop-shadow(0 3px 8px rgba(120,53,15,0.30));
+        ">
+          <span style="color:#FAF6EE; font-size:13px; line-height:1; font-family:Outfit,serif; user-select:none; opacity:0.9;">✝</span>
+        </div>
+
+        <!-- Card de papel -->
+        <div class="w-full bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col" style="flex:1; min-height:0;">
           <div class="absolute inset-3 border border-[#E7DECC] opacity-60 rounded-xl pointer-events-none z-0"></div>
           <span class="absolute top-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
           <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
