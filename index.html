@@ -1983,6 +1983,7 @@
         var touchTarget = null;
         var velocityX = 0;
         var dragging = false;
+        var touchInBeads = false;
         var anchorIdx   = 0;
         var previewIdx  = 0;
         var prevPrevIdx = 0;
@@ -1997,9 +1998,13 @@
           anchorIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
           previewIdx = prevPrevIdx = anchorIdx;
           panel.style.transition = '';
+          var beadsEl = document.getElementById('beadsContainer');
+          var beadsRect = beadsEl.getBoundingClientRect();
+          touchInBeads = startY >= beadsRect.top - 16;
         }, { passive: true });
 
         el.addEventListener('touchmove', function(e) {
+          if (!touchInBeads) return;
           var cx = e.touches[0].clientX;
           var cy = e.touches[0].clientY;
           var dx = cx - startX;
@@ -2062,9 +2067,9 @@
           var totalDy = Math.abs(endY - startY);
           var elapsed = Date.now() - startT;
 
-          // Tap: movimento pequeno e toque curto, fora de uma conta individual
+          // Tap: movimento pequeno e toque curto, fora da área das bolinhas e fora de uma conta individual
           var isTap = !dragging && totalDx < 10 && totalDy < 10 && elapsed < 400;
-          if (isTap && !(touchTarget && touchTarget.closest('.bw')) && !(touchTarget && touchTarget.closest('button'))) {
+          if (isTap && !touchInBeads && !(touchTarget && touchTarget.closest('.bw')) && !(touchTarget && touchTarget.closest('button'))) {
             var curIdx = beadsList.findIndex(function(b) { return b.id === activeBeadId; });
             if (endX < window.innerWidth / 2) {
               if (curIdx > 0) navigate(curIdx - 1);
