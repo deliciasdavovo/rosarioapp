@@ -1963,14 +1963,40 @@
       }
 
       function vibrateBeadChange(prevBead, newBead) {
-        if (!navigator.vibrate) return;
         const mysteryChanged =
           beadMysteryKey(newBead) !== null &&
           beadMysteryKey(prevBead) !== beadMysteryKey(newBead);
+
+        // Dentro do app nativo (iOS/Android): usa vibração nativa via ponte.
+        // A Web Vibration API não funciona no WebView do iOS, então delegamos
+        // ao React Native (expo-haptics). Evita também vibração dupla no Android.
+        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+          try {
+            window.ReactNativeWebView.postMessage(JSON.stringify({
+              type: 'haptic',
+              kind: mysteryChanged ? 'mystery' : 'bead'
+            }));
+          } catch (er) {}
+          return;
+        }
+
+        // Navegador / PWA: Web Vibration API.
+        // Mistério novo: padrão mais longo/intenso. Conta comum: toque curto.
+        if (!navigator.vibrate) return;
         try {
-          // Mistério novo: padrão mais longo/intenso. Conta comum: toque curto.
           navigator.vibrate(mysteryChanged ? [0, 55, 45, 55] : 15);
         } catch (er) {}
+      }
+
+      // Toque leve durante o arrasto (feedback tipo roleta), a cada conta.
+      function vibrateDragTick() {
+        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+          try {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'haptic', kind: 'tick' }));
+          } catch (er) {}
+          return;
+        }
+        if (navigator.vibrate) try { navigator.vibrate(5); } catch (er) {}
       }
 
       function _checkRosaryComplete() {
@@ -2057,7 +2083,7 @@
           if (cur === beadsList.length - 1 && rem < 0) offset = rem * 0.25;
 
           if (cur !== prevPrevIdx) {
-            if (navigator.vibrate) try { navigator.vibrate(5); } catch(er) {}
+            vibrateDragTick();
             prevPrevIdx = cur;
           }
 
@@ -2286,7 +2312,7 @@
           if (cur === 0 && rem > 0) offset = rem * 0.25;
           if (cur === beadsList.length - 1 && rem < 0) offset = rem * 0.25;
           if (cur !== fsPrev) {
-            if (navigator.vibrate) try { navigator.vibrate(5); } catch(er) {}
+            vibrateDragTick();
             fsPrev = cur;
           }
           renderBeads(offset, true, beadsList[cur].id);
