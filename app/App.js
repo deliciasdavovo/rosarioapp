@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
+import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'expo-status-bar';
 
 const HTML_DEST = FileSystem.documentDirectory + 'meurosario/index.html';
@@ -27,6 +28,28 @@ export default function App() {
     prepare();
   }, []);
 
+  // Vibração nativa acionada pelo WebView (funciona no iOS e no Android).
+  const onMessage = useCallback((event) => {
+    let data;
+    try {
+      data = JSON.parse(event.nativeEvent.data);
+    } catch (e) {
+      return;
+    }
+    if (!data || data.type !== 'haptic') return;
+
+    if (data.kind === 'mystery') {
+      // Mudança de mistério: feedback mais forte/notável.
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    } else if (data.kind === 'tick') {
+      // Toque leve durante o arrasto.
+      Haptics.selectionAsync().catch(() => {});
+    } else {
+      // Troca de conta comum: toque curto.
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    }
+  }, []);
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" backgroundColor="#EFECE6" translucent={false} />
@@ -34,6 +57,7 @@ export default function App() {
         <WebView
           source={{ uri }}
           style={styles.webview}
+          onMessage={onMessage}
           allowFileAccessFromFileURLs={true}
           allowUniversalAccessFromFileURLs={true}
           originWhitelist={['*']}
