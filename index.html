@@ -1118,6 +1118,50 @@
         return _mystImgCache[key];
       }
 
+      // Imagem local (pré-cacheada, disponível offline) usada quando uma imagem
+      // remota falha ao carregar — evita o ícone de "imagem quebrada".
+      const IMG_FALLBACK_SRC = 'icon-512.png';
+
+      // Lista de URLs candidatas de um mistério, para tentar alternativas.
+      function getMysteryImgList(mystery) {
+        if (mystery && Array.isArray(mystery.imageUrls) && mystery.imageUrls.length) return mystery.imageUrls;
+        if (mystery && mystery.imageUrl) return [mystery.imageUrl];
+        return [];
+      }
+
+      // Atributos de um <img> de mistério, já com tratamento de erro embutido.
+      function mysteryImgAttrs(mysteryIdx, mystery) {
+        const src = getMysteryImgSrc(mysteryIdx, mystery);
+        const key = getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx;
+        const urlsAttr = JSON.stringify(getMysteryImgList(mystery)).replace(/"/g, '&quot;');
+        return 'src="' + src + '" data-cur="' + src + '" data-urls="' + urlsAttr +
+               '" data-cachekey="' + key + '" onerror="handleImgError(this)"';
+      }
+
+      // Quando uma imagem falha: tenta as demais URLs do mistério ainda não
+      // testadas e, esgotadas todas, cai no placeholder local.
+      function handleImgError(img) {
+        let urls = [];
+        try { urls = JSON.parse(img.getAttribute('data-urls') || '[]'); } catch (e) { urls = []; }
+        const tried = (img.getAttribute('data-tried') || '').split('|').filter(Boolean);
+        const cur = img.getAttribute('data-cur');
+        if (cur) tried.push(cur);
+        const nextUrl = urls.find((u) => tried.indexOf(u) === -1);
+        if (nextUrl) {
+          img.setAttribute('data-tried', tried.join('|'));
+          img.setAttribute('data-cur', nextUrl);
+          const cacheKey = img.getAttribute('data-cachekey');
+          if (cacheKey) _mystImgCache[cacheKey] = nextUrl;
+          img.src = nextUrl;
+          return;
+        }
+        img.onerror = null;
+        img.src = IMG_FALLBACK_SRC;
+        img.setAttribute('data-fallback', '1');
+        img.style.objectFit = 'contain';
+        img.style.opacity = '0.25';
+      }
+
       // Sequência completa de contas litúrgicas
       function createBeads() {
         const list = [];
@@ -1356,7 +1400,7 @@
                   <span class="absolute bottom-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
 
                   <img
-                    src="${getMysteryImgSrc(bead.mysteryIndex, mystery)}"
+                    ${mysteryImgAttrs(bead.mysteryIndex, mystery)}
                     alt="${mystery.title}"
                     class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]"
                     referrerpolicy="no-referrer"
@@ -2196,6 +2240,12 @@
           if (imgEl.src !== imgSrc) {
             imgEl.style.transition = '';
             imgEl.style.opacity = '0';
+            imgEl.removeAttribute('data-tried');
+            imgEl.removeAttribute('data-fallback');
+            imgEl.setAttribute('data-cur', imgSrc);
+            imgEl.setAttribute('data-urls', JSON.stringify(getMysteryImgList(mystery)));
+            imgEl.setAttribute('data-cachekey', getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx);
+            imgEl.onerror = function() { handleImgError(imgEl); };
             imgEl.src = imgSrc;
             imgEl.onload = function() {
               imgEl.style.transition = 'opacity 0.5s ease';
@@ -2573,7 +2623,7 @@
                   <span class="absolute top-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
                   <span class="absolute bottom-5 left-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
                   <span class="absolute bottom-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
-                  <img src="${item.imageUrl}" alt="${prayer.title}" class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]" referrerpolicy="no-referrer"/>
+                  <img src="${item.imageUrl}" alt="${prayer.title}" class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]" referrerpolicy="no-referrer" onerror="handleImgError(this)"/>
                 </div>
                 <div class="flex flex-col items-center space-y-1">
                   <button onclick="openAcervoDrawer()" style="background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s;" onmouseenter="this.style.background='rgba(146,64,14,0.06)'" onmouseleave="this.style.background='none'">
