@@ -1108,12 +1108,35 @@
       let _mystImgCache = {};
       let _fullscreenNavReady = false;
 
+      // === Imagens dos mistérios: locais (no repositório) com Cloudinary de reserva ===
+      // As fotos ficam versionadas em ./images/ para funcionarem OFFLINE (PWA) e não
+      // dependerem de um serviço externo (Cloudinary). Se um arquivo local faltar,
+      // o app tenta automaticamente a URL original do Cloudinary e, por fim, o
+      // placeholder local. Para popular ./images/, rode: scripts/download-mystery-images.sh
+      const USE_LOCAL_IMAGES = true;
+      const LOCAL_IMG_DIR = 'images/';
+
+      // Converte uma URL do Cloudinary no caminho local equivalente (mesmo arquivo).
+      function toLocalImg(url) {
+        const m = String(url).match(/\/([^/?#]+)$/);
+        return m ? LOCAL_IMG_DIR + m[1] : url;
+      }
+
+      // URLs remotas (originais) de um mistério.
+      function getMysteryRemoteUrls(mystery) {
+        if (mystery && Array.isArray(mystery.imageUrls) && mystery.imageUrls.length) return mystery.imageUrls;
+        if (mystery && mystery.imageUrl) return [mystery.imageUrl];
+        return [];
+      }
+
       function getMysteryImgSrc(mysteryIdx, mystery) {
         const key = getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx;
         if (!_mystImgCache[key]) {
-          _mystImgCache[key] = Array.isArray(mystery.imageUrls)
-            ? mystery.imageUrls[Math.floor(Math.random() * mystery.imageUrls.length)]
-            : mystery.imageUrl;
+          const remotes = getMysteryRemoteUrls(mystery);
+          const chosen = remotes.length
+            ? remotes[Math.floor(Math.random() * remotes.length)]
+            : (mystery.imageUrl || '');
+          _mystImgCache[key] = USE_LOCAL_IMAGES && chosen ? toLocalImg(chosen) : chosen;
         }
         return _mystImgCache[key];
       }
@@ -1123,10 +1146,13 @@
       const IMG_FALLBACK_SRC = 'icon-512.png';
 
       // Lista de URLs candidatas de um mistério, para tentar alternativas.
+      // Primeiro as versões locais (preferidas, offline) e, como reserva
+      // automática, as URLs remotas do Cloudinary.
       function getMysteryImgList(mystery) {
-        if (mystery && Array.isArray(mystery.imageUrls) && mystery.imageUrls.length) return mystery.imageUrls;
-        if (mystery && mystery.imageUrl) return [mystery.imageUrl];
-        return [];
+        const remotes = getMysteryRemoteUrls(mystery);
+        if (!remotes.length) return [];
+        if (!USE_LOCAL_IMAGES) return remotes;
+        return remotes.map(toLocalImg).concat(remotes);
       }
 
       // Atributos de um <img> de mistério, já com tratamento de erro embutido.
