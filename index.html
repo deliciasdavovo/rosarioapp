@@ -123,12 +123,12 @@
          (object-fit:cover), ela desce e sobe lentamente revelando o topo e a
          base ao longo do tempo. */
       @keyframes fsPanY {
-        0%   { object-position: 50% 40%; }
-        50%  { object-position: 50% 60%; }
-        100% { object-position: 50% 40%; }
+        0%   { object-position: 50% 0%; }
+        50%  { object-position: 50% 100%; }
+        100% { object-position: 50% 0%; }
       }
       #fullscreenImg.fs-pan {
-        animation: fsPanY 24s ease-in-out infinite;
+        animation: fsPanY 28s ease-in-out infinite;
       }
       @media (prefers-reduced-motion: reduce) {
         #fullscreenImg.fs-pan { animation: none; }
