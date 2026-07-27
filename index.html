@@ -1107,6 +1107,10 @@
       let _fullscreenMysteryIdx = null;
       let _mystImgCache = {};
       let _fullscreenNavReady = false;
+      // Estado da visualização horizontal (celular deitado): abre a imagem em
+      // tela cheia automaticamente ao girar o aparelho para paisagem.
+      let _landscapeFsAuto = false;
+      let _landscapeFsDismissed = false;
 
       function getMysteryImgSrc(mysteryIdx, mystery) {
         const key = getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx;
@@ -2230,8 +2234,16 @@
         const bead = beadsList[activeBeadId];
         const mSet = MYSTERY_SETS[getMysterySetIdForDay(selectedDay)];
         const isMystery = bead && bead.mysteryIndex !== undefined;
-        if (!isMystery) return;
-        const mysteryIdx = bead.mysteryIndex;
+        let mysteryIdx;
+        if (isMystery) {
+          mysteryIdx = bead.mysteryIndex;
+        } else {
+          // Conta atual não é um mistério (ex.: cruz, Pai-Nosso). Se já houver
+          // uma imagem exibida, mantém; caso contrário — como ao abrir a
+          // tela cheia em paisagem sobre a cruz inicial — mostra o 1º mistério.
+          if (_fullscreenMysteryIdx !== null) return;
+          mysteryIdx = 0;
+        }
         const mystery = mSet.mysteries[mysteryIdx];
         const fruit = mSet.fruits[mysteryIdx] || '';
         if (mysteryIdx !== _fullscreenMysteryIdx) {
@@ -2280,6 +2292,10 @@
 
       function closeImageFullscreen() {
         isImageFullscreen = false;
+        // Se o usuário fechar manualmente enquanto o celular está deitado,
+        // respeita a escolha e não reabre sozinho até voltar ao retrato.
+        if (isMobileLandscape()) _landscapeFsDismissed = true;
+        _landscapeFsAuto = false;
         const bc = document.getElementById('beadsContainer');
         bc.style.position = 'absolute';
         bc.style.zIndex = '30';
@@ -2288,6 +2304,34 @@
         overlay.style.opacity = '0';
         setTimeout(function() { overlay.style.display = 'none'; }, 310);
       }
+
+      // === Visualização horizontal (celular deitado) ===
+      // Detecta um aparelho móvel em paisagem (largo e baixo). Em desktops a
+      // altura costuma ser grande, então o limite de altura evita disparar.
+      function isMobileLandscape() {
+        return window.matchMedia('(orientation: landscape) and (max-height: 560px)').matches;
+      }
+
+      // Ao girar para paisagem, mostra a imagem do mistério em tela cheia;
+      // ao voltar para retrato, fecha a tela cheia aberta automaticamente.
+      function applyLandscapeFullscreen() {
+        if (isMobileLandscape()) {
+          if (!isImageFullscreen && !_landscapeFsDismissed) {
+            _landscapeFsAuto = true;
+            openImageFullscreen();
+          }
+        } else {
+          _landscapeFsDismissed = false;
+          if (isImageFullscreen && _landscapeFsAuto) {
+            _landscapeFsAuto = false;
+            closeImageFullscreen();
+          }
+        }
+      }
+      window.addEventListener('resize', applyLandscapeFullscreen);
+      window.addEventListener('orientationchange', function() {
+        setTimeout(applyLandscapeFullscreen, 200);
+      });
 
       function addFullscreenNavigation() {
         var overlay = document.getElementById('imageFullscreenOverlay');
@@ -2396,6 +2440,10 @@
       setMode('curta');
       renderBeads();
       addSwipeNavigation();
+      // Se o app já abrir com o celular na horizontal, mostra a imagem cheia.
+      // Roda após o layout assentar para a media query já refletir a orientação.
+      window.addEventListener('load', function() { setTimeout(applyLandscapeFullscreen, 100); });
+      applyLandscapeFullscreen();
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
