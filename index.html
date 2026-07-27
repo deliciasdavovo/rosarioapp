@@ -128,7 +128,7 @@
         100% { object-position: 50% 0%; }
       }
       #fullscreenImg.fs-pan {
-        animation: fsPanY 35s ease-in-out infinite;
+        animation: fsPanY 60s ease-in-out infinite;
       }
       @media (prefers-reduced-motion: reduce) {
         #fullscreenImg.fs-pan { animation: none; }
@@ -1378,6 +1378,8 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       // tela cheia automaticamente ao girar o aparelho para paisagem.
       let _landscapeFsAuto = false;
       let _landscapeFsDismissed = false;
+      // Movimento (pan) da imagem em tela cheia pausado pelo usuário?
+      let _fsPanPaused = false;
 
       function getMysteryImgSrc(mysteryIdx, mystery) {
         const key = getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx;
@@ -2614,18 +2616,43 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         document.getElementById('fullscreenFruit').textContent = fruit ? 'Fruto — ' + fruit : '';
       }
 
+      // Ícones do botão de pausar/retomar o movimento da imagem.
+      const _fsIconPause = '<svg width="15" height="15" fill="rgba(255,255,255,0.82)" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+      const _fsIconPlay  = '<svg width="15" height="15" fill="rgba(255,255,255,0.82)" viewBox="0 0 24 24"><path d="M7 5.5v13a1 1 0 0 0 1.53.85l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 7 5.5z"/></svg>';
+      function updateFsPanToggleIcon() {
+        const btn = document.getElementById('fsPanToggleBtn');
+        if (!btn) return;
+        btn.innerHTML = _fsPanPaused ? _fsIconPlay : _fsIconPause;
+        btn.setAttribute('aria-label', _fsPanPaused ? 'Retomar movimento' : 'Pausar movimento');
+      }
+
+      // Pausa/retoma o movimento congelando na posição atual (animation-play-state).
+      function toggleFsPan() {
+        _fsPanPaused = !_fsPanPaused;
+        const img = document.getElementById('fullscreenImg');
+        if (img) img.style.animationPlayState = _fsPanPaused ? 'paused' : 'running';
+        updateFsPanToggleIcon();
+        if (navigator.vibrate) try { navigator.vibrate(8); } catch (e) {}
+      }
+
       function openImageFullscreen() {
+        const overlay = document.getElementById('imageFullscreenOverlay');
+        if (!overlay) return; // DOM ainda não montou o overlay
         if (!_fullscreenNavReady) {
           addFullscreenNavigation();
           _fullscreenNavReady = true;
         }
         isImageFullscreen = true;
         _fullscreenMysteryIdx = null;
+        // Ao abrir, garante o movimento rodando e o ícone certo.
+        _fsPanPaused = false;
+        const _img = document.getElementById('fullscreenImg');
+        if (_img) _img.style.animationPlayState = 'running';
+        updateFsPanToggleIcon();
         const bc = document.getElementById('beadsContainer');
         bc.style.position = 'fixed';
         bc.style.zIndex = '210';
         bc.style.pointerEvents = 'none';
-        const overlay = document.getElementById('imageFullscreenOverlay');
         overlay.style.display = 'block';
         renderFullscreenImage();
         requestAnimationFrame(function() {
@@ -2784,9 +2811,13 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       renderBeads();
       addSwipeNavigation();
       // Se o app já abrir com o celular na horizontal, mostra a imagem cheia.
-      // Roda após o layout assentar para a media query já refletir a orientação.
-      window.addEventListener('load', function() { setTimeout(applyLandscapeFullscreen, 100); });
-      applyLandscapeFullscreen();
+      // Espera o DOM terminar (o overlay é definido mais abaixo no HTML) para
+      // evitar acessar elementos ainda inexistentes.
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyLandscapeFullscreen);
+      } else {
+        applyLandscapeFullscreen();
+      }
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -3474,9 +3505,14 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       <!-- barra superior -->
       <div style="position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:center; padding: max(env(safe-area-inset-top, 0px), 16px) 16px 16px 20px;">
         <span id="fullscreenMysteryNum" style="color:rgba(255,255,255,0.5); font-family:Outfit,serif; font-size:10px; letter-spacing:0.28em; text-transform:uppercase;"></span>
-        <button onclick="closeImageFullscreen()" style="width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; touch-action:manipulation;">
-          <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+        <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
+          <button id="fsPanToggleBtn" onclick="toggleFsPan()" aria-label="Pausar movimento" style="width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; cursor:pointer; touch-action:manipulation;">
+            <!-- ícone injetado por updateFsPanToggleIcon() -->
+          </button>
+          <button onclick="closeImageFullscreen()" style="width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.38); border:1px solid rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; cursor:pointer; touch-action:manipulation;">
+            <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
       </div>
       <!-- conteúdo inferior: título + fruto (beads flutuam acima via z-index) -->
       <div style="position:absolute; bottom:0; left:0; right:0; padding:0 24px; padding-bottom:max(calc(env(safe-area-inset-bottom, 0px) + 104px), 112px); text-align:center; pointer-events:none;">
