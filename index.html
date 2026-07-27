@@ -216,6 +216,7 @@
             <span class="text-[10px] font-medium tracking-wide uppercase">Meditativo</span>
             <span id="montfortBadge" class="hidden text-[8px] font-semibold tracking-wider text-orange-500 uppercase leading-none">Montfort</span>
             <span id="fatimaBadge" class="hidden text-[8px] font-semibold tracking-wider text-orange-500 uppercase leading-none">Fátima</span>
+            <span id="escrivaBadge" class="hidden text-[8px] font-semibold tracking-wider text-orange-500 uppercase leading-none">Escrivá</span>
           </span>
         </button>
 
@@ -1081,6 +1082,88 @@
         return m.oracao;
       }
 
+      // Santo Rosário — meditações de S. Josemaría Escrivá (Mistérios Dolorosos)
+      const ESCRIVA_DATA = {
+        dolorosos: [
+          {
+            ref: 'Do Santo Evangelho segundo S. Mateus (26, 36-46)',
+            evangelho: `Então, Jesus chegou com eles a uma propriedade, chamada Getsémani e disse aos discípulos: «Ficai aqui, enquanto Eu vou além orar».
+E, tomando consigo Pedro e os dois filhos de Zebedeu, começou a entristecer-Se e a angustiar-Se. Disse-lhes então: «A minha alma está numa tristeza de morte. Ficai aqui e vigiai comigo».
+E adiantando-Se um pouco mais, caiu com o rosto por terra, enquanto orava e dizia: «Meu Pai, se é possível, passe de Mim este cálice. Todavia, não se faça como Eu quero, mas como Tu queres».
+Depois, foi ter com os discípulos, encontrou-os a dormir e disse a Pedro: «Nem sequer pudestes vigiar uma hora comigo! Vigiai e orai, para não cairdes em tentação. O espírito está pronto, mas a carne é fraca».
+De novo Se afastou, pela segunda vez, e orou, dizendo: «Meu Pai, se este cálice não pode passar sem que Eu o beba, faça-se a tua vontade».
+Voltou novamente e encontrou-os a dormir, pois os seus olhos estavam pesados de sono. Deixou-os e foi de novo orar, pela terceira vez, repetindo as mesmas palavras. Veio então ao encontro dos discípulos e disse-lhes: «Dormi agora e descansai. Chegou a hora em que o Filho do homem vai ser entregue às mãos dos pecadores. Levantai-vos, vamos. Aproxima-se aquele que Me vai entregar».`,
+            meditacao: `Orai, para não entrardes em tentação. – E Pedro adormeceu. – E os outros Apóstolos. – E adormeceste tu, menino amigo... e eu fui, também, outro Pedro dorminhoco.
+Jesus, só e triste, sofria e empapava a terra com o Seu sangue.
+De joelhos, sobre a terra dura, persevera na oração... Chora por ti... e por mim: esmaga-O o peso dos pecados dos homens.
+Pater, si vis, transfer calicem istum a me. – Pai, se quiseres, faz com que se afaste de Mim este cálice... Não se faça, porém, a minha vontade, sed tua fiat, mas a tua (Lc 22, 42).
+Um anjo do céu O conforta. – Jesus está na agonia. – Continua a orar prolixius, mais intensamente... Aproxima-Se de nós, que dormimos: Levantai-vos, orai – repete-nos –, para não cairdes em tentação (Lc 22, 46).
+Judas, o traidor: um beijo. – A espada de Pedro brilha na noite. – Jesus fala: Vindes buscar-Me como a um ladrão? (Mc 14, 48).
+Somos covardes: seguimo-l'O de longe, mas acordados e orando. – Oração... Oração...`
+          },
+          {
+            ref: 'Do Santo Evangelho segundo S. João (18, 36-40 e 19, 1)',
+            evangelho: `Jesus respondeu: «O meu reino não é deste mundo. Se o meu reino fosse deste mundo, os meus guardas lutariam para que Eu não fosse entregue aos judeus. Mas o meu reino não é daqui».
+Disse-Lhe Pilatos: «Então, Tu és Rei?»
+Jesus respondeu-lhe: «É como dizes: sou Rei. Para isso nasci e vim ao mundo, a fim de dar testemunho da verdade. Todo aquele que é da verdade escuta a minha voz».
+Disse-Lhe Pilatos: «Que é a verdade?»
+Dito isto, saiu novamente para fora e declarou aos judeus: «Não encontro neste homem culpa nenhuma. Mas vós estais habituados a que eu vos solte alguém pela Páscoa. Quereis que vos solte o Rei dos judeus?».
+Eles gritaram de novo: «Esse não. Antes Barrabás».
+Barrabás era um salteador. Então Pilatos mandou que levassem Jesus e O açoitassem.`,
+            meditacao: `Fala Pilatos: Tendes o costume de que vos solte alguém pela Páscoa. Quem havemos de pôr em liberdade? Barrabás – ladrão, preso com outros por homicídio – ou Jesus? (Mt 27, 17). – Manda matar este e solta Barrabás, clama o povo incitado pelos seus príncipes (Lc 23, 18).
+Pilatos fala de novo: Então que hei de fazer de Jesus, que se chama Cristo? (Mt 27, 22). – Crucifige eum – Crucifica-O! (Mc 15, 14). Pilatos diz-lhes, pela terceira vez: Mas que mal fez Ele? Não encontro n'Ele causa alguma de morte (Lc 23, 22).
+Aumentava o clamor da multidão: Crucifica-O, crucifica-O!
+E Pilatos, desejando contentar o povo, solta-lhes Barrabás e manda açoitar Jesus.
+Atado à coluna. Cheio de chagas.
+Ouvem-se os golpes dos azorragues na Sua carne rasgada, na Sua carne sem mancha, que padece pela tua carne pecadora. – Mais golpes. Mais sanha. Mais ainda... É o cúmulo da crueldade humana.
+Por fim, rendidos, lá desprendem Jesus. – E o corpo de Cristo rende-Se também à dor e cai, como um verme, truncado e meio morto.
+Tu e eu não podemos falar. – Não há necessidade de palavras. – Olha para Ele, olha para Ele... devagar.
+Depois... serás capaz de ter medo à expiação?`
+          },
+          {
+            ref: 'Do Santo Evangelho segundo S. João (19, 1-3)',
+            evangelho: `Então Pilatos mandou que levassem Jesus e O açoitassem. Os soldados teceram uma coroa de espinhos, colocaram-Lha na cabeça e envolveram Jesus num manto de púrpura. Depois aproximavam-se d'Ele e diziam: «Salve, Rei dos judeus». E davam-Lhe bofetadas.`,
+            meditacao: `Fica satisfeita a ânsia de sofrer do nosso Rei!
+Levam o meu Senhor para o pátio do pretório, e ali convocam toda a coorte (Mc 15, 16). – A soldadesca brutal desnudou a Sua carne puríssima.
+Com um farrapo de púrpura, velho e sujo, cobrem Jesus.
+Na Sua mão direita, uma cana, por ceptro...
+A coroa de espinhos, cravada às marteladas, faz d'Ele um Rei de comédia...
+Ave Rex judaeorum! – Ave, Rei dos judeus! (Mc 15, 18). E, à força de pancadas, ferem-Lhe a cabeça. E esbofeteiam-n'O... e cospem-Lhe em cima.
+Coroado de espinhos e vestido com andrajos de púrpura, Jesus é mostrado ao povo judeu: Ecce homo! – Aí tendes o homem! E, de novo, os pontífices e os seus ministros rompem aos gritos, clamando: Crucifica-O, crucifica-O! (Jo 19, 5 e 6).
+Tu e eu não teremos voltado a coroá-l'O de espinhos, a esbofeteá-l'O, a cuspir-Lhe?
+Nunca mais, Jesus, nunca mais... E um propósito firme e concreto põe fim a estas dez Ave Marias.`
+          },
+          {
+            ref: 'Do Santo Evangelho segundo S. João (19, 12-17)',
+            evangelho: `«Se O libertares, não és amigo de César: todo aquele que se faz rei é contra César».
+Ao ouvir estas palavras, Pilatos trouxe Jesus para fora e sentou-se no tribunal, no lugar chamado «Lagedo», em hebraico «Gabatá». Era a Preparação da Páscoa, por volta do meio-dia. Disse então aos judeus: «Eis o vosso Rei!»
+Mas eles gritaram: «À morte, à morte! Crucifica-O!»
+Disse-lhes Pilatos: «Hei de crucificar o vosso Rei?»
+Replicaram-lhe os príncipes dos sacerdotes: «Não temos outro rei senão César».
+Entregou-lhes então Jesus, para ser crucificado. E eles apoderaram-se de Jesus. Levando a cruz, Jesus saiu para o chamado Lugar do Calvário, que em hebraico se diz Gólgota.`,
+            meditacao: `Com a Sua Cruz às costas, caminha para o Calvário, lugar que em hebraico é designado por Gólgota (Jo 19, 17). – E lançam mão de um tal Simão, natural de Cirene, que volta de uma granja, e carregam-no com a Cruz, para que a leve atrás de Jesus (Lc 23, 26).
+Cumpriu-se o que Isaías tinha dito (Is 53, 12): cum sceleratis reputatus est, foi contado entre os malfeitores; porque levaram outros dois homens, que eram ladrões (Lc 23, 32), para que morressem com Ele.
+Se alguém quiser vir atrás de Mim... Menino amigo: estamos tristes, ao viver a Paixão de Jesus, Nosso Senhor. – Olha com que amor se abraça à Cruz. – Aprende com Ele. – Jesus leva a Cruz por ti; tu, leva-a por Jesus.
+Mas não leves a Cruz de rastos... Leva-a erguida a prumo, porque a tua Cruz, levada assim não será uma Cruz qualquer: será... a Santa Cruz! Não te resignes com a Cruz. Resignação é palavra pouco generosa. Quer a Cruz. Quando de verdade a quiseres, a tua Cruz será... uma Cruz sem Cruz.
+E, com toda a certeza, tal como Ele, encontrarás Maria no caminho.`
+          },
+          {
+            ref: 'Do Santo Evangelho segundo S. João (19, 17-30)',
+            evangelho: `Levando a cruz, Jesus saiu para o chamado Lugar do Calvário, que em hebraico se diz Gólgota. Ali O crucificaram, e com Ele mais dois: um de cada lado e Jesus no meio. Pilatos escreveu ainda um letreiro e colocou-o no alto da cruz; nele estava escrito: «Jesus o Nazareno, Rei dos judeus».
+Quando crucificaram Jesus, os soldados tomaram as suas vestes, das quais fizeram quatro lotes, um para cada soldado, e ficaram também com a túnica. A túnica não tinha costura: era tecida de alto a baixo como um todo. Disseram uns aos outros: «Não a rasguemos, mas lancemos sortes, para ver de quem será».
+Estavam junto à cruz de Jesus sua Mãe, a irmã de sua Mãe, Maria, mulher de Cléofas, e Maria Madalena. Ao ver sua Mãe e o discípulo predilecto, Jesus disse a sua Mãe: «Mulher, eis o teu filho». Depois disse ao discípulo: «Eis a tua Mãe». E a partir daquela hora, o discípulo recebeu-a em sua casa.
+Depois, sabendo que tudo estava consumado e para que se cumprisse a Escritura, Jesus disse: «Tenho sede». Estava ali um vaso cheio de vinagre. Prenderam a uma vara uma esponja embebida em vinagre e levaram-Lha à boca. Quando Jesus tomou o vinagre, exclamou: «Tudo está consumado». E, inclinando a cabeça, expirou.`,
+            meditacao: `Jesus Nazareno, Rei dos Judeus, já tem preparado o trono triunfador. Tu e eu não O vemos contorcer-Se, ao ser pregado; sofrendo tudo quanto se pode sofrer, estende os braços num gesto de Sacerdote Eterno...
+Os soldados tomam as vestes e fazem quatro partes. – Para não dividirem a túnica, sorteiam-na entre eles para ver a quem caberá. – E assim, uma vez mais, se cumpre a Escritura que diz: Repartiram entre si as Minhas vestes e lançaram sortes sobre elas (Jo 19, 23 e 24).
+Já está no alto. – E, junto de seu Filho, ao pé da Cruz, Santa Maria... e Maria, mulher de Cléofas, e Maria Madalena. E João, o discípulo que Ele amava. Ecce mater tua! – Aí tens a tua Mãe! Dá-nos a Sua Mãe por Mãe nossa.
+Tinham-Lhe oferecido antes vinho misturado com fel, mas, tendo-o provado, não o bebeu (Mt 27, 34).
+Agora tem sede... de amor, de almas.
+Consummatum est. – Tudo está consumado (Jo 19, 30).
+Menino pateta, olha: tudo isto..., tudo isto sofreu por ti... e por mim. – Não choras?`
+          }
+        ]
+      };
+
       function getMysterySetIdForDay(dayIndex) {
         switch (dayIndex) {
           case 0: return 'gloriosos'; // Domingo
@@ -1372,8 +1455,8 @@
           if (bead.type === 'ave-maria' && bead.introIndex !== undefined)
             return 'meditativo:' + meditativoVariant + ':ave-intro:' + bead.introIndex;
           if (bead.type === 'ave-maria' && isMystery)
-            return meditativoVariant === 'fatima'
-              ? 'meditativo:fatima:ave:' + bead.mysteryIndex
+            return (meditativoVariant === 'fatima' || meditativoVariant === 'escriva')
+              ? 'meditativo:' + meditativoVariant + ':ave:' + bead.mysteryIndex
               : 'meditativo:' + meditativoVariant + ':ave:' + bead.mysteryIndex + ':' + bead.beadIndex;
           if (bead.type === 'misterio' && isMystery)
             return 'meditativo:' + meditativoVariant + ':misterio:' + bead.mysteryIndex;
@@ -1403,6 +1486,10 @@
           const isFatima = activeMode === 'meditativo' && meditativoVariant === 'fatima';
           const fatimaSet = isFatima ? FATIMA_DATA[getMysterySetIdForDay(selectedDay)] : null;
           const fatimaMystery = (fatimaSet && isMystery) ? fatimaSet[bead.mysteryIndex] : null;
+
+          const isEscriva = activeMode === 'meditativo' && meditativoVariant === 'escriva';
+          const escrivaSet = isEscriva ? ESCRIVA_DATA[getMysterySetIdForDay(selectedDay)] : null;
+          const escrivaMystery = (escrivaSet && isMystery) ? escrivaSet[bead.mysteryIndex] : null;
 
           if (activeMode === 'imagem' && isMystery && mystery) {
             layout = `
@@ -1659,6 +1746,62 @@
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Oração</span>
                       <p class="text-base text-stone-600 font-serif font-light leading-relaxed">${fatimaMystery.oracao}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50 mb-3"></div>
+              </div>
+            `;
+          } else if (isEscriva && escrivaMystery && bead.type === 'misterio') {
+            layout = `
+              <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
+                <div class="flex flex-col items-center space-y-1 pt-4 pb-2">
+                  <span class="text-[9px] tracking-[0.3em] uppercase text-orange-955/50 font-serif">S. Josemaría Escrivá</span>
+                  <h4 class="text-xs font-serif tracking-wide text-orange-600/85">${bead.mysteryIndex + 1}º Mistério</h4>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
+                </div>
+                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                  <div class="space-y-4 py-2 pb-6">
+                    <h3 class="text-2xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
+                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">Fruto —<span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                    <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
+                    <div class="space-y-2 text-center">
+                      <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Sagrada Escritura</span>
+                      <p class="text-[11px] text-stone-400 font-serif">${escrivaMystery.ref}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line text-left">${escrivaMystery.evangelho}</p>
+                    </div>
+                    <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
+                    <div class="space-y-2 text-center">
+                      <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Meditação</span>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line text-left">${escrivaMystery.meditacao}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-[10px] text-orange-700/60 font-serif tracking-[0.15em] uppercase py-3">Pai Nosso</div>
+              </div>
+            `;
+          } else if (isEscriva && escrivaMystery && bead.type === 'ave-maria' && isMystery) {
+            layout = `
+              <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
+                <div class="flex flex-col items-center space-y-1 pt-4 pb-2">
+                  <span class="text-[9px] tracking-[0.3em] uppercase text-orange-955/50 font-serif">S. Josemaría Escrivá</span>
+                  <h4 class="text-xs font-serif tracking-wide text-orange-600/85">${bead.mysteryIndex + 1}º Mistério · ${bead.beadIndex + 1}ª Ave Maria</h4>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
+                </div>
+                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                  <div class="space-y-4 py-2 pb-6">
+                    <h3 class="text-2xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
+                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">Fruto —<span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                    <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
+                    <div class="space-y-2 text-center">
+                      <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Sagrada Escritura</span>
+                      <p class="text-[11px] text-stone-400 font-serif">${escrivaMystery.ref}</p>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line text-left">${escrivaMystery.evangelho}</p>
+                    </div>
+                    <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
+                    <div class="space-y-2 text-center">
+                      <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Meditação</span>
+                      <p class="text-base text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line text-left">${escrivaMystery.meditacao}</p>
                     </div>
                   </div>
                 </div>
@@ -2225,6 +2368,8 @@
         if (badge) badge.classList.toggle('hidden', variant !== 'montfort');
         const fatimaBadge = document.getElementById('fatimaBadge');
         if (fatimaBadge) fatimaBadge.classList.toggle('hidden', variant !== 'fatima');
+        const escrivaBadge = document.getElementById('escrivaBadge');
+        if (escrivaBadge) escrivaBadge.classList.toggle('hidden', variant !== 'escriva');
         setMode('meditativo');
         closeMeditativoSelector();
       }
@@ -2232,7 +2377,8 @@
       function updateMeditativoSelectorButtons() {
         const btns = [
           { el: document.getElementById('btnMeditativoMontfort'), variant: 'montfort' },
-          { el: document.getElementById('btnMeditativoFatima'),   variant: 'fatima'   }
+          { el: document.getElementById('btnMeditativoFatima'),   variant: 'fatima'   },
+          { el: document.getElementById('btnMeditativoEscriva'),  variant: 'escriva'  }
         ];
         btns.forEach(({ el, variant }) => {
           if (!el) return;
@@ -3188,6 +3334,18 @@
           <div>
             <div class="font-serif text-orange-950 text-sm font-medium">Santuário de Fátima</div>
             <div class="text-[11px] font-serif text-stone-400 mt-0.5">Meditações com Escritura, reflexão e oração</div>
+          </div>
+        </button>
+
+        <button id="btnMeditativoEscriva" onclick="selectMeditativoVariant('escriva')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-2 transition-all text-left">
+          <div class="flex-shrink-0 w-9 h-9 rounded-full bg-orange-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+          </div>
+          <div>
+            <div class="font-serif text-orange-950 text-sm font-medium">S. Josemaría Escrivá</div>
+            <div class="text-[11px] font-serif text-stone-400 mt-0.5">Santo Rosário — meditações da Paixão (Mistérios Dolorosos)</div>
           </div>
         </button>
 
