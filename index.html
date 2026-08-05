@@ -119,19 +119,32 @@
       #ptr-spinner.spinning {
         animation: ptr-spin 0.7s linear infinite;
       }
-      /* Pan vertical suave na imagem em tela cheia: como a imagem é recortada
-         (object-fit:cover), ela desce e sobe lentamente revelando o topo e a
-         base ao longo do tempo. */
+      /* Pan suave na imagem em tela cheia: como a imagem é recortada
+         (object-fit:cover), ela desliza lentamente revelando as pontas que
+         ficam fora do enquadramento. O eixo animado é o que tem sobra
+         (vertical no caso comum de imagem retrato em tela deitada).
+         A duração NÃO é fixa: updateFsPanTiming() a calcula a partir da
+         distância real em pixels, para que o deslize tenha sempre a mesma
+         velocidade suave, independente da altura da imagem. */
       @keyframes fsPanY {
         0%   { object-position: 50% 0%; }
         50%  { object-position: 50% 100%; }
         100% { object-position: 50% 0%; }
       }
+      @keyframes fsPanX {
+        0%   { object-position: 0% 50%; }
+        50%  { object-position: 100% 50%; }
+        100% { object-position: 0% 50%; }
+      }
       #fullscreenImg.fs-pan {
-        animation: fsPanY 60s ease-in-out infinite;
+        animation: fsPanY var(--fs-pan-dur, 120s) ease-in-out infinite;
+      }
+      #fullscreenImg.fs-pan.fs-pan-x {
+        animation-name: fsPanX;
       }
       @media (prefers-reduced-motion: reduce) {
-        #fullscreenImg.fs-pan { animation: none; }
+        #fullscreenImg.fs-pan,
+        #fullscreenImg.fs-pan.fs-pan-x { animation: none; }
       }
     </style>
   </head>
@@ -1363,6 +1376,9 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       let _landscapeFsDismissed = false;
       // Movimento (pan) da imagem em tela cheia pausado pelo usuário?
       let _fsPanPaused = false;
+      // Última configuração de movimento aplicada (imagem + tamanho da tela),
+      // para não reiniciar o deslize à toa a cada re-render.
+      let _fsPanKey = '';
 
       function getMysteryImgSrc(mysteryIdx, mystery) {
         const key = getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx;
@@ -2582,6 +2598,9 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             imgEl.style.opacity = '0';
             imgEl.removeAttribute('data-tried');
             imgEl.removeAttribute('data-fallback');
+            // Desfaz o enquadramento do placeholder (que usa contain), senão a
+            // imagem nova entraria sem recorte e sem sobra para deslizar.
+            imgEl.style.objectFit = 'cover';
             imgEl.setAttribute('data-cur', imgSrc);
             imgEl.setAttribute('data-urls', JSON.stringify(getMysteryImgList(mystery)));
             imgEl.setAttribute('data-cachekey', getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx);
@@ -2590,6 +2609,9 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             imgEl.onload = function() {
               imgEl.style.transition = 'opacity 0.5s ease';
               imgEl.style.opacity = '0.9';
+              // Cada imagem tem a sua sobra de recorte: recalcula a duração
+              // para manter a mesma velocidade de deslize.
+              updateFsPanTiming();
             };
           }
           _fullscreenMysteryIdx = mysteryIdx;
@@ -2597,6 +2619,53 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         document.getElementById('fullscreenMysteryNum').textContent = 'Mistério ' + (mysteryIdx + 1);
         document.getElementById('fullscreenTitle').textContent = mystery.title;
         document.getElementById('fullscreenFruit').textContent = fruit ? 'Fruto — ' + fruit : '';
+      }
+
+      // === Velocidade do movimento (pan) da imagem em tela cheia ===
+      // O deslize é definido por VELOCIDADE, não por uma duração fixa: antes,
+      // toda imagem levava o mesmo tempo para percorrer a sobra do recorte, e
+      // por isso as mais altas (que sobram muito) deslizavam bem mais depressa
+      // que as menores. Agora a duração é calculada a partir da distância real
+      // em pixels, então o movimento fica sempre no mesmo ritmo suave.
+      const FS_PAN_SPEED = 9;        // px por segundo (média do ciclo)
+      const FS_PAN_MIN_TRAVEL = 12;  // px — sobra menor que isso não anima
+      const FS_PAN_MIN_DUR = 45;     // s — evita vaivém curto e nervoso
+      const FS_PAN_MAX_DUR = 360;    // s — teto para imagens muito alongadas
+
+      function updateFsPanTiming(force) {
+        const img = document.getElementById('fullscreenImg');
+        if (!img) return;
+        // Placeholder local entra como object-fit:contain — não há o que deslizar.
+        if (img.getAttribute('data-fallback')) {
+          img.classList.remove('fs-pan', 'fs-pan-x');
+          _fsPanKey = '';
+          return;
+        }
+        const nw = img.naturalWidth, nh = img.naturalHeight;
+        const cw = img.clientWidth, ch = img.clientHeight;
+        // Sem imagem carregada ou overlay ainda escondido (tamanho zero).
+        if (!nw || !nh || !cw || !ch) return;
+        const key = img.currentSrc + '|' + cw + 'x' + ch;
+        if (!force && key === _fsPanKey) return;
+        _fsPanKey = key;
+        // object-fit:cover amplia a imagem até cobrir os dois lados; a sobra
+        // em cada eixo é exatamente o quanto object-position pode deslocar.
+        const scale = Math.max(cw / nw, ch / nh);
+        const travelX = Math.max(0, nw * scale - cw);
+        const travelY = Math.max(0, nh * scale - ch);
+        const useX = travelX > travelY;
+        const travel = useX ? travelX : travelY;
+        img.classList.toggle('fs-pan-x', useX);
+        if (travel < FS_PAN_MIN_TRAVEL) {
+          img.classList.remove('fs-pan');
+          return;
+        }
+        // O ciclo completo é ida e volta, daí o dobro da distância.
+        let dur = (travel * 2) / FS_PAN_SPEED;
+        dur = Math.min(FS_PAN_MAX_DUR, Math.max(FS_PAN_MIN_DUR, dur));
+        img.style.setProperty('--fs-pan-dur', dur.toFixed(1) + 's');
+        img.classList.add('fs-pan');
+        img.style.animationPlayState = _fsPanPaused ? 'paused' : 'running';
       }
 
       // Ícones do botão de pausar/retomar o movimento da imagem.
@@ -2639,7 +2708,11 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         overlay.style.display = 'block';
         renderFullscreenImage();
         requestAnimationFrame(function() {
-          requestAnimationFrame(function() { overlay.style.opacity = '1'; });
+          requestAnimationFrame(function() {
+            overlay.style.opacity = '1';
+            // Só agora o overlay tem tamanho: mede e ajusta o ritmo do deslize.
+            updateFsPanTiming(true);
+          });
         });
       }
 
@@ -2681,9 +2754,15 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           }
         }
       }
-      window.addEventListener('resize', applyLandscapeFullscreen);
+      // Mudou o tamanho da tela (girou o aparelho, barra do navegador sumiu):
+      // a sobra do recorte muda junto, então a duração é recalculada.
+      function onFsViewportChange() {
+        applyLandscapeFullscreen();
+        if (isImageFullscreen) updateFsPanTiming();
+      }
+      window.addEventListener('resize', onFsViewportChange);
       window.addEventListener('orientationchange', function() {
-        setTimeout(applyLandscapeFullscreen, 200);
+        setTimeout(onFsViewportChange, 200);
       });
 
       function addFullscreenNavigation() {
