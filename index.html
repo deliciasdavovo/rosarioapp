@@ -1357,6 +1357,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       // Estado Imagem Tela Cheia
       let isImageFullscreen = false;
       let _fullscreenMysteryIdx = null;
+      let _fullscreenLandscape = false;
       let _mystImgCache = {};
       let _fullscreenNavReady = false;
       // Estado da visualização horizontal (celular deitado): abre a imagem em
@@ -1369,11 +1370,15 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       // para não reiniciar o deslize à toa a cada re-render.
       let _fsPanKey = '';
 
-      function getMysteryImgSrc(mysteryIdx, mystery) {
-        const key = getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx;
+      // `landscape` seleciona o conjunto de imagens horizontais do mistério
+      // (mystery.imageUrlsHorizontal), quando existir; caso contrário cai
+      // de volta nas imagens verticais normais (imageUrls).
+      function getMysteryImgSrc(mysteryIdx, mystery, landscape) {
+        const key = getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx + (landscape ? ':h' : '');
         if (!_mystImgCache[key]) {
-          _mystImgCache[key] = Array.isArray(mystery.imageUrls)
-            ? mystery.imageUrls[Math.floor(Math.random() * mystery.imageUrls.length)]
+          const list = getMysteryImgList(mystery, landscape);
+          _mystImgCache[key] = list.length
+            ? list[Math.floor(Math.random() * list.length)]
             : mystery.imageUrl;
         }
         return _mystImgCache[key];
@@ -1384,7 +1389,12 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       const IMG_FALLBACK_SRC = 'icon-512.png';
 
       // Lista de URLs candidatas de um mistério, para tentar alternativas.
-      function getMysteryImgList(mystery) {
+      // Com landscape=true, prefere mystery.imageUrlsHorizontal (fotos em
+      // formato horizontal, usadas na tela cheia com o celular deitado).
+      function getMysteryImgList(mystery, landscape) {
+        if (landscape && mystery && Array.isArray(mystery.imageUrlsHorizontal) && mystery.imageUrlsHorizontal.length) {
+          return mystery.imageUrlsHorizontal;
+        }
         if (mystery && Array.isArray(mystery.imageUrls) && mystery.imageUrls.length) return mystery.imageUrls;
         if (mystery && mystery.imageUrl) return [mystery.imageUrl];
         return [];
@@ -2579,9 +2589,12 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         }
         const mystery = mSet.mysteries[mysteryIdx];
         const fruit = mSet.fruits[mysteryIdx] || '';
-        if (mysteryIdx !== _fullscreenMysteryIdx) {
+        // Com o celular deitado, prefere as imagens horizontais do mistério
+        // (mystery.imageUrlsHorizontal), quando existirem.
+        const landscape = isMobileLandscape();
+        if (mysteryIdx !== _fullscreenMysteryIdx || landscape !== _fullscreenLandscape) {
           const imgEl = document.getElementById('fullscreenImg');
-          const imgSrc = getMysteryImgSrc(mysteryIdx, mystery);
+          const imgSrc = getMysteryImgSrc(mysteryIdx, mystery, landscape);
           if (imgEl.src !== imgSrc) {
             imgEl.style.transition = '';
             imgEl.style.opacity = '0';
@@ -2591,8 +2604,8 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             // imagem nova entraria sem recorte e sem sobra para deslizar.
             imgEl.style.objectFit = 'cover';
             imgEl.setAttribute('data-cur', imgSrc);
-            imgEl.setAttribute('data-urls', JSON.stringify(getMysteryImgList(mystery)));
-            imgEl.setAttribute('data-cachekey', getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx);
+            imgEl.setAttribute('data-urls', JSON.stringify(getMysteryImgList(mystery, landscape)));
+            imgEl.setAttribute('data-cachekey', getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx + (landscape ? ':h' : ''));
             imgEl.onerror = function() { handleImgError(imgEl); };
             imgEl.src = imgSrc;
             imgEl.onload = function() {
@@ -2604,6 +2617,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             };
           }
           _fullscreenMysteryIdx = mysteryIdx;
+          _fullscreenLandscape = landscape;
         }
         document.getElementById('fullscreenMysteryNum').textContent = 'Mistério ' + (mysteryIdx + 1);
         document.getElementById('fullscreenTitle').textContent = mystery.title;
@@ -2734,12 +2748,20 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           if (!isImageFullscreen && !_landscapeFsDismissed) {
             _landscapeFsAuto = true;
             openImageFullscreen();
+          } else if (isImageFullscreen) {
+            // Já estava em tela cheia (aberta manualmente): troca para a
+            // imagem horizontal do mistério, se houver.
+            renderFullscreenImage();
           }
         } else {
           _landscapeFsDismissed = false;
           if (isImageFullscreen && _landscapeFsAuto) {
             _landscapeFsAuto = false;
             closeImageFullscreen();
+          } else if (isImageFullscreen) {
+            // Voltou ao retrato ainda em tela cheia: troca de volta para a
+            // imagem vertical do mistério.
+            renderFullscreenImage();
           }
         }
       }
