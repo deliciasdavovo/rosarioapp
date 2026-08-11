@@ -9,7 +9,22 @@ https://cdn.jsdelivr.net/gh/deliciasdavovo/rosarioapp@main/images/<pasta>/<arqui
 Hospedar aqui, em vez de depender do Cloudinary ou do Unsplash, mantém o app
 com uma dependência externa a menos e as imagens versionadas junto do código.
 
-## Como adicionar as fotos de um mistério
+## Trazer para cá o que ainda está no Cloudinary
+
+As 58 imagens que seguem no Cloudinary têm a migração pronta em
+`scripts/migrar-imagens.sh`: ele baixa cada uma para a pasta certa e reescreve
+as URLs no `index.html`.
+
+```sh
+./scripts/migrar-imagens.sh --dry-run   # confere o que seria baixado
+./scripts/migrar-imagens.sh             # baixa e reescreve o index.html
+git add images index.html && git commit && git push
+```
+
+O destino de cada imagem está em `scripts/imagens-cloudinary.tsv`. As URLs do
+jsDelivr só respondem depois que o commit chega ao `main`.
+
+## Como adicionar fotos novas de um mistério
 
 1. Coloque os arquivos em `images/<pasta>/`, usando a pasta da tabela abaixo.
 2. Mantenha o nome original da foto (`IMG_8607.jpg`) — é o que identifica a
@@ -31,35 +46,31 @@ com uma dependência externa a menos e as imagens versionadas junto do código.
 | A Coroação de Espinhos | `coroacao-espinhos` | 1 |
 | A Crucificação e Morte | `crucificacao-morte` | 4 |
 
-### Pendentes — fotos próprias, ainda no Cloudinary
+### Ainda no Cloudinary — 58 imagens
 
-São fotos que já existem; só precisam ser reenviadas para entrar no
-repositório. A pasta indicada é a que deve ser criada.
+Todas cobertas pelo script acima. A pasta indicada é criada por ele.
 
-| Mistério | Pasta | Fotos | Arquivos originais |
+| Mistério | Pasta | Fotos próprias | Arte da web |
 | --- | --- | --- | --- |
-| A Visitação de Maria a Isabel | `visitacao` | 10 | IMG_8437 a IMG_8446 |
-| O Encontro de Jesus no Templo | `encontro-templo` | 3 | IMG_8508, 8509, 8512 |
-| O Batismo no Jordão | `batismo-jordao` | 15 | IMG_8519 a IMG_8534 |
-| A Auto-revelação nas Bodas de Caná | `bodas-cana` | 10 | IMG_8535 a IMG_8546 |
-| Jesus Carrega a Cruz | `carrega-cruz` | 2 | IMG_8766, IMG_8767 |
-| A Ascensão | `ascensao` | 2 | WhatsApp 03/06, 17:25 |
-| A Vinda do Espírito Santo | `espirito-santo` | 2 | WhatsApp 03/06, 17:57 |
+| A Visitação de Maria a Isabel | `visitacao` | 10 | — |
+| O Encontro de Jesus no Templo | `encontro-templo` | 3 | — |
+| O Batismo no Jordão | `batismo-jordao` | 15 | — |
+| A Auto-revelação nas Bodas de Caná | `bodas-cana` | 10 | — |
+| Jesus Carrega a Cruz | `carrega-cruz` | 2 | — |
+| A Ascensão | `ascensao` | 2 | — |
+| A Vinda do Espírito Santo | `espirito-santo` | 2 | 2 |
+| O Anúncio do Reino de Deus | `anuncio-reino` | — | 1 |
+| A Transfiguração | `transfiguracao` | — | 3 |
+| A Instituição da Eucaristia | `instituicao-eucaristia` | — | 4 |
+| A Ressurreição | `ressurreicao` | — | 1 |
+| A Assunção de Maria | `assuncao` | — | 2 |
+| A Coroação de Maria | `coroacao-maria` | — | 1 |
 
-### Pendentes — sem foto própria
-
-Estes mistérios ainda usam arte baixada da internet. Não há arquivo original
-para reenviar: precisam de fotos novas.
-
-| Mistério | Pasta | Imagens da web hoje |
-| --- | --- | --- |
-| O Anúncio do Reino de Deus | `anuncio-reino` | 1 |
-| A Transfiguração | `transfiguracao` | 3 |
-| A Instituição da Eucaristia | `instituicao-eucaristia` | 4 |
-| A Vinda do Espírito Santo | `espirito-santo` | 2 (além das 2 próprias) |
-| A Ressurreição | `ressurreicao` | 1 |
-| A Assunção de Maria | `assuncao` | 2 |
-| A Coroação de Maria | `coroacao-maria` | 1 |
+As 44 fotos próprias mantêm o nome original (`IMG_8437.jpg`). As 14 da coluna
+"arte da web" são imagens baixadas da internet, sem foto própria por trás:
+recebem nome pela pasta (`assuncao-01.jpg`) e continuam sendo as candidatas a
+substituição por fotos suas — trazê-las para o repositório tira a dependência
+do Cloudinary, mas não resolve a origem delas.
 
 ### Pendentes — cards das orações
 
