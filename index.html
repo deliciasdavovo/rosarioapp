@@ -621,6 +621,10 @@
       };
 
       const COMMON_PRAYERS = {
+        'sinal-da-cruz': {
+          title: 'Sinal da Cruz',
+          text: 'Pelo sinal da Santa Cruz, livrai-nos Deus, nosso Senhor, de nossos inimigos.\n\nEm nome do Pai, e do Filho, e do Espírito Santo. Amém.'
+        },
         cruz: {
           title: 'Creio em Deus Pai',
           alt: 'Símbolo dos Apóstolos',
@@ -649,6 +653,8 @@
         },
         oferecimento: {
           title: 'Oferecimento',
+          // Texto rezado no terço (sem o primeiro parágrafo); o texto completo fica no Devocionário
+          textoTerco: 'Divino Jesus, nós Vos oferecemos este rosário que vamos rezar, meditando nos mistérios da nossa Redenção. Concedei-nos, por intercessão da Virgem Maria, Mãe de Deus e nossa Mãe, as virtudes que nos são necessárias para bem rezá-lo e a graça de ganharmos as indulgências desta santa devoção. Oferecemos particularmente, em desagravo dos pecados cometidos contra o Santíssimo Coração de Jesus e Imaculado Coração de Maria, pela paz do mundo, pela conversão dos pecadores, pelas almas do Purgatório, pelas intenções do Santo Padre, pelo aumento e santificação do Clero, pelo nosso vigário, pela santificação das famílias, pelas missões, pelos doentes, pelos agonizantes, por todos aqueles que pediram nossas orações, pelo nosso país e por todas as nossas intenções particulares.\n\nPausa para meditar.',
           text: 'Uno-me a todos os santos que estão no Céu, a todos os justos que estão sobre a Terra, a todas as almas fiéis que estão neste lugar. Uno-me a Vós, meu Jesus, para louvar dignamente Vossa Santa Mãe e a Vós, nela e por Ela. Renuncio a todas as distrações que me vierem durante este Rosário, que quero recitar com modéstia, atenção e devoção, como se fosse o último da minha vida. Nós Vos oferecemos, Trindade Santíssima, este Credo, para honrar os mistérios todos de nossa Fé; este Pai Nosso e estas três Ave-Marias, para honrar a unidade de vossa essência e a trindade de vossas pessoas. Pedimos-Vos uma fé viva, uma esperança firme e uma caridade ardente. Assim seja.\n\nDivino Jesus, nós Vos oferecemos este rosário que vamos rezar, meditando nos mistérios da nossa Redenção. Concedei-nos, por intercessão da Virgem Maria, Mãe de Deus e nossa Mãe, as virtudes que nos são necessárias para bem rezá-lo e a graça de ganharmos as indulgências desta santa devoção. Oferecemos particularmente, em desagravo dos pecados cometidos contra o Santíssimo Coração de Jesus e Imaculado Coração de Maria, pela paz do mundo, pela conversão dos pecadores, pelas almas do Purgatório, pelas intenções do Santo Padre, pelo aumento e santificação do Clero, pelo nosso vigário, pela santificação das famílias, pelas missões, pelos doentes, pelos agonizantes, por todos aqueles que pediram nossas orações, pelo nosso país e por todas as nossas intenções particulares.\n\nPausa para meditar.'
         },
         agradecimento: {
@@ -745,6 +751,7 @@
       };
 
       const ACERVO_ITEMS = [
+        { key: 'sinal-da-cruz',  iconPath: 'M12 3v18M6 9h12', imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070&auto=format&fit=crop' },
         { key: 'espirito-santo', iconPath: 'M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z', imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=2070&auto=format&fit=crop' },
         { key: 'sao-jose',       iconPath: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z', imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop' },
         { key: 'sao-miguel',     iconPath: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop' },
@@ -779,7 +786,7 @@
         {
           title: 'Rosário',
           subtitle: 'Orações do terço',
-          keys: ['oferecimento','cruz','pai-nosso','ave-maria','gloria','o-meu-jesus','salve-rainha','agradecimento']
+          keys: ['sinal-da-cruz','oferecimento','cruz','pai-nosso','ave-maria','gloria','o-meu-jesus','salve-rainha','agradecimento']
         },
         {
           title: 'Ao final do terço',
@@ -1595,6 +1602,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         let index = 0;
 
         // Abertura
+        list.push({ id: index++, type: 'sinal-da-cruz' });
         list.push({ id: index++, type: 'oferecimento' });
 
         // Introdução
@@ -2219,9 +2227,13 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
               title = COMMON_PRAYERS['salve-rainha'].title;
               content = COMMON_PRAYERS['salve-rainha'].text;
               iconHeader = '✥  ✥  ✥';
+            } else if (bead.type === 'sinal-da-cruz') {
+              title = COMMON_PRAYERS['sinal-da-cruz'].title;
+              content = COMMON_PRAYERS['sinal-da-cruz'].text;
+              iconHeader = '✥  ✥  ✥';
             } else if (bead.type === 'oferecimento') {
               title = COMMON_PRAYERS['oferecimento'].title;
-              content = COMMON_PRAYERS['oferecimento'].text;
+              content = COMMON_PRAYERS['oferecimento'].textoTerco;
               iconHeader = '✥  ✥  ✥';
             } else if (bead.type === 'agradecimento') {
               title = COMMON_PRAYERS['agradecimento'].title;
@@ -2302,7 +2314,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           return type === 'cruz' ? 36
             : (type === 'pai-nosso' || type === 'misterio') ? 30
             : (type === 'salve-rainha') ? 24
-            : (type === 'oferecimento' || type === 'agradecimento' || type === 'espirito-santo' || type === 'sao-jose' || type === 'sao-miguel') ? 14
+            : (type === 'sinal-da-cruz' || type === 'oferecimento' || type === 'agradecimento' || type === 'espirito-santo' || type === 'sao-jose' || type === 'sao-miguel') ? 14
             : 26;
         }
 
@@ -2355,7 +2367,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           var p           = calcPos(idx);
           var isActive    = centerId === bead.id;
           var isCruz      = bead.type === 'cruz';
-          var isNonBead   = bead.type === 'oferecimento' || bead.type === 'agradecimento' || bead.type === 'espirito-santo' || bead.type === 'sao-jose' || bead.type === 'sao-miguel';
+          var isNonBead   = bead.type === 'sinal-da-cruz' || bead.type === 'oferecimento' || bead.type === 'agradecimento' || bead.type === 'espirito-santo' || bead.type === 'sao-jose' || bead.type === 'sao-miguel';
           var isMedalha   = bead.type === 'salve-rainha';
           var sz          = beadSize(bead.type);
           var tfm         = 'translate(' + (p.x + swipeDx) + 'px,' + p.y + 'px) scale(' + p.s + ')';
@@ -2487,7 +2499,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
 
           // Recriar fio antes desta conta (largura = gap entre bordas das contas)
           var prevType = beadsList[idx - 1] && beadsList[idx - 1].type;
-          var prevIsNonBead = prevType === 'oferecimento' || prevType === 'agradecimento' || prevType === 'espirito-santo' || prevType === 'sao-jose' || prevType === 'sao-miguel';
+          var prevIsNonBead = prevType === 'sinal-da-cruz' || prevType === 'oferecimento' || prevType === 'agradecimento' || prevType === 'espirito-santo' || prevType === 'sao-jose' || prevType === 'sao-miguel';
           if (idx > startIdx && !isNonBead && !prevIsNonBead) {
             var pp    = calcPos(idx - 1);
             var beadSz = (beadSize(beadsList[idx - 1].type) + beadSize(bead.type)) / 2;
