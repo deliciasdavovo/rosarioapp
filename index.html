@@ -51,6 +51,85 @@
         -webkit-user-select: none;
         -webkit-touch-callout: none;
       }
+      /* ————— Sumário do devocionário (estilo livro impresso) ————— */
+      .toc-list {
+        text-align: left;
+        padding: 6px 2px 24px;
+      }
+      .toc-section {
+        font-family: Outfit, serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #431407;
+        margin: 22px 0 2px;
+      }
+      .toc-list > .toc-section:first-child {
+        margin-top: 4px;
+      }
+      .toc-subtitle {
+        font-family: Outfit, serif;
+        font-size: 10px;
+        font-style: italic;
+        letter-spacing: 0.02em;
+        color: #B9AE9C;
+        margin-bottom: 6px;
+      }
+      .toc-empty {
+        font-family: Outfit, serif;
+        font-size: 11.5px;
+        font-style: italic;
+        color: #C8C0B8;
+        padding: 4px 0 2px 12px;
+      }
+      .toc-row {
+        width: 100%;
+        display: flex;
+        align-items: baseline;
+        gap: 0;
+        padding: 6px 4px 5px 12px;
+        background: none;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s;
+      }
+      .toc-row:active {
+        background: rgba(146, 64, 14, 0.07);
+      }
+      .toc-mark {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-left: -10px;
+        margin-right: 5px;
+        transform: translateY(-3px);
+      }
+      .toc-label {
+        font-family: Outfit, serif;
+        font-size: 14px;
+        font-weight: 400;
+        color: #2A1B12;
+        line-height: 1.35;
+        flex-shrink: 1;
+      }
+      .toc-dots {
+        flex: 1 1 auto;
+        min-width: 12px;
+        margin: 0 6px;
+        border-bottom: 1px dotted #CFC2A8;
+        transform: translateY(-3px);
+      }
+      .toc-page {
+        font-family: Outfit, serif;
+        font-size: 12.5px;
+        color: #8C7E6A;
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+      }
       .book-sheet-shadow {
         box-shadow: inset 0 1px 3px rgba(255,255,255,0.8), 0 15px 30px -5px rgba(30,20,10,0.06);
       }
@@ -544,6 +623,7 @@
       const COMMON_PRAYERS = {
         cruz: {
           title: 'Creio em Deus Pai',
+          alt: 'Símbolo dos Apóstolos',
           text: 'Creio em Deus Pai Todo-Poderoso, criador do céu e da terra. E em Jesus Cristo, seu único Filho, nosso Senhor, que foi concebido pelo poder do Espírito Santo; nasceu da Virgem Maria; padeceu sob Pôncio Pilatos, foi crucificado, morto e sepultado. Desceu à mansão dos mortos; ressuscitou ao terceiro dia, subiu aos céus; está sentado à direita de Deus Pai Todo-Poderoso, donde há de vir a julgar os vivos e os mortos. Creio no Espírito Santo; na Santa Igreja Católica; na comunhão dos santos; na remissão dos pecados; na ressurreição da carne; na vida eterna. Amém.'
         },
         'pai-nosso': {
@@ -560,6 +640,7 @@
         },
         gloria: {
           title: 'Glória',
+          alt: 'Doxologia menor',
           text: 'Glória ao Pai, ao Filho e ao Espírito Santo. Como era no princípio, agora e sempre, e por todos os séculos dos séculos. Amém.'
         },
         'o-meu-jesus': {
@@ -576,6 +657,7 @@
         },
         'espirito-santo': {
           title: 'Oração ao Espírito Santo',
+          alt: 'Vinde, Espírito Santo',
           text: 'Vinde, Espírito Santo, enchei os corações dos vossos fiéis e acendei neles o fogo do vosso amor.\n\nEnviai o vosso Espírito e tudo será criado.\nE renovareis a face da terra.\n\nOremos: Ó Deus, que instruístes os corações dos vossos fiéis com a luz do Espírito Santo, fazei que pelo mesmo Espírito apreciemos o que é reto e gozemos sempre da sua consolação. Por Cristo Senhor nosso. Amém.'
         },
         'sao-jose': {
@@ -585,6 +667,80 @@
         'sao-miguel': {
           title: 'Oração a São Miguel Arcanjo',
           text: 'São Miguel Arcanjo, defendei-nos no combate, sede o nosso refúgio contra as maldades e ciladas do demônio.\n\nQue Deus lhe repreenda, assim o pedimos humildemente.\nE vós, Príncipe da Milícia Celestial, pelo poder divino, precipitai no inferno a Satanás e aos outros espíritos malignos que andam pelo mundo para perder as almas. Amém.'
+        },
+
+        // ————— Orações principais —————
+        'sinal-da-cruz': {
+          title: 'Sinal da Cruz',
+          text: 'Pelo sinal da Santa Cruz, livrai-nos, Deus, nosso Senhor, dos nossos inimigos.\n\nEm nome do Pai, e do Filho, e do Espírito Santo. Amém.\n\nIn nómine Patris, et Fílii, et Spíritus Sancti. Amen.'
+        },
+        'credo-niceno': {
+          title: 'Credo Niceno-Constantinopolitano',
+          text: 'Creio em um só Deus, Pai todo-poderoso, criador do céu e da terra, de todas as coisas visíveis e invisíveis.\n\nCreio em um só Senhor, Jesus Cristo, Filho Unigênito de Deus, nascido do Pai antes de todos os séculos: Deus de Deus, Luz da Luz, Deus verdadeiro de Deus verdadeiro, gerado, não criado, consubstancial ao Pai. Por Ele todas as coisas foram feitas.\n\nE por nós, homens, e para nossa salvação, desceu dos céus: e se encarnou pelo Espírito Santo, no seio da Virgem Maria, e se fez homem.\n\nTambém por nós foi crucificado sob Pôncio Pilatos; padeceu e foi sepultado. Ressuscitou ao terceiro dia, conforme as Escrituras, e subiu aos céus, onde está sentado à direita do Pai. E de novo há de vir, em sua glória, para julgar os vivos e os mortos; e o seu reino não terá fim.\n\nCreio no Espírito Santo, Senhor que dá a vida, e procede do Pai e do Filho; e com o Pai e o Filho é adorado e glorificado: Ele que falou pelos profetas.\n\nCreio na Igreja, una, santa, católica e apostólica. Professo um só batismo para remissão dos pecados. E espero a ressurreição dos mortos e a vida do mundo que há de vir. Amém.'
+        },
+        'anjo-da-guarda': {
+          title: 'Ao Santo Anjo da Guarda',
+          text: 'Santo Anjo do Senhor, meu zeloso guardador, se a ti me confiou a piedade divina, sempre me rege, me guarda, me governa, me ilumina. Amém.'
+        },
+        sanctus: {
+          title: 'Sanctus',
+          text: 'Santo, Santo, Santo, Senhor Deus do universo!\nO céu e a terra proclamam a vossa glória.\nHosana nas alturas!\nBendito o que vem em nome do Senhor!\nHosana nas alturas!'
+        },
+        angelus: {
+          title: 'Angelus Domini',
+          text: 'V. O Anjo do Senhor anunciou a Maria.\nR. E ela concebeu do Espírito Santo.\n\nAve Maria...\n\nV. Eis aqui a serva do Senhor.\nR. Faça-se em mim segundo a vossa palavra.\n\nAve Maria...\n\nV. E o Verbo divino se fez carne.\nR. E habitou entre nós.\n\nAve Maria...\n\nV. Rogai por nós, santa Mãe de Deus.\nR. Para que sejamos dignos das promessas de Cristo.\n\nOremos: Infundi, Senhor, a vossa graça em nossas almas, para que nós, que pelo anúncio do Anjo conhecemos a Encarnação de vosso Filho Jesus Cristo, cheguemos, por sua Paixão e Cruz, à glória da Ressurreição. Por Cristo, Senhor nosso. Amém.'
+        },
+        'regina-caeli': {
+          title: 'Regina caeli',
+          text: 'Rainha do céu, alegrai-vos, aleluia!\nPorque Aquele que merecestes trazer em vosso seio, aleluia!\nRessuscitou como disse, aleluia!\nRogai a Deus por nós, aleluia!\n\nV. Alegrai-vos e exultai, ó Virgem Maria, aleluia!\nR. Porque o Senhor ressuscitou verdadeiramente, aleluia!\n\nOremos: Ó Deus, que vos dignastes alegrar o mundo com a Ressurreição do vosso Filho, nosso Senhor Jesus Cristo, concedei-nos, vos pedimos, que, por sua Mãe, a Virgem Maria, alcancemos as alegrias da vida eterna. Por Cristo, Senhor nosso. Amém.\n\nReza-se no lugar do Angelus durante o Tempo Pascal.'
+        },
+
+        // ————— Orações da manhã —————
+        'ao-vestir-se': {
+          title: 'Ao vestir-se',
+          text: 'Revesti-me, Senhor, do homem novo, criado segundo Deus na justiça e na santidade da verdade.\n\nCobri a minha alma com a túnica da inocência e cingi-a com o cíngulo da pureza, para que eu vos sirva hoje com um coração puro e um corpo casto.\n\nQue tudo o que hoje vestir e carregar me lembre que sou vosso, e nada em mim vos desagrade. Amém.'
+        },
+        'senhor-deus-todo-poderoso': {
+          title: 'Senhor Deus Todo-poderoso',
+          text: 'Senhor Deus todo-poderoso, que nos fizestes chegar ao princípio deste dia, salvai-nos hoje pelo vosso poder, para que não caiamos em nenhum pecado, mas que todos os nossos pensamentos, palavras e obras se dirijam sempre ao cumprimento da vossa justiça. Por Cristo, Senhor nosso. Amém.'
+        },
+        'oferecimento-do-dia': {
+          title: 'Oferecimento do dia',
+          text: 'Ó Jesus, por meio do Coração Imaculado de Maria, eu vos ofereço as orações, obras, alegrias e sofrimentos deste dia, em reparação das nossas ofensas e por todas as intenções pelas quais intercede o vosso Sagrado Coração, particularmente pelas intenções do Santo Padre neste mês.\n\nTudo o que hoje eu fizer, sofrer e receber seja vosso, Senhor: nada meu, tudo vosso, para vossa maior glória. Amém.'
+        },
+        'consagracao-nossa-senhora': {
+          title: 'Consagração a Nossa Senhora',
+          text: 'Ó minha Senhora, ó minha Mãe, eu me ofereço todo a vós e, em prova da minha devoção para convosco, vos consagro neste dia os meus olhos, os meus ouvidos, a minha boca, o meu coração e inteiramente todo o meu ser.\n\nE porque assim sou vosso, ó incomparável Mãe, guardai-me e defendei-me como coisa e propriedade vossa. Amém.'
+        },
+        'atos-de-abandono': {
+          title: 'Atos de abandono',
+          text: 'Meu Pai, eu me abandono a Vós; fazei de mim o que vos aprouver. Seja o que for que façais de mim, eu vos agradeço.\n\nEstou pronto para tudo, aceito tudo, contanto que a vossa vontade se faça em mim e em todas as vossas criaturas: não desejo mais nada, meu Deus.\n\nEntrego a minha alma em vossas mãos, dou-vo-la, meu Deus, com todo o amor do meu coração, porque vos amo, e porque para mim é uma necessidade de amor dar-me, entregar-me em vossas mãos sem medida, com infinita confiança, porque Vós sois meu Pai. Amém.\n\nJesus, eu me abandono a Vós, cuidai de tudo!'
+        },
+
+        // ————— Orações da noite —————
+        'visitai-senhor': {
+          title: 'Visitai, Senhor',
+          text: 'Visitai, Senhor, esta habitação e afastai dela todas as ciladas do inimigo; venham os vossos santos anjos habitar conosco e nos guardem em paz, e venha sempre sobre nós a vossa bênção. Por Cristo, Senhor nosso. Amém.'
+        },
+        'santo-afonso': {
+          title: 'Oração de Santo Afonso Maria de Ligório',
+          text: 'Ó Jesus meu, perdoai-me todas as ofensas que hoje vos fiz. Eu vos amo, ó Sumo Bem, e prometo amar-vos sempre.\n\nAgradeço-vos por me terdes conservado a vida neste dia e por todas as graças que me destes sem que eu as merecesse. Aceitai o pouco de bem que fiz e suprimi o muito que deixei de fazer.\n\nDai-me a vossa santa bênção e a perseverança na vossa graça. Ó Maria, minha Mãe e minha esperança, protegei-me esta noite e alcançai-me a graça de morrer no amor de Deus. Amém.'
+        },
+        reparacao: {
+          title: 'Reparação',
+          text: 'Ó meu Deus, eu creio, adoro, espero e vos amo. Peço-vos perdão para os que não creem, não adoram, não esperam e não vos amam.\n\nSantíssima Trindade, Pai, Filho e Espírito Santo, adoro-vos profundamente e vos ofereço o preciosíssimo Corpo, Sangue, Alma e Divindade de Jesus Cristo, presente em todos os sacrários da terra, em reparação dos ultrajes, sacrilégios e indiferenças com que Ele mesmo é ofendido.\n\nPelos méritos infinitos do seu Santíssimo Coração e do Coração Imaculado de Maria, peço-vos a conversão dos pobres pecadores. Amém.'
+        },
+        'exame-consciencia': {
+          title: 'Breve exame de consciência diário',
+          text: 'I. Agradecer\nAgradecei a Deus os benefícios recebidos hoje — a vida, a fé, as pessoas, as graças que não pedistes.\n\nII. Pedir luz\nVinde, Espírito Santo, e mostrai-me o meu dia como Deus o vê.\n\nIII. Examinar\nPercorrei as horas do dia: pensamentos, palavras, obras e omissões. Onde correspondi à graça? Onde faltei — com Deus, com o próximo, comigo mesmo? Detende-vos sobretudo no defeito que mais se repete.\n\nIV. Arrepender-se\nMeu Deus, porque sois tão bom, tenho muita pena de vos ter ofendido. Com o auxílio da vossa graça, prometo não tornar a pecar e fugir das ocasiões de pecado. Amém.\n\nV. Propor\nEscolhei para amanhã um ponto concreto, pequeno e possível — e confiai-o a Nossa Senhora.'
+        },
+        'tres-ave-marias': {
+          title: 'A devoção das três Ave-Marias',
+          text: 'Ao deitar-vos, rezai três Ave-Marias em honra da pureza, da humildade e da caridade de Nossa Senhora, pedindo a graça de não cair em pecado mortal e a graça de uma boa morte.\n\nAve Maria...\nAve Maria...\nAve Maria...\n\nÓ minha Mãe, livrai-me nesta noite de cair em pecado mortal.\n\nPor vossa Imaculada Conceição, ó Maria, purificai o meu corpo e santificai a minha alma. Amém.'
+        },
+        'hino-completas': {
+          title: 'Hino das Completas',
+          text: 'Antes que a luz desapareça,\nó Criador, nós vos rogamos:\ncom a vossa costumeira clemência,\nsede o nosso guarda e defensor.\n\nLonge de nós fujam os sonhos\ne os fantasmas da noite;\nrefreai o nosso inimigo,\npara que nada manche os nossos corpos.\n\nConcedei-nos, ó Pai clementíssimo,\ne Vós, ó Filho igual ao Pai,\nque, com o Espírito Paráclito,\nreinais por todos os séculos. Amém.\n\nTe lucis ante términum,\nrerum Creátor, póscimus,\nut pro tua cleméntia\nsis præsul et custódia.'
         }
       };
 
@@ -606,19 +762,58 @@
 
       const ACERVO_SECTIONS = [
         {
+          title: 'Orações principais',
+          subtitle: 'O essencial da oração cristã',
+          keys: ['sinal-da-cruz','cruz','credo-niceno','pai-nosso','ave-maria','gloria','anjo-da-guarda','sanctus','angelus','regina-caeli','espirito-santo']
+        },
+        {
+          title: 'Orações da manhã',
+          subtitle: 'Para começar o dia com Deus',
+          keys: ['ao-vestir-se','senhor-deus-todo-poderoso','oferecimento-do-dia','consagracao-nossa-senhora','atos-de-abandono']
+        },
+        {
+          title: 'Orações da noite',
+          subtitle: 'Para entregar o dia e repousar',
+          keys: ['visitai-senhor','santo-afonso','reparacao','exame-consciencia','tres-ave-marias','hino-completas']
+        },
+        {
           title: 'Rosário',
           subtitle: 'Orações do terço',
           keys: ['oferecimento','cruz','pai-nosso','ave-maria','gloria','o-meu-jesus','salve-rainha','agradecimento']
         },
         {
-          title: 'Orações',
-          subtitle: 'Selecione as que deseja ao final',
+          title: 'Ao final do terço',
+          subtitle: 'Selecione as que deseja rezar',
           keys: ['espirito-santo','sao-jose','sao-miguel'],
           adicional: true
         },
         { title: 'Novenas',  subtitle: 'Em breve', keys: [] },
         { title: 'Terços',   subtitle: 'Em breve', keys: [] }
       ];
+
+      // Numeração de páginas no estilo de um devocionário impresso.
+      // Calculada a partir do tamanho de cada oração: entradas curtas dividem
+      // a mesma página e cada seção abre em página nova.
+      const DEVOCIONARIO_PAGES = (() => {
+        const CAP = 900;      // caracteres por página
+        const HEAD = 260;     // espaço do título e das margens
+        const pages = {};
+        let page = 11, used = 0;
+        ACERVO_SECTIONS.forEach((section, si) => {
+          if (si > 0) { page += used > 0 ? 2 : 1; used = 0; }
+          section.keys.forEach(key => {
+            if (pages[key]) return;               // já listada antes: mesma página
+            const prayer = COMMON_PRAYERS[key];
+            if (!prayer) return;
+            const len = prayer.text.length + HEAD;
+            if (used > 0 && used + len > CAP) { page++; used = 0; }
+            pages[key] = page;
+            used += len;
+            while (used >= CAP) { page++; used -= CAP; }
+          });
+        });
+        return pages;
+      })();
 
       const MONTFORT_DATA = {
         credoPontos: [
@@ -1302,6 +1497,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       let acervoOpen = false;
       let selectedAcervoPrayer = 'espirito-santo';
       let acervoMode = 'oracao';
+      let acervoScreen = 'sumario'; // 'sumario' | 'leitura'
 
       // Estado do Áudio (Cantos Gregorianos)
       let ambientEnabled = localStorage.getItem('ambientEnabled') === 'true';
@@ -2933,9 +3129,11 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       // --- Acervo / Devocionário ---
       function openAcervo() {
         acervoOpen = true;
+        acervoScreen = 'sumario';
         renderAcervoDrawerList();
         renderAcervoPanel();
         updateAcervoTabsUI();
+        updateAcervoChrome();
         const view = document.getElementById('acervoView');
         view.style.display = 'flex';
         view.style.transform = 'translateX(100%)';
@@ -2975,8 +3173,46 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
 
       function selectAcervoPrayer(key) {
         selectedAcervoPrayer = key;
+        acervoScreen = 'leitura';
+        if (!acervoPrayerHasImage(key)) acervoMode = 'oracao';
         closeAcervoDrawer();
+        updateAcervoChrome();
+        updateAcervoTabsUI();
         renderAcervoPanel();
+      }
+
+      function acervoPrayerHasImage(key) {
+        const item = ACERVO_ITEMS.find(i => i.key === key);
+        return !!(item && item.imageUrl);
+      }
+
+      // Volta do texto da oração para o sumário; do sumário, fecha o devocionário.
+      function acervoBack() {
+        if (acervoScreen === 'leitura') {
+          acervoScreen = 'sumario';
+          updateAcervoChrome();
+          renderAcervoPanel();
+        } else {
+          closeAcervo();
+        }
+      }
+
+      // Ajusta cabeçalho e abas conforme a tela atual (sumário ou leitura)
+      function updateAcervoChrome() {
+        const isSumario = acervoScreen === 'sumario';
+        const backLabel = document.getElementById('acervoBackLabel');
+        const tabs = document.getElementById('acervoTabs');
+        const kicker = document.getElementById('acervoHeaderKicker');
+        if (backLabel) backLabel.textContent = isSumario ? 'Rosário' : 'Sumário';
+        if (tabs) tabs.style.display = (!isSumario && acervoPrayerHasImage(selectedAcervoPrayer)) ? 'block' : 'none';
+        // Cabeçalho de página corrente: seção do devocionário, como num livro
+        if (kicker) kicker.textContent = isSumario ? 'meu rosário' : (acervoSectionOf(selectedAcervoPrayer) || 'meu rosário');
+      }
+
+      // Seção a que pertence uma oração (primeira ocorrência no sumário)
+      function acervoSectionOf(key) {
+        const section = ACERVO_SECTIONS.find(s => s.keys.includes(key));
+        return section ? section.title : '';
       }
 
       function setAcervoMode(mode) {
@@ -3018,12 +3254,12 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
               const prayer = COMMON_PRAYERS[key];
               if (!prayer) return;
               const sel = key === selectedAcervoPrayer;
-              const isAdic = ADICIONAL_KEYS.includes(key);
+              const isAdic = section.adicional && ADICIONAL_KEYS.includes(key);
               const adicEnabled = isAdic && oracoesAdicionaisSet.has(key);
               html += `<button id="acervoItem-${key}" onclick="selectAcervoPrayer('${key}')"
                 style="width:100%;padding:9px 10px;border-radius:12px;border:1px solid ${sel?'#F0C89A':'transparent'};background:${sel?'#FEF6EC':'transparent'};display:flex;align-items:center;justify-content:flex-end;gap:8px;cursor:pointer;text-align:right;transition:background 0.15s;">
                 ${isAdic?`<span style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${adicEnabled?'#D97706':'#D9D3CC'};"></span>`:''}
-                <span style="font-family:Outfit,serif;font-size:13px;font-weight:${sel?'600':'400'};color:#1C0A00;line-height:1.3;">${prayer.title}</span>
+                <span style="font-family:Outfit,serif;font-size:13px;font-weight:${sel?'600':'400'};color:#1C0A00;line-height:1.3;">${prayer.alt || prayer.title}</span>
               </button>`;
             });
           }
@@ -3042,19 +3278,71 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         });
       }
 
+      // Sumário — índice do devocionário, no estilo de um livro impresso
+      function buildAcervoSumario() {
+        let rows = '';
+        ACERVO_SECTIONS.forEach(section => {
+          rows += `<div class="toc-section">${section.title}</div>`;
+          if (section.subtitle && section.keys.length) {
+            rows += `<div class="toc-subtitle">${section.subtitle}</div>`;
+          }
+          if (!section.keys.length) {
+            rows += `<div class="toc-empty">Em breve</div>`;
+            return;
+          }
+          section.keys.forEach(key => {
+            const prayer = COMMON_PRAYERS[key];
+            if (!prayer) return;
+            const label = prayer.alt || prayer.title;
+            const page = DEVOCIONARIO_PAGES[key] || '';
+            const isAdic = section.adicional && ADICIONAL_KEYS.includes(key);
+            const adicOn = isAdic && oracoesAdicionaisSet.has(key);
+            const mark = isAdic
+              ? `<span class="toc-mark" style="background:${adicOn ? '#D97706' : '#D9D3CC'};"></span>`
+              : '';
+            rows += `<button class="toc-row" onclick="selectAcervoPrayer('${key}')">
+              ${mark}<span class="toc-label">${label}</span><span class="toc-dots"></span><span class="toc-page">${page}</span>
+            </button>`;
+          });
+        });
+        return `
+          <div class="flex flex-col w-full flex-1 min-h-0">
+            <div class="flex flex-col items-center pt-2 pb-1 flex-none">
+              <h2 class="font-serif text-orange-950 text-2xl font-medium tracking-wide">Sumário</h2>
+              <div class="text-orange-600/30 text-[9px] tracking-widest font-serif pt-2">✥  ✥  ✥</div>
+            </div>
+            <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+              <div class="toc-list">${rows}</div>
+            </div>
+          </div>
+        `;
+      }
+
       function renderAcervoPanel() {
         const panel = document.getElementById('acervoPanelContent');
         if (!panel) return;
+
+        if (acervoScreen === 'sumario') {
+          panel.classList.remove('fade-in');
+          panel.classList.add('fade-out');
+          setTimeout(() => {
+            panel.innerHTML = buildAcervoSumario();
+            panel.classList.remove('fade-out');
+            panel.classList.add('fade-in');
+          }, 250);
+          return;
+        }
+
         const item = ACERVO_ITEMS.find(i => i.key === selectedAcervoPrayer);
         const prayer = COMMON_PRAYERS[selectedAcervoPrayer];
-        if (!item || !prayer) return;
+        if (!prayer) return;
 
         panel.classList.remove('fade-in');
         panel.classList.add('fade-out');
 
         setTimeout(() => {
           let layout = '';
-          if (acervoMode === 'imagem') {
+          if (acervoMode === 'imagem' && item && item.imageUrl) {
             layout = `
               <div class="flex flex-col items-center justify-between w-full h-full py-8 text-center">
                 <div class="flex flex-col items-center space-y-1">
@@ -3070,7 +3358,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                 </div>
                 <div class="flex flex-col items-center space-y-1">
                   <button onclick="openAcervoDrawer()" style="background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s;" onmouseenter="this.style.background='rgba(146,64,14,0.06)'" onmouseleave="this.style.background='none'">
-                    <span class="text-base font-serif font-medium text-orange-950 tracking-wide">${prayer.title}</span>
+                    <span class="text-base font-serif font-medium text-orange-950 tracking-wide">${prayer.alt || prayer.title}</span>
                     <svg style="width:12px; height:12px; color:#92400e; opacity:0.5; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                   </button>
                 </div>
@@ -3087,22 +3375,23 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                   <span id="adicionalToggleKnob" style="position:absolute;top:2.5px;left:2.5px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);transform:${adicEnabled?'translateX(18px)':'translateX(0)'};"></span>
                 </button>
               </div>` : '';
+            const folio = DEVOCIONARIO_PAGES[selectedAcervoPrayer];
             layout = `
               <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
-                <div class="flex flex-col items-center space-y-1 pt-4 pb-4">
+                <div class="flex flex-col items-center space-y-1 pt-2 pb-3">
                   <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
                 </div>
-                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-2" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
                   <div class="space-y-4 pb-6">
-                    <button onclick="openAcervoDrawer()" style="background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s;" onmouseenter="this.style.background='rgba(146,64,14,0.06)'" onmouseleave="this.style.background='none'">
-                      <span class="text-[13px] font-serif text-orange-900 font-medium uppercase tracking-widest">${prayer.title}</span>
-                      <svg style="width:12px; height:12px; color:#92400e; opacity:0.5; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
+                    <div class="px-2">
+                      <h3 class="text-[13px] font-serif text-orange-900 font-medium uppercase tracking-widest">${prayer.alt || prayer.title}</h3>
+                      ${prayer.alt ? `<p class="text-[10px] font-serif italic text-stone-400 mt-1.5">${prayer.title}</p>` : ''}
+                    </div>
                     <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">${prayer.text}</p>
                     ${adicToggle}
                   </div>
                 </div>
-                <div class="text-[10px] text-orange-700/40 font-serif tracking-widest uppercase py-3">Rezar com Devoção</div>
+                <div class="text-[10px] text-orange-700/40 font-serif py-3">${folio ? '—&nbsp;&nbsp;' + folio + '&nbsp;&nbsp;—' : ''}</div>
               </div>
             `;
           }
@@ -3649,14 +3938,14 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
 
       <!-- Header — mesmo layout da tela principal -->
       <header class="flex-none px-4 py-3 z-30">
-        <div class="max-w-2xl mx-auto grid grid-cols-3 items-center">
+        <div class="max-w-2xl mx-auto relative flex items-center justify-between">
           <!-- Esquerda: Voltar -->
-          <button onclick="closeAcervo()" class="justify-self-start flex items-center gap-1.5 hover:bg-stone-100/70 px-3 py-1.5 rounded-full transition-colors">
+          <button onclick="acervoBack()" class="flex items-center gap-1.5 hover:bg-stone-100/70 px-3 py-1.5 rounded-full transition-colors">
             <svg class="w-3.5 h-3.5 text-orange-600/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-            <span class="text-stone-700 font-serif tracking-wide text-sm font-medium">Rosário</span>
+            <span id="acervoBackLabel" class="text-stone-700 font-serif tracking-wide text-sm font-medium">Rosário</span>
           </button>
-          <div class="text-center">
-            <div class="text-[9px] tracking-[0.2em] uppercase text-stone-400 font-serif leading-tight">meu rosário</div>
+          <div class="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none" style="max-width:52%;">
+            <div id="acervoHeaderKicker" class="text-[9px] tracking-[0.14em] uppercase text-stone-400 font-serif leading-tight truncate">meu rosário</div>
             <div class="font-serif text-orange-950 text-base font-semibold leading-tight">Devocionário</div>
           </div>
           <!-- Direita: Abrir drawer de seleção (secundário) -->
@@ -3667,7 +3956,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       </header>
 
       <!-- Abas de modo: Oração e Imagem -->
-      <div class="flex-none max-w-xl mx-auto w-full px-4 mb-2 z-20">
+      <div id="acervoTabs" class="flex-none max-w-xl mx-auto w-full px-4 mb-2 z-20" style="display:none;">
         <div class="flex justify-between bg-white rounded-2xl shadow-sm p-1.5 border border-stone-100/80 relative">
           <div id="acervoActiveTabBg" class="absolute top-1.5 bottom-1.5 left-1.5 bg-orange-50 rounded-xl transition-all duration-300 ease-out" style="width: calc(50% - 3px);"></div>
           <button id="acervoTabOracao" onclick="setAcervoMode('oracao')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 text-orange-900">
@@ -3708,7 +3997,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           <span class="absolute top-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
           <span class="absolute bottom-4 left-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
           <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
-          <div id="acervoPanelContent" class="relative w-full h-full z-10 flex flex-col pt-10 px-10 pb-10 text-center fade-transition fade-in"></div>
+          <div id="acervoPanelContent" class="relative w-full h-full z-10 flex flex-col pt-8 px-7 pb-8 text-center fade-transition fade-in"></div>
         </div>
       </div>
     </div>
