@@ -15,7 +15,7 @@
     <!-- Google Fonts: Inter & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <!-- Tailwind CSS para estilização moderna e limpa -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -51,16 +51,20 @@
         -webkit-user-select: none;
         -webkit-touch-callout: none;
       }
+      /* Serif de livro, para os títulos do devocionário */
+      .font-book {
+        font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+      }
       /* ————— Sumário do devocionário (estilo livro impresso) ————— */
       .toc-list {
         text-align: left;
         padding: 6px 2px 24px;
       }
       .toc-section {
-        font-family: Outfit, serif;
-        font-size: 12.5px;
+        font-family: 'EB Garamond', Georgia, serif;
+        font-size: 15px;
         font-weight: 600;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         color: #431407;
         margin: 22px 0 2px;
@@ -69,8 +73,8 @@
         margin-top: 4px;
       }
       .toc-subtitle {
-        font-family: Outfit, serif;
-        font-size: 10px;
+        font-family: 'EB Garamond', Georgia, serif;
+        font-size: 11.5px;
         font-style: italic;
         letter-spacing: 0.02em;
         color: #B9AE9C;
@@ -621,10 +625,6 @@
       };
 
       const COMMON_PRAYERS = {
-        'sinal-da-cruz': {
-          title: 'Sinal da Cruz',
-          text: 'Pelo sinal da Santa Cruz, livrai-nos Deus, nosso Senhor, de nossos inimigos.\n\nEm nome do Pai, e do Filho, e do Espírito Santo. Amém.'
-        },
         cruz: {
           title: 'Creio em Deus Pai',
           alt: 'Símbolo dos Apóstolos',
@@ -765,8 +765,6 @@
         { key: 'ave-maria',      iconPath: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', imageUrl: 'https://images.unsplash.com/photo-1490750967868-88df5691cc8f?q=80&w=2070&auto=format&fit=crop' }
       ];
 
-      const ADICIONAL_KEYS = ['espirito-santo','sao-jose','sao-miguel'];
-
       const ACERVO_SECTIONS = [
         {
           title: 'Orações principais',
@@ -789,14 +787,24 @@
           keys: ['sinal-da-cruz','oferecimento','cruz','pai-nosso','ave-maria','gloria','o-meu-jesus','salve-rainha','agradecimento']
         },
         {
-          title: 'Ao final do terço',
-          subtitle: 'Selecione as que deseja rezar',
-          keys: ['espirito-santo','sao-jose','sao-miguel'],
-          adicional: true
+          title: 'Outras orações',
+          subtitle: 'Devoções para o dia a dia',
+          keys: ['espirito-santo','sao-jose','sao-miguel']
         },
         { title: 'Novenas',  subtitle: 'Em breve', keys: [] },
         { title: 'Terços',   subtitle: 'Em breve', keys: [] }
       ];
+
+      // Orações que já fazem parte do terço — as demais podem ser
+      // acrescentadas ao final, na ordem em que aparecem no sumário.
+      const ROSARIO_CORE_KEYS = ['sinal-da-cruz','oferecimento','cruz','pai-nosso','ave-maria','gloria','o-meu-jesus','salve-rainha','agradecimento'];
+      const ADICIONAL_KEYS = [...new Set([].concat(...ACERVO_SECTIONS.map(s => s.keys)))]
+        .filter(key => !ROSARIO_CORE_KEYS.includes(key));
+
+      // Oração rezada ao final do terço (não é uma conta do rosário)
+      function isOracaoExtra(type) {
+        return ADICIONAL_KEYS.includes(type);
+      }
 
       // Numeração de páginas no estilo de um devocionário impresso.
       // Calculada a partir do tamanho de cada oração: entradas curtas dividem
@@ -1503,7 +1511,6 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       );
       let acervoOpen = false;
       let selectedAcervoPrayer = 'espirito-santo';
-      let acervoMode = 'oracao';
       let acervoScreen = 'sumario'; // 'sumario' | 'leitura'
 
       // Estado do Áudio (Cantos Gregorianos)
@@ -1624,8 +1631,8 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         list.push({ id: index++, type: 'agradecimento' });
         list.push({ id: index++, type: 'salve-rainha' });
 
-        // Orações adicionais (opcionais — selecionadas individualmente)
-        ['espirito-santo','sao-jose','sao-miguel'].forEach(key => {
+        // Orações adicionais (qualquer oração do devocionário, na ordem do sumário)
+        ADICIONAL_KEYS.forEach(key => {
           if (oracoesAdicionaisSet.has(key)) list.push({ id: index++, type: key });
         });
 
@@ -2238,17 +2245,10 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             } else if (bead.type === 'agradecimento') {
               title = COMMON_PRAYERS['agradecimento'].title;
               content = COMMON_PRAYERS['agradecimento'].text;
-            } else if (bead.type === 'espirito-santo') {
-              title = COMMON_PRAYERS['espirito-santo'].title;
-              content = COMMON_PRAYERS['espirito-santo'].text;
-              iconHeader = '✥  ✥  ✥';
-            } else if (bead.type === 'sao-jose') {
-              title = COMMON_PRAYERS['sao-jose'].title;
-              content = COMMON_PRAYERS['sao-jose'].text;
-              iconHeader = '✥  ✥  ✥';
-            } else if (bead.type === 'sao-miguel') {
-              title = COMMON_PRAYERS['sao-miguel'].title;
-              content = COMMON_PRAYERS['sao-miguel'].text;
+            } else if (COMMON_PRAYERS[bead.type]) {
+              // Oração do devocionário acrescentada ao final do terço
+              title = COMMON_PRAYERS[bead.type].alt || COMMON_PRAYERS[bead.type].title;
+              content = COMMON_PRAYERS[bead.type].text;
               iconHeader = '✥  ✥  ✥';
             }
 
@@ -2314,7 +2314,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           return type === 'cruz' ? 36
             : (type === 'pai-nosso' || type === 'misterio') ? 30
             : (type === 'salve-rainha') ? 24
-            : (type === 'sinal-da-cruz' || type === 'oferecimento' || type === 'agradecimento' || type === 'espirito-santo' || type === 'sao-jose' || type === 'sao-miguel') ? 14
+            : (type === 'oferecimento' || type === 'agradecimento' || isOracaoExtra(type)) ? 14
             : 26;
         }
 
@@ -2367,7 +2367,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           var p           = calcPos(idx);
           var isActive    = centerId === bead.id;
           var isCruz      = bead.type === 'cruz';
-          var isNonBead   = bead.type === 'sinal-da-cruz' || bead.type === 'oferecimento' || bead.type === 'agradecimento' || bead.type === 'espirito-santo' || bead.type === 'sao-jose' || bead.type === 'sao-miguel';
+          var isNonBead   = bead.type === 'oferecimento' || bead.type === 'agradecimento' || isOracaoExtra(bead.type);
           var isMedalha   = bead.type === 'salve-rainha';
           var sz          = beadSize(bead.type);
           var tfm         = 'translate(' + (p.x + swipeDx) + 'px,' + p.y + 'px) scale(' + p.s + ')';
@@ -2499,7 +2499,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
 
           // Recriar fio antes desta conta (largura = gap entre bordas das contas)
           var prevType = beadsList[idx - 1] && beadsList[idx - 1].type;
-          var prevIsNonBead = prevType === 'sinal-da-cruz' || prevType === 'oferecimento' || prevType === 'agradecimento' || prevType === 'espirito-santo' || prevType === 'sao-jose' || prevType === 'sao-miguel';
+          var prevIsNonBead = prevType === 'oferecimento' || prevType === 'agradecimento' || isOracaoExtra(prevType);
           if (idx > startIdx && !isNonBead && !prevIsNonBead) {
             var pp    = calcPos(idx - 1);
             var beadSz = (beadSize(beadsList[idx - 1].type) + beadSize(bead.type)) / 2;
@@ -3129,7 +3129,6 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           btn.setAttribute('aria-checked', String(enabled));
           knob.style.transform = enabled ? 'translateX(18px)' : 'translateX(0)';
         }
-        renderAcervoDrawerList();
         beadsList = createBeads();
         activeBeadId = 0;
         renderBeads(0, true);
@@ -3142,9 +3141,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       function openAcervo() {
         acervoOpen = true;
         acervoScreen = 'sumario';
-        renderAcervoDrawerList();
         renderAcervoPanel();
-        updateAcervoTabsUI();
         updateAcervoChrome();
         const view = document.getElementById('acervoView');
         view.style.display = 'flex';
@@ -3164,38 +3161,16 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         setTimeout(() => { view.style.display = 'none'; acervoOpen = false; }, 310);
       }
 
-      function openAcervoDrawer() {
-        const overlay = document.getElementById('acervoDrawerOverlay');
-        const drawer = document.getElementById('acervoDrawer');
-        overlay.style.display = 'block';
-        updateAcervoDrawerSelection();
-        requestAnimationFrame(() => {
-          drawer.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
-          drawer.style.transform = 'translateX(0)';
-        });
-      }
-
-      function closeAcervoDrawer() {
-        const overlay = document.getElementById('acervoDrawerOverlay');
-        const drawer = document.getElementById('acervoDrawer');
-        drawer.style.transition = 'transform 0.25s cubic-bezier(0.55,0,1,0.45)';
-        drawer.style.transform = 'translateX(100%)';
-        setTimeout(() => { overlay.style.display = 'none'; }, 260);
-      }
-
       function selectAcervoPrayer(key) {
         selectedAcervoPrayer = key;
         acervoScreen = 'leitura';
-        if (!acervoPrayerHasImage(key)) acervoMode = 'oracao';
-        closeAcervoDrawer();
         updateAcervoChrome();
-        updateAcervoTabsUI();
         renderAcervoPanel();
       }
 
-      function acervoPrayerHasImage(key) {
+      function acervoPrayerImage(key) {
         const item = ACERVO_ITEMS.find(i => i.key === key);
-        return !!(item && item.imageUrl);
+        return (item && item.imageUrl) || '';
       }
 
       // Volta do texto da oração para o sumário; do sumário, fecha o devocionário.
@@ -3213,10 +3188,8 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       function updateAcervoChrome() {
         const isSumario = acervoScreen === 'sumario';
         const backLabel = document.getElementById('acervoBackLabel');
-        const tabs = document.getElementById('acervoTabs');
         const kicker = document.getElementById('acervoHeaderKicker');
         if (backLabel) backLabel.textContent = isSumario ? 'Rosário' : 'Sumário';
-        if (tabs) tabs.style.display = (!isSumario && acervoPrayerHasImage(selectedAcervoPrayer)) ? 'block' : 'none';
         // Cabeçalho de página corrente: seção do devocionário, como num livro
         if (kicker) kicker.textContent = isSumario ? 'meu rosário' : (acervoSectionOf(selectedAcervoPrayer) || 'meu rosário');
       }
@@ -3225,69 +3198,6 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
       function acervoSectionOf(key) {
         const section = ACERVO_SECTIONS.find(s => s.keys.includes(key));
         return section ? section.title : '';
-      }
-
-      function setAcervoMode(mode) {
-        acervoMode = mode;
-        updateAcervoTabsUI();
-        renderAcervoPanel();
-      }
-
-      function updateAcervoTabsUI() {
-        const tabBg = document.getElementById('acervoActiveTabBg');
-        const oBtn = document.getElementById('acervoTabOracao');
-        const iBtn = document.getElementById('acervoTabImagem');
-        if (!tabBg || !oBtn || !iBtn) return;
-        const isOracao = acervoMode === 'oracao';
-        tabBg.style.width = 'calc(50% - 3px)';
-        tabBg.style.left = isOracao ? '1.5px' : 'calc(50% + 1.5px)';
-        oBtn.classList.toggle('text-orange-900', isOracao);
-        oBtn.classList.toggle('text-stone-400', !isOracao);
-        iBtn.classList.toggle('text-orange-900', !isOracao);
-        iBtn.classList.toggle('text-stone-400', isOracao);
-        oBtn.querySelector('svg').classList.toggle('text-orange-600/80', isOracao);
-        oBtn.querySelector('svg').classList.toggle('text-stone-400', !isOracao);
-        iBtn.querySelector('svg').classList.toggle('text-orange-600/80', !isOracao);
-        iBtn.querySelector('svg').classList.toggle('text-stone-400', isOracao);
-      }
-
-      function renderAcervoDrawerList() {
-        const list = document.getElementById('acervoDrawerList');
-        if (!list) return;
-        let html = '';
-        ACERVO_SECTIONS.forEach((section, si) => {
-          html += `<div style="padding:${si===0?'8px':'16px'} 4px 4px;text-align:right;">
-            <span style="font-family:Outfit,serif;font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:#A8A29E;font-weight:500;">${section.title}</span>
-          </div>`;
-          if (section.keys.length === 0) {
-            html += `<p style="font-family:Outfit,serif;font-size:11px;color:#C8C0B8;padding:2px 8px 6px;font-style:italic;text-align:right;">Em breve</p>`;
-          } else {
-            section.keys.forEach(key => {
-              const prayer = COMMON_PRAYERS[key];
-              if (!prayer) return;
-              const sel = key === selectedAcervoPrayer;
-              const isAdic = section.adicional && ADICIONAL_KEYS.includes(key);
-              const adicEnabled = isAdic && oracoesAdicionaisSet.has(key);
-              html += `<button id="acervoItem-${key}" onclick="selectAcervoPrayer('${key}')"
-                style="width:100%;padding:9px 10px;border-radius:12px;border:1px solid ${sel?'#F0C89A':'transparent'};background:${sel?'#FEF6EC':'transparent'};display:flex;align-items:center;justify-content:flex-end;gap:8px;cursor:pointer;text-align:right;transition:background 0.15s;">
-                ${isAdic?`<span style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${adicEnabled?'#D97706':'#D9D3CC'};"></span>`:''}
-                <span style="font-family:Outfit,serif;font-size:13px;font-weight:${sel?'600':'400'};color:#1C0A00;line-height:1.3;">${prayer.alt || prayer.title}</span>
-              </button>`;
-            });
-          }
-        });
-        list.innerHTML = html;
-      }
-
-      function updateAcervoDrawerSelection() {
-        ACERVO_ITEMS.forEach(item => {
-          const btn = document.getElementById(`acervoItem-${item.key}`);
-          if (!btn) return;
-          const active = item.key === selectedAcervoPrayer;
-          btn.classList.toggle('bg-orange-50', active);
-          btn.classList.toggle('border-orange-200', active);
-          btn.classList.toggle('border-transparent', !active);
-        });
       }
 
       // Sumário — índice do devocionário, no estilo de um livro impresso
@@ -3307,10 +3217,9 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             if (!prayer) return;
             const label = prayer.alt || prayer.title;
             const page = DEVOCIONARIO_PAGES[key] || '';
-            const isAdic = section.adicional && ADICIONAL_KEYS.includes(key);
-            const adicOn = isAdic && oracoesAdicionaisSet.has(key);
-            const mark = isAdic
-              ? `<span class="toc-mark" style="background:${adicOn ? '#D97706' : '#D9D3CC'};"></span>`
+            // Ponto ao lado das orações escolhidas para o final do terço
+            const mark = oracoesAdicionaisSet.has(key)
+              ? `<span class="toc-mark" style="background:#D97706;"></span>`
               : '';
             rows += `<button class="toc-row" onclick="selectAcervoPrayer('${key}')">
               ${mark}<span class="toc-label">${label}</span><span class="toc-dots"></span><span class="toc-page">${page}</span>
@@ -3320,7 +3229,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         return `
           <div class="flex flex-col w-full flex-1 min-h-0">
             <div class="flex flex-col items-center pt-2 pb-1 flex-none">
-              <h2 class="font-serif text-orange-950 text-2xl font-medium tracking-wide">Sumário</h2>
+              <h2 class="font-book text-orange-950 text-3xl font-medium tracking-wide">Sumário</h2>
               <div class="text-orange-600/30 text-[9px] tracking-widest font-serif pt-2">✥  ✥  ✥</div>
             </div>
             <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
@@ -3345,7 +3254,6 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           return;
         }
 
-        const item = ACERVO_ITEMS.find(i => i.key === selectedAcervoPrayer);
         const prayer = COMMON_PRAYERS[selectedAcervoPrayer];
         if (!prayer) return;
 
@@ -3353,60 +3261,47 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         panel.classList.add('fade-out');
 
         setTimeout(() => {
-          let layout = '';
-          if (acervoMode === 'imagem' && item && item.imageUrl) {
-            layout = `
-              <div class="flex flex-col items-center justify-between w-full h-full py-8 text-center">
-                <div class="flex flex-col items-center space-y-1">
-                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
-                </div>
-                <div class="relative w-full max-w-xs aspect-[4/5] rounded-sm p-2 bg-stone-100/50 border border-orange-200/40 shadow-inner flex items-center justify-center my-4 overflow-hidden">
-                  <div class="absolute inset-4 border border-orange-950/10 z-20 pointer-events-none"></div>
-                  <span class="absolute top-5 left-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
-                  <span class="absolute top-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
-                  <span class="absolute bottom-5 left-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
-                  <span class="absolute bottom-5 right-5 text-orange-950/30 font-serif text-[10px] select-none z-20">+</span>
-                  <img src="${item.imageUrl}" alt="${prayer.title}" class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]" referrerpolicy="no-referrer" onerror="handleImgError(this)"/>
-                </div>
-                <div class="flex flex-col items-center space-y-1">
-                  <button onclick="openAcervoDrawer()" style="background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; transition:background 0.15s;" onmouseenter="this.style.background='rgba(146,64,14,0.06)'" onmouseleave="this.style.background='none'">
-                    <span class="text-base font-serif font-medium text-orange-950 tracking-wide">${prayer.alt || prayer.title}</span>
-                    <svg style="width:12px; height:12px; color:#92400e; opacity:0.5; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                  </button>
-                </div>
+          const podeAdicionar = ADICIONAL_KEYS.includes(selectedAcervoPrayer);
+          const adicEnabled = podeAdicionar && oracoesAdicionaisSet.has(selectedAcervoPrayer);
+          const adicToggle = podeAdicionar ? `
+            <div style="border-top:1px solid #E9DFCB;margin-top:20px;padding-top:14px;display:flex;align-items:center;justify-content:space-between;text-align:left;">
+              <span style="font-family:Outfit,serif;font-size:12px;color:#78716C;letter-spacing:0.04em;">Rezar ao final do terço</span>
+              <button id="adicionalToggleBtn" onclick="toggleOracaoAdicional('${selectedAcervoPrayer}')" role="switch" aria-checked="${adicEnabled}"
+                style="position:relative;width:44px;height:26px;border-radius:999px;border:none;cursor:pointer;transition:background 0.25s;flex-shrink:0;background:${adicEnabled?'#D97706':'#D1C9BD'};padding:0;">
+                <span id="adicionalToggleKnob" style="position:absolute;top:2.5px;left:2.5px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);transform:${adicEnabled?'translateX(18px)':'translateX(0)'};"></span>
+              </button>
+            </div>` : '';
+
+          // Imagem devocional logo abaixo do texto da oração
+          const imageUrl = acervoPrayerImage(selectedAcervoPrayer);
+          const imagem = imageUrl ? `
+            <div class="pt-4">
+              <div class="relative w-full max-w-[220px] mx-auto aspect-[4/5] rounded-sm p-2 bg-stone-100/50 border border-orange-200/40 shadow-inner overflow-hidden">
+                <div class="absolute inset-4 border border-orange-950/10 z-20 pointer-events-none"></div>
+                <img src="${imageUrl}" alt="${prayer.alt || prayer.title}" class="w-full h-full object-cover grayscale-[20%] opacity-90 brightness-[0.98] contrast-[1.02]" referrerpolicy="no-referrer" onerror="handleImgError(this)"/>
               </div>
-            `;
-          } else {
-            const isAdic = ADICIONAL_KEYS.includes(selectedAcervoPrayer);
-            const adicEnabled = isAdic && oracoesAdicionaisSet.has(selectedAcervoPrayer);
-            const adicToggle = isAdic ? `
-              <div style="border-top:1px solid #E9DFCB;margin-top:16px;padding-top:14px;display:flex;align-items:center;justify-content:space-between;">
-                <span style="font-family:Outfit,serif;font-size:12px;color:#78716C;letter-spacing:0.04em;">Incluir no terço</span>
-                <button id="adicionalToggleBtn" onclick="toggleOracaoAdicional('${selectedAcervoPrayer}')" role="switch" aria-checked="${adicEnabled}"
-                  style="position:relative;width:44px;height:26px;border-radius:999px;border:none;cursor:pointer;transition:background 0.25s;flex-shrink:0;background:${adicEnabled?'#D97706':'#D1C9BD'};padding:0;">
-                  <span id="adicionalToggleKnob" style="position:absolute;top:2.5px;left:2.5px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);transform:${adicEnabled?'translateX(18px)':'translateX(0)'};"></span>
-                </button>
-              </div>` : '';
-            const folio = DEVOCIONARIO_PAGES[selectedAcervoPrayer];
-            layout = `
-              <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
-                <div class="flex flex-col items-center space-y-1 pt-2 pb-3">
-                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
-                </div>
-                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-2" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
-                  <div class="space-y-4 pb-6">
-                    <div class="px-2">
-                      <h3 class="text-[13px] font-serif text-orange-900 font-medium uppercase tracking-widest">${prayer.alt || prayer.title}</h3>
-                      ${prayer.alt ? `<p class="text-[10px] font-serif italic text-stone-400 mt-1.5">${prayer.title}</p>` : ''}
-                    </div>
-                    <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">${prayer.text}</p>
-                    ${adicToggle}
+            </div>` : '';
+
+          const folio = DEVOCIONARIO_PAGES[selectedAcervoPrayer];
+          const layout = `
+            <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
+              <div class="flex flex-col items-center space-y-1 pt-2 pb-3">
+                <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">\u2725  \u2725  \u2725</div>
+              </div>
+              <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-2" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                <div class="space-y-4 pb-6">
+                  <div class="px-2">
+                    <h3 class="text-sm font-book text-orange-900 font-semibold uppercase tracking-[0.12em]">${prayer.alt || prayer.title}</h3>
+                    ${prayer.alt ? `<p class="text-[11px] font-book italic text-stone-400 mt-1.5">${prayer.title}</p>` : ''}
                   </div>
+                  <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">${prayer.text}</p>
+                  ${imagem}
+                  ${adicToggle}
                 </div>
-                <div class="text-[10px] text-orange-700/40 font-serif py-3">${folio ? '—&nbsp;&nbsp;' + folio + '&nbsp;&nbsp;—' : ''}</div>
               </div>
-            `;
-          }
+              <div class="text-[10px] text-orange-700/40 font-serif py-3">${folio ? '\u2014&nbsp;&nbsp;' + folio + '&nbsp;&nbsp;\u2014' : ''}</div>
+            </div>
+          `;
           panel.innerHTML = layout;
           panel.classList.remove('fade-out');
           panel.classList.add('fade-in');
@@ -3960,47 +3855,12 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             <div id="acervoHeaderKicker" class="text-[9px] tracking-[0.14em] uppercase text-stone-400 font-serif leading-tight truncate">meu rosário</div>
             <div class="font-serif text-orange-950 text-base font-semibold leading-tight">Devocionário</div>
           </div>
-          <!-- Direita: Abrir drawer de seleção (secundário) -->
-          <button onclick="openAcervoDrawer()" class="justify-self-end p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Selecionar oração">
-            <svg class="w-4 h-4 text-stone-400/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-          </button>
+          <div class="w-9"></div>
         </div>
       </header>
 
-      <!-- Abas de modo: Oração e Imagem -->
-      <div id="acervoTabs" class="flex-none max-w-xl mx-auto w-full px-4 mb-2 z-20" style="display:none;">
-        <div class="flex justify-between bg-white rounded-2xl shadow-sm p-1.5 border border-stone-100/80 relative">
-          <div id="acervoActiveTabBg" class="absolute top-1.5 bottom-1.5 left-1.5 bg-orange-50 rounded-xl transition-all duration-300 ease-out" style="width: calc(50% - 3px);"></div>
-          <button id="acervoTabOracao" onclick="setAcervoMode('oracao')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 text-orange-900">
-            <span class="flex flex-col items-center gap-1">
-              <svg class="w-4 h-4 text-orange-600/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-              <span class="text-[10px] font-medium tracking-wide uppercase">Oração</span>
-            </span>
-          </button>
-          <button id="acervoTabImagem" onclick="setAcervoMode('imagem')" class="relative flex flex-col items-center justify-center py-2.5 rounded-xl flex-1 transition-colors duration-300 text-stone-400 hover:text-stone-600">
-            <span class="flex flex-col items-center gap-1">
-              <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a1 1 0 011.414 0L16 16m-2-2l1.586-1.586a1 1 0 011.414 0L21 14m-7-4a2 2 0 110-4 2 2 0 010 4z"/></svg>
-              <span class="text-[10px] font-medium tracking-wide uppercase">Imagem</span>
-            </span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Papel principal com marca-página -->
+      <!-- Papel principal -->
       <div style="flex:1; min-height:0; padding:0 12px 12px; overflow:hidden; display:flex; flex-direction:column; align-items:center;">
-
-        <!-- Marca-página: fita com ponta em V sobreposta ao topo do card -->
-        <div style="
-          width: 38px;
-          height: 56px;
-          background: linear-gradient(160deg, #92400e 0%, #78350f 100%);
-          clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
-          margin-bottom: -22px;
-          position: relative;
-          z-index: 20;
-          flex-shrink: 0;
-          filter: drop-shadow(0 3px 8px rgba(120,53,15,0.30));
-        "></div>
 
         <!-- Card de papel -->
         <div class="w-full bg-[#FAF6EE] border border-[#E9DFCB] rounded-2xl book-sheet-shadow relative overflow-hidden flex flex-col" style="flex:1; min-height:0;">
@@ -4011,18 +3871,6 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           <span class="absolute bottom-4 right-4 text-[#D3C7AE]/60 font-serif text-xs font-light select-none pointer-events-none z-10">+</span>
           <div id="acervoPanelContent" class="relative w-full h-full z-10 flex flex-col pt-8 px-7 pb-8 text-center fade-transition fade-in"></div>
         </div>
-      </div>
-    </div>
-
-    <!-- Drawer lateral do Acervo (abre pela direita) -->
-    <div id="acervoDrawerOverlay" style="display:none; position:fixed; inset:0; z-index:60; background:rgba(41,29,20,0.40);" onclick="closeAcervoDrawer()">
-      <div id="acervoDrawer" style="position:absolute; right:0; top:0; bottom:0; width:80%; max-width:300px; background:#FAF6EE; transform:translateX(100%); display:flex; flex-direction:column; overflow:hidden;" onclick="event.stopPropagation()">
-        <div class="px-5 pt-8 pb-4 border-b border-stone-100 flex-shrink-0 text-right">
-          <p class="text-[9px] uppercase tracking-[0.3em] text-stone-400 font-serif mb-1">Devocionário</p>
-          <h3 class="font-serif text-orange-950 text-lg font-medium">Orações</h3>
-        </div>
-        <div id="acervoDrawerList" class="overflow-y-auto hide-scrollbar flex-1 px-3 py-3"></div>
-        <div style="height: env(safe-area-inset-bottom, 8px); flex-shrink:0;"></div>
       </div>
     </div>
 
