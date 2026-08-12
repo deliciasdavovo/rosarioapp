@@ -568,6 +568,8 @@
         },
         oferecimento: {
           title: 'Oferecimento',
+          // Texto rezado no terço (sem o primeiro parágrafo); o texto completo fica no Devocionário
+          textoTerco: 'Divino Jesus, nós Vos oferecemos este rosário que vamos rezar, meditando nos mistérios da nossa Redenção. Concedei-nos, por intercessão da Virgem Maria, Mãe de Deus e nossa Mãe, as virtudes que nos são necessárias para bem rezá-lo e a graça de ganharmos as indulgências desta santa devoção. Oferecemos particularmente, em desagravo dos pecados cometidos contra o Santíssimo Coração de Jesus e Imaculado Coração de Maria, pela paz do mundo, pela conversão dos pecadores, pelas almas do Purgatório, pelas intenções do Santo Padre, pelo aumento e santificação do Clero, pelo nosso vigário, pela santificação das famílias, pelas missões, pelos doentes, pelos agonizantes, por todos aqueles que pediram nossas orações, pelo nosso país e por todas as nossas intenções particulares.\n\nPausa para meditar.',
           text: 'Uno-me a todos os santos que estão no Céu, a todos os justos que estão sobre a Terra, a todas as almas fiéis que estão neste lugar. Uno-me a Vós, meu Jesus, para louvar dignamente Vossa Santa Mãe e a Vós, nela e por Ela. Renuncio a todas as distrações que me vierem durante este Rosário, que quero recitar com modéstia, atenção e devoção, como se fosse o último da minha vida. Nós Vos oferecemos, Trindade Santíssima, este Credo, para honrar os mistérios todos de nossa Fé; este Pai Nosso e estas três Ave-Marias, para honrar a unidade de vossa essência e a trindade de vossas pessoas. Pedimos-Vos uma fé viva, uma esperança firme e uma caridade ardente. Assim seja.\n\nDivino Jesus, nós Vos oferecemos este rosário que vamos rezar, meditando nos mistérios da nossa Redenção. Concedei-nos, por intercessão da Virgem Maria, Mãe de Deus e nossa Mãe, as virtudes que nos são necessárias para bem rezá-lo e a graça de ganharmos as indulgências desta santa devoção. Oferecemos particularmente, em desagravo dos pecados cometidos contra o Santíssimo Coração de Jesus e Imaculado Coração de Maria, pela paz do mundo, pela conversão dos pecadores, pelas almas do Purgatório, pelas intenções do Santo Padre, pelo aumento e santificação do Clero, pelo nosso vigário, pela santificação das famílias, pelas missões, pelos doentes, pelos agonizantes, por todos aqueles que pediram nossas orações, pelo nosso país e por todas as nossas intenções particulares.\n\nPausa para meditar.'
         },
         agradecimento: {
@@ -2025,7 +2027,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
               iconHeader = '✥  ✥  ✥';
             } else if (bead.type === 'oferecimento') {
               title = COMMON_PRAYERS['oferecimento'].title;
-              content = COMMON_PRAYERS['oferecimento'].text;
+              content = COMMON_PRAYERS['oferecimento'].textoTerco;
               iconHeader = '✥  ✥  ✥';
             } else if (bead.type === 'agradecimento') {
               title = COMMON_PRAYERS['agradecimento'].title;
