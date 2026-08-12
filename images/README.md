@@ -72,9 +72,7 @@ recebem nome pela pasta (`assuncao-01.jpg`) e continuam sendo as candidatas a
 substituição por fotos suas — trazê-las para o repositório tira a dependência
 do Cloudinary, mas não resolve a origem delas.
 
-### Pendentes — cards das orações
+### Orações do devocionário
 
-Os 11 cards da aba de orações (Creio, Pai Nosso, Ave Maria, Salve Rainha,
-Glória, Ó Meu Jesus, Oferecimento, Agradecimento, Espírito Santo, São José,
-São Miguel) usam paisagens genéricas do Unsplash, definidas em `ACERVO_ITEMS`
-no `index.html`. Ainda não têm pasta aqui.
+As orações não têm imagem. Havia paisagens genéricas do Unsplash abaixo do
+texto de cada uma, removidas por não terem relação com o que ilustravam.
