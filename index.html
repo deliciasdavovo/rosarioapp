@@ -1385,9 +1385,106 @@
           subtitle: 'Hinos e sequências',
           keys: ['te-deum','veni-creator','pange-lingua','adoro-te-devote','ave-maris-stella']
         },
-        { title: 'Novenas',  subtitle: 'Em breve', keys: [] },
+        { title: 'Novenas',  subtitle: 'Nove dias de oração, um por dia', keys: [], novenas: true },
         { title: 'Terços',   subtitle: 'Em breve', keys: [] }
       ];
+
+      // ————— Novenas —————
+      // Devoção acompanhada: um dia por vez, com o progresso guardado no aparelho.
+      const NOVENAS = [
+        {
+          key: 'nossa-senhora-das-gracas',
+          title: 'Nossa Senhora das Graças',
+          subtitle: 'Medalha Milagrosa — para 27 de novembro',
+          oracaoDiaria: 'Ó Maria concebida sem pecado, rogai por nós que recorremos a vós. (três vezes)\n\nÓ Virgem Imaculada, Mãe de Deus e nossa Mãe, que na Medalha Milagrosa vos mostrastes de mãos abertas, derramando graças sobre a terra: eu venho pedir-vos, com confiança de filho, as graças de que preciso e, acima de todas, a de me converter de coração.\n\nVós que sois a dispensadora dos dons do vosso Filho, não olheis para o que mereço, mas para o que preciso; e alcançai-me aquilo que peço, se for para a glória de Deus e o bem da minha alma. Amém.',
+          dias: [
+            { titulo: 'A Imaculada Conceição', texto: 'Maria foi preservada de toda mancha desde o primeiro instante da sua existência. Deus, que podia tudo, quis para a sua Mãe a beleza sem sombra.\n\nHoje peço a graça de odiar o pecado como Ela o odeia, e de amar a pureza sem tristeza e sem medo.' },
+            { titulo: 'As mãos que derramam graças', texto: 'Na medalha, as mãos de Maria estão abertas e delas descem raios de luz. Ela mesma explicou: são as graças que derramo sobre os que as pedem.\n\nHoje peço a graça de pedir — de não me calar diante de Deus por vergonha, por hábito ou por desânimo.' },
+            { titulo: 'As graças que ninguém pede', texto: 'Alguns raios da medalha não desciam: são as graças que ninguém pediu. Deus tem muito mais para dar do que costumamos querer receber.\n\nHoje peço a graça de alargar o meu coração e de desejar coisas grandes: a santidade, a paz da minha casa, a salvação dos que amo.' },
+            { titulo: 'A oração confiante', texto: 'Ó Maria concebida sem pecado, rogai por nós que recorremos a vós. A oração da medalha é curta porque a confiança não precisa de muitas palavras.\n\nHoje peço a graça de rezar com simplicidade, como quem fala com a própria mãe.' },
+            { titulo: 'A conversão dos pecadores', texto: 'Maria pede sempre a mesma coisa: que os pecadores voltem. Ela não se cansa, e não desiste de ninguém.\n\nHoje peço a conversão de uma pessoa determinada — e a minha própria, que é a mais urgente e a que mais adio.' },
+            { titulo: 'A Igreja e os seus pastores', texto: 'A Virgem apareceu numa hora difícil para a Igreja, e prometeu que o auxílio não faltaria a quem confiasse.\n\nHoje peço pelo Papa, pelos bispos e pelos sacerdotes: que sejam santos, firmes na verdade e mansos com as almas.' },
+            { titulo: 'Os doentes e os que sofrem', texto: 'A Medalha Milagrosa espalhou-se pelo mundo carregada por doentes, aflitos e moribundos, e ficou conhecida pelas curas que trouxe.\n\nHoje peço por quem sofre no corpo e na alma; e pela graça de não desperdiçar a minha própria dor, mas oferecê-la.' },
+            { titulo: 'A família', texto: 'A casa de Nazaré foi o lugar comum onde a santidade cresceu no escondimento.\n\nHoje peço pela minha família: pelos vivos e pelos que já partiram, pelos que estão longe e pelos que estão perto e me custam mais.' },
+            { titulo: 'A perseverança final', texto: 'Toda graça se resume nesta: chegar ao fim nas mãos de Deus.\n\nHoje peço a graça de uma boa morte, precedida de uma boa vida; e ponho desde já a minha última hora nas mãos de Maria, para que Ela esteja lá.' }
+          ]
+        },
+        {
+          key: 'imaculada-conceicao',
+          title: 'A Imaculada Conceição',
+          subtitle: 'De 29 de novembro a 7 de dezembro',
+          oracaoDiaria: 'Ó Maria, concebida sem pecado original, Virgem toda pura desde o primeiro instante:\n\neu vos saúdo como a obra-prima da graça de Deus e vos escolho hoje por minha Mãe e Senhora.\n\nAlcançai-me a pureza do coração, a simplicidade dos olhos e a retidão da intenção; e fazei que, purificado de tudo o que me pesa, eu caminhe com liberdade para o vosso Filho.\n\nTota pulchra es, Maria: toda formosa sois, ó Maria, e a mancha original não há em vós. Amém.',
+          dias: [
+            { titulo: 'O plano de Deus', texto: 'Antes de todos os séculos, Deus pensou numa criatura sem sombra, e essa criatura foi Maria.\n\nHoje peço a graça de crer que também eu fui pensado por Deus, e que a minha vida não é acaso.' },
+            { titulo: 'A vitória sobre a serpente', texto: 'Porei inimizade entre ti e a mulher: a promessa do Éden já apontava para Ela.\n\nHoje peço firmeza contra o mal que me tenta de perto — o meu pecado de sempre, aquele que já sei o nome.' },
+            { titulo: 'Cheia de graça', texto: 'O anjo não a chamou pelo nome, mas pelo que Deus fez nela: cheia de graça.\n\nHoje peço a graça de me deixar encher — de abrir mão daquilo que ocupa em mim o lugar de Deus.' },
+            { titulo: 'O sim', texto: 'Faça-se em mim segundo a vossa palavra. A salvação do mundo esperou por uma resposta livre.\n\nHoje peço a coragem de dizer sim naquela coisa concreta em que venho adiando obedecer.' },
+            { titulo: 'A humildade', texto: 'Olhou para a humildade da sua serva. Deus não olhou méritos, olhou o baixo lugar.\n\nHoje peço a graça de aceitar ser pequeno, e de não medir o meu valor pelos olhos dos outros.' },
+            { titulo: 'A pureza', texto: 'A pureza de Maria não é frieza: é um coração inteiro, sem divisões.\n\nHoje peço pureza no que vejo, no que falo e no que desejo; e a coragem de cortar o que me suja.' },
+            { titulo: 'A fé na provação', texto: 'Ela creu, e por isso guardou tudo no coração, mesmo o que não entendia — inclusive junto à cruz.\n\nHoje peço fé para o que não entendo na minha vida, e paciência para esperar a explicação de Deus.' },
+            { titulo: 'Mãe da Igreja', texto: 'Do alto da cruz, Jesus a deu por Mãe a todos nós, na pessoa de João.\n\nHoje peço pela Igreja inteira, e pela graça de amá-la como filho, mesmo quando ela me decepciona.' },
+            { titulo: 'Consagração', texto: 'Quem se dá a Maria não se perde: Ela conduz sempre a Jesus.\n\nHoje me entrego a Ela sem reservas — a minha memória, a minha vontade, o meu corpo, os meus dias — e peço que Ela guarde isto até o fim.' }
+          ]
+        },
+        {
+          key: 'sao-jose',
+          title: 'A São José',
+          subtitle: 'De 10 a 18 de março',
+          oracaoDiaria: 'Ó glorioso São José, pai adotivo de Jesus e castíssimo esposo de Maria:\n\neu me coloco hoje sob a vossa proteção. Vós, que fostes escolhido para guardar os dois maiores tesouros do céu, guardai também a minha alma, a minha casa e o meu trabalho.\n\nAlcançai-me a graça que nesta novena vos peço, se for para a glória de Deus; e, se não for, alcançai-me algo melhor, que eu não sei pedir.\n\nSão José, pai e senhor, rogai por nós. Amém.',
+          dias: [
+            { titulo: 'O homem justo', texto: 'José era justo — e a sua justiça foi feita de silêncio e de misericórdia.\n\nHoje peço a graça de ser justo sem ser duro, e de calar o que não edifica.' },
+            { titulo: 'A obediência no escuro', texto: 'O anjo falou em sonhos, e ele levantou-se e partiu, sem discutir e sem entender tudo.\n\nHoje peço a graça de obedecer depressa, mesmo quando o caminho não está claro.' },
+            { titulo: 'O esposo', texto: 'Guardou Maria com um amor casto e inteiro, e a sua fidelidade não teve testemunhas.\n\nHoje peço fidelidade no que ninguém vê: nos compromissos assumidos, nos afetos, nas pequenas lealdades.' },
+            { titulo: 'O pai', texto: 'Jesus aprendeu com ele a trabalhar, a rezar e a ser homem. Chamavam-no o filho do carpinteiro.\n\nHoje peço pelos pais e pelas mães, e pela graça de cuidar de alguém sem esperar reconhecimento.' },
+            { titulo: 'O trabalhador', texto: 'A oficina de Nazaré santificou para sempre o trabalho comum.\n\nHoje peço a graça de trabalhar bem, sem pressa e sem preguiça, oferecendo o cansaço em vez de me queixar dele.' },
+            { titulo: 'A pobreza', texto: 'Não teve casa em Belém, nem segurança no Egito, e nunca reclamou.\n\nHoje peço desprendimento: das coisas que tenho, das que quero e da vontade de controlar tudo.' },
+            { titulo: 'O guardião', texto: 'Levantou-se de noite, tomou o Menino e sua Mãe e fugiu. A sua vida foi feita de proteger.\n\nHoje peço proteção para os que estão sob minha responsabilidade e para os que ninguém protege.' },
+            { titulo: 'O silêncio', texto: 'O Evangelho não guarda uma só palavra sua. Ele fala pelas obras.\n\nHoje peço a graça do silêncio interior: menos ruído, menos julgamento, mais escuta.' },
+            { titulo: 'A boa morte', texto: 'Morreu nos braços de Jesus e de Maria — e por isso é o padroeiro dos que partem.\n\nHoje peço a graça de morrer assim, acompanhado; e peço pelos que hoje agonizam sozinhos.' }
+          ]
+        },
+        {
+          key: 'sao-miguel-arcanjo',
+          title: 'A São Miguel Arcanjo',
+          subtitle: 'De 20 a 28 de setembro',
+          oracaoDiaria: 'São Miguel Arcanjo, defendei-nos no combate; sede o nosso refúgio contra as maldades e ciladas do demônio.\n\nQue Deus o repreenda, assim o pedimos humildemente; e vós, Príncipe da Milícia Celestial, pelo poder divino, precipitai no inferno a Satanás e aos outros espíritos malignos que andam pelo mundo para perder as almas.\n\nÓ glorioso São Miguel, alcançai-me nesta novena a firmeza de quem escolheu Deus para sempre, e a graça que hoje vos peço. Amém.',
+          dias: [
+            { titulo: 'Quem como Deus?', texto: 'O nome de Miguel é uma pergunta e um grito de guerra: quem é como Deus?\n\nHoje peço a graça de pôr Deus no primeiro lugar, tirando de lá o que ando adorando sem perceber.' },
+            { titulo: 'O combate existe', texto: 'A nossa luta não é contra a carne e o sangue, diz São Paulo. Fingir que não há batalha é perder antes de começar.\n\nHoje peço lucidez: reconhecer onde estou sendo atacado e não chamar isso de acaso.' },
+            { titulo: 'A humildade contra a soberba', texto: 'A queda começou por um não quero servir. A vitória de Miguel foi de um servo.\n\nHoje peço a graça de servir sem me sentir diminuído.' },
+            { titulo: 'Guardião da Igreja', texto: 'A Igreja o invoca como seu defensor desde os primeiros séculos.\n\nHoje peço por ela: contra o erro que a confunde e a tibieza que a esvazia.' },
+            { titulo: 'Defensor na tentação', texto: 'O inimigo age na hora do cansaço, da solidão e da pressa.\n\nHoje peço socorro na minha tentação habitual — e a coragem de fugir dela em vez de negociar.' },
+            { titulo: 'A verdade contra a mentira', texto: 'Ele é chamado pai da mentira: engana prometendo liberdade e entrega escravidão.\n\nHoje peço amor à verdade, sobretudo sobre mim mesmo, e o fim das desculpas que conto a mim.' },
+            { titulo: 'Companheiro dos que sofrem', texto: 'A tradição vê em Miguel o que conduz as almas e as apresenta a Deus.\n\nHoje peço pelos que estão em desespero, e pelos que hoje serão tentados a desistir da vida.' },
+            { titulo: 'As almas do purgatório', texto: 'Que o porta-estandarte São Miguel as conduza à luz santa, reza a Igreja pelos defuntos.\n\nHoje ofereço esta novena pelas almas mais esquecidas, das quais ninguém se lembra.' },
+            { titulo: 'A última hora', texto: 'O combate termina na hora da morte, e ninguém o vence sozinho.\n\nHoje peço a São Miguel que esteja ao meu lado nesse dia, e que eu não chegue lá sem ter escolhido Deus mil vezes antes.' }
+          ]
+        },
+        {
+          key: 'sagrado-coracao',
+          title: 'Ao Sagrado Coração de Jesus',
+          subtitle: 'Para a festa do Sagrado Coração',
+          oracaoDiaria: 'Ó Sagrado Coração de Jesus, fornalha ardente de caridade, eu vos adoro e vos amo.\n\nVós dissestes: pedi e recebereis. Cheio de confiança na vossa palavra, venho durante estes nove dias bater à porta do vosso Coração aberto.\n\nDai-me aquilo que vos peço, se for para a minha salvação; e dai-me, em todo caso, um coração semelhante ao vosso: manso, humilde, paciente e ardente de amor.\n\nSagrado Coração de Jesus, eu confio em Vós. Amém.',
+          dias: [
+            { titulo: 'O Coração aberto', texto: 'A lança abriu no lado de Cristo uma porta que nunca mais se fechou.\n\nHoje peço a graça de entrar por essa porta com o que trago de pior, sem esconder nada.' },
+            { titulo: 'Manso e humilde', texto: 'Aprendei de mim, que sou manso e humilde de coração.\n\nHoje peço mansidão na palavra: com quem me irrita, com quem depende de mim e comigo mesmo.' },
+            { titulo: 'O amor não correspondido', texto: 'Eis o Coração que tanto amou os homens e recebe em troca tanta indiferença.\n\nHoje peço a graça de reparar com pequenos atos de amor aquilo que outros não dão.' },
+            { titulo: 'A confiança', texto: 'Vinde a mim todos os que estais cansados e sobrecarregados.\n\nHoje entrego uma preocupação determinada, e peço para não a retomar depois de a ter entregue.' },
+            { titulo: 'A misericórdia', texto: 'Ele não veio chamar os justos, mas os pecadores.\n\nHoje peço perdão pelo que me pesa, e dou perdão àquela pessoa que ainda não perdoei.' },
+            { titulo: 'A Eucaristia', texto: 'O Coração de Jesus permanece nos sacrários, silencioso e acessível.\n\nHoje peço amor à Missa e à comunhão, e o desejo de fazer uma visita ao Santíssimo.' },
+            { titulo: 'A cruz', texto: 'Do Coração ferido nasceu a Igreja; nenhuma dor oferecida é perdida.\n\nHoje peço para carregar a minha cruz de hoje sem drama e sem fuga.' },
+            { titulo: 'O reino do Coração de Jesus', texto: 'Reinarei pelo meu Coração, prometeu Ele.\n\nHoje peço que Ele reine na minha casa, no meu trabalho e nas decisões que ninguém vê.' },
+            { titulo: 'A entrega', texto: 'A novena termina onde deveria começar tudo: na entrega sem condições.\n\nHoje me consagro ao Sagrado Coração, para ser seu na vida, na morte e na eternidade.' }
+          ]
+        }
+      ];
+
+      // Progresso das novenas — { chave: { inicio: 'AAAA-MM-DD', dias: ['AAAA-MM-DD', ...] } }
+      let novenasData = (() => {
+        try { return JSON.parse(localStorage.getItem('novenas') || '{}'); }
+        catch (e) { return {}; }
+      })();
+      let selectedNovena = null;
 
       // Orações que já fazem parte do terço — as demais podem ser
       // acrescentadas ao final, na ordem em que aparecem no sumário.
@@ -1406,7 +1503,7 @@
 
       function updateDevocionarioCount() {
         const el = document.getElementById('devocionarioCount');
-        if (el) el.textContent = `${TOTAL_ORACOES} orações`;
+        if (el) el.textContent = `${TOTAL_ORACOES} orações · ${NOVENAS.length} novenas`;
       }
 
       // Numeração de páginas no estilo de um devocionário impresso.
@@ -3775,9 +3872,72 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         renderAcervoPanel();
       }
 
+      // ————— Novenas: acompanhamento dia a dia —————
+      function hojeKey() {
+        const d = new Date();
+        return fmtDateKey(d.getFullYear(), d.getMonth(), d.getDate());
+      }
+
+      function diasEntre(a, b) {
+        const pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+        const da = new Date(pa[0], pa[1]-1, pa[2]), db = new Date(pb[0], pb[1]-1, pb[2]);
+        return Math.round((db - da) / 86400000);
+      }
+
+      function salvarNovenas() {
+        localStorage.setItem('novenas', JSON.stringify(novenasData));
+      }
+
+      // Estado de uma novena: quantos dias já foram rezados, se hoje já foi
+      // rezado e em que dia o usuário está.
+      function estadoNovena(key) {
+        const st = novenasData[key];
+        const feitos = st ? st.dias.length : 0;
+        const hoje = hojeKey();
+        const ultimo = feitos ? st.dias[feitos - 1] : null;
+        const rezadaHoje = ultimo === hoje;
+        const concluida = feitos >= 9;
+        // Dia mostrado: o de hoje, ou o último rezado se hoje já foi
+        const diaAtual = concluida ? 9 : (rezadaHoje ? feitos : feitos + 1);
+        const pausa = (!rezadaHoje && !concluida && ultimo) ? diasEntre(ultimo, hoje) : 0;
+        return { iniciada: !!st, feitos, rezadaHoje, concluida, diaAtual, pausa, ultimo };
+      }
+
+      function selectNovena(key) {
+        selectedNovena = key;
+        acervoScreen = 'novena';
+        updateAcervoChrome();
+        renderAcervoPanel();
+      }
+
+      function iniciarNovena(key) {
+        if (!novenasData[key]) novenasData[key] = { inicio: hojeKey(), dias: [] };
+        salvarNovenas();
+        renderAcervoPanel();
+        if (navigator.vibrate) try { navigator.vibrate(20); } catch (e) {}
+      }
+
+      function marcarDiaNovena(key) {
+        const st = novenasData[key];
+        if (!st) return;
+        const hoje = hojeKey();
+        if (st.dias[st.dias.length - 1] === hoje) return;  // um dia por dia
+        if (st.dias.length >= 9) return;
+        st.dias.push(hoje);
+        salvarNovenas();
+        renderAcervoPanel();
+        if (navigator.vibrate) try { navigator.vibrate([20, 20, 60]); } catch (e) {}
+      }
+
+      function reiniciarNovena(key) {
+        novenasData[key] = { inicio: hojeKey(), dias: [] };
+        salvarNovenas();
+        renderAcervoPanel();
+      }
+
       // Volta do texto da oração para o sumário; do sumário, fecha o devocionário.
       function acervoBack() {
-        if (acervoScreen === 'leitura') {
+        if (acervoScreen === 'leitura' || acervoScreen === 'novena') {
           acervoScreen = 'sumario';
           updateAcervoChrome();
           renderAcervoPanel();
@@ -3786,14 +3946,17 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         }
       }
 
-      // Ajusta cabeçalho e abas conforme a tela atual (sumário ou leitura)
+      // Ajusta cabeçalho e abas conforme a tela atual (sumário, leitura ou novena)
       function updateAcervoChrome() {
         const isSumario = acervoScreen === 'sumario';
         const backLabel = document.getElementById('acervoBackLabel');
         const kicker = document.getElementById('acervoHeaderKicker');
         if (backLabel) backLabel.textContent = isSumario ? 'Rosário' : 'Sumário';
         // Cabeçalho de página corrente: seção do devocionário, como num livro
-        if (kicker) kicker.textContent = isSumario ? 'meu rosário' : (acervoSectionOf(selectedAcervoPrayer) || 'meu rosário');
+        let secao = 'meu rosário';
+        if (acervoScreen === 'leitura') secao = acervoSectionOf(selectedAcervoPrayer) || 'meu rosário';
+        else if (acervoScreen === 'novena') secao = 'Novenas';
+        if (kicker) kicker.textContent = isSumario ? 'meu rosário' : secao;
       }
 
       // Seção a que pertence uma oração (primeira ocorrência no sumário)
@@ -3809,6 +3972,20 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           rows += `<div class="toc-section">${section.title}</div>`;
           if (section.subtitle && section.keys.length) {
             rows += `<div class="toc-subtitle">${section.subtitle}</div>`;
+          }
+          // Seção das novenas: em vez do número da página, o progresso dos nove dias
+          if (section.novenas) {
+            NOVENAS.forEach(nov => {
+              const st = estadoNovena(nov.key);
+              const marca = st.concluida
+                ? `<span class="toc-mark" style="background:#15803D;"></span>`
+                : (st.iniciada ? `<span class="toc-mark" style="background:#D97706;"></span>` : '');
+              const progresso = st.concluida ? 'concluída' : (st.iniciada ? st.feitos + '/9' : '9 dias');
+              rows += `<button class="toc-row" onclick="selectNovena('${nov.key}')">
+                ${marca}<span class="toc-label">${nov.title}</span><span class="toc-dots"></span><span class="toc-page">${progresso}</span>
+              </button>`;
+            });
+            return;
           }
           if (!section.keys.length) {
             rows += `<div class="toc-empty">Em breve</div>`;
@@ -3841,6 +4018,83 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         `;
       }
 
+      // Tela da novena — um dia por vez, com o progresso dos nove dias
+      function buildAcervoNovena() {
+        const nov = NOVENAS.find(n => n.key === selectedNovena);
+        if (!nov) return '';
+        const st = estadoNovena(nov.key);
+        const dia = nov.dias[st.diaAtual - 1];
+
+        const pontos = nov.dias.map((_, i) => {
+          const n = i + 1;
+          const feito = n <= st.feitos;
+          const atual = !st.concluida && !st.rezadaHoje && n === st.diaAtual;
+          return `<span aria-label="Dia ${n}" style="width:9px;height:9px;border-radius:50%;flex-shrink:0;background:${feito ? '#D97706' : 'transparent'};border:1px solid ${feito || atual ? '#D97706' : '#D8CDB8'};box-shadow:${atual ? '0 0 0 3px rgba(217,119,6,0.15)' : 'none'};"></span>`;
+        }).join('');
+
+        const aviso = st.pausa > 1
+          ? `<p style="font-family:Outfit,serif;font-size:11.5px;color:#A8998A;font-style:italic;margin-top:10px;">Você parou no dia ${st.feitos} há ${st.pausa} dias. Pode retomar hoje, sem recomeçar.</p>`
+          : '';
+
+        const btn = (label, onclick, tom) => `
+          <button onclick="${onclick}" style="width:100%;padding:13px 16px;border:none;border-radius:14px;cursor:pointer;font-family:Outfit,serif;font-size:13.5px;font-weight:500;letter-spacing:0.02em;background:${tom === 'suave' ? '#F5EFE4' : '#D97706'};color:${tom === 'suave' ? '#8C7E6A' : '#FFFFFF'};box-shadow:${tom === 'suave' ? 'none' : '0 6px 16px -6px rgba(217,119,6,0.55)'};">${label}</button>`;
+
+        let acao;
+        if (!st.iniciada) {
+          acao = btn('Começar a novena', `iniciarNovena('${nov.key}')`);
+        } else if (st.concluida) {
+          acao = `
+            <div style="text-align:center;padding:10px 0 14px;">
+              <div style="font-family:'EB Garamond',Georgia,serif;font-size:14px;color:#15803D;letter-spacing:0.04em;">Novena concluída</div>
+              <div style="font-family:Outfit,serif;font-size:11.5px;color:#A8998A;margin-top:4px;">Nove dias rezados. Que a graça pedida venha na hora de Deus.</div>
+            </div>
+            ${btn('Rezar novamente', `reiniciarNovena('${nov.key}')`, 'suave')}`;
+        } else if (st.rezadaHoje) {
+          acao = `
+            <div style="text-align:center;padding:10px 0 14px;">
+              <div style="font-family:'EB Garamond',Georgia,serif;font-size:14px;color:#B45309;letter-spacing:0.04em;">Dia ${st.feitos} rezado hoje</div>
+              <div style="font-family:Outfit,serif;font-size:11.5px;color:#A8998A;margin-top:4px;">Volte amanhã para o dia ${st.feitos + 1}.</div>
+            </div>`;
+        } else {
+          acao = btn(`Marcar o dia ${st.diaAtual} como rezado`, `marcarDiaNovena('${nov.key}')`);
+        }
+
+        return `
+          <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
+            <div class="flex flex-col items-center space-y-1 pt-2 pb-3">
+              <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
+            </div>
+            <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-2" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+              <div class="space-y-4 pb-6">
+                <div class="px-2">
+                  <h3 class="text-sm font-book text-orange-900 font-semibold uppercase tracking-[0.12em]">${nov.title}</h3>
+                  <p class="text-[11px] font-book italic text-stone-400 mt-1.5">${nov.subtitle}</p>
+                </div>
+
+                <div style="display:flex;align-items:center;justify-content:center;gap:7px;padding:2px 0 4px;">${pontos}</div>
+
+                <div class="px-2">
+                  <div style="font-family:Outfit,serif;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#B9AE9C;">Dia ${st.diaAtual}</div>
+                  <div style="font-family:'EB Garamond',Georgia,serif;font-size:17px;color:#431407;margin-top:2px;">${dia.titulo}</div>
+                </div>
+
+                <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">${dia.texto}</p>
+
+                <div style="border-top:1px solid #E9DFCB;margin-top:18px;padding-top:14px;">
+                  <div style="font-family:Outfit,serif;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#B9AE9C;">Oração de cada dia</div>
+                </div>
+                <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">${nov.oracaoDiaria}</p>
+
+                <div style="border-top:1px solid #E9DFCB;margin-top:20px;padding-top:16px;">
+                  ${acao}
+                  ${aviso}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
       function renderAcervoPanel() {
         const panel = document.getElementById('acervoPanelContent');
         if (!panel) return;
@@ -3850,6 +4104,17 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           panel.classList.add('fade-out');
           setTimeout(() => {
             panel.innerHTML = buildAcervoSumario();
+            panel.classList.remove('fade-out');
+            panel.classList.add('fade-in');
+          }, 250);
+          return;
+        }
+
+        if (acervoScreen === 'novena') {
+          panel.classList.remove('fade-in');
+          panel.classList.add('fade-out');
+          setTimeout(() => {
+            panel.innerHTML = buildAcervoNovena();
             panel.classList.remove('fade-out');
             panel.classList.add('fade-in');
           }, 250);
