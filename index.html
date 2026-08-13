@@ -349,7 +349,23 @@
         height: 84px;
         z-index: 30;
         overflow: visible;
-      "></div>
+      ">
+        <!-- Contagem discreta: em que dezena estamos e qual conta -->
+        <div id="beadCounter" style="
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          text-align: center;
+          font-size: 8.5px;
+          line-height: 10px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: rgba(194,65,12,0.5);
+          pointer-events: none;
+          z-index: 2;
+        "></div>
+      </div>
 
     </div>
 
@@ -2959,10 +2975,9 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           if (!newSet.has(parseInt(w.getAttribute('data-wi')))) beadsContainer.removeChild(w);
         });
 
-        // Remover fios antigos (recriados a cada render)
-        Array.from(beadsContainer.querySelectorAll('.bt')).forEach(function(t) {
-          beadsContainer.removeChild(t);
-        });
+        // Fios visíveis nesta passagem (reaproveitados, para deslizarem junto
+        // com as contas em vez de saltarem para a posição final)
+        var liveThreads = new Set();
 
         // Atualizar ou criar contas visíveis
         for (var idx = startIdx; idx <= endIdx; idx++) {
@@ -2996,6 +3011,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             wrap.style.marginTop  = (-sz / 2) + 'px';
             wrap.style.width      = sz + 'px';
             wrap.style.height     = sz + 'px';
+            wrap.style.zIndex     = '1';
 
             b = document.createElement('div');
             b.className          = 'bb';
@@ -3007,6 +3023,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             b.style.userSelect       = 'none';
             b.style.webkitUserSelect = 'none';
             b.style.borderRadius     = isCruz ? '0' : '50%';
+            b.style.willChange       = 'transform, opacity';
 
             if (isCruz) {
               b.style.background = 'transparent';
@@ -3100,7 +3117,9 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             b.style.boxShadow  = 'none';
           }
 
-          // Recriar fio antes desta conta (largura = gap entre bordas das contas)
+          // Fio antes desta conta (largura = gap entre bordas das contas).
+          // Reaproveitado entre renders e animado com a mesma transição das
+          // contas, para a corda acompanhar o movimento das bolinhas.
           var prevType = beadsList[idx - 1] && beadsList[idx - 1].type;
           var prevIsNonBead = prevType === 'oferecimento' || prevType === 'agradecimento' || isOracaoExtra(prevType);
           if (idx > startIdx && !isNonBead && !prevIsNonBead) {
@@ -3111,23 +3130,73 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             var cx2   = (p.x + pp.x) / 2 + swipeDx;
             var cy2   = (p.y + pp.y) / 2;
             var angle = Math.atan2(p.y - pp.y, p.x - pp.x) * 180 / Math.PI;
+            var ttfm  = 'translate(' + (cx2 - tw / 2) + 'px,' + (cy2 - 0.75) + 'px) rotate(' + angle + 'deg)';
 
-            var thread = document.createElement('div');
-            thread.className           = 'bt';
-            thread.style.position      = 'absolute';
-            thread.style.left          = '50%';
-            thread.style.top           = '50%';
-            thread.style.width         = tw + 'px';
-            thread.style.height        = '1.5px';
-            thread.style.background    = 'rgba(234,88,12,0.38)';
-            thread.style.borderRadius  = '1px';
-            thread.style.pointerEvents = 'none';
-            thread.style.transform     = 'translate(' + (cx2 - tw / 2) + 'px,' + (cy2 - 0.75) + 'px) rotate(' + angle + 'deg)';
-            thread.style.transformOrigin = '50% 50%';
-            beadsContainer.appendChild(thread);
+            var thread = beadsContainer.querySelector('.bt[data-ti="' + idx + '"]');
+            if (thread) {
+              // Fio já existente: desliza para a nova posição
+              if (thread.style.width !== tw + 'px') thread.style.width = tw + 'px';
+              thread.style.transition = instant ? 'none' : EASE;
+              thread.style.transform  = ttfm;
+            } else {
+              // Fio novo: entra já posicionado (sem animação de entrada)
+              thread = document.createElement('div');
+              thread.className           = 'bt';
+              thread.setAttribute('data-ti', String(idx));
+              thread.style.position      = 'absolute';
+              thread.style.left          = '50%';
+              thread.style.top           = '50%';
+              thread.style.width         = tw + 'px';
+              thread.style.height        = '1.5px';
+              thread.style.background    = 'rgba(234,88,12,0.38)';
+              thread.style.borderRadius  = '1px';
+              thread.style.pointerEvents = 'none';
+              thread.style.zIndex        = '0';
+              thread.style.willChange    = 'transform';
+              thread.style.transform     = ttfm;
+              thread.style.transformOrigin = '50% 50%';
+              beadsContainer.appendChild(thread);
+            }
+            thread.style.opacity = String(Math.min(p.o, pp.o));
+            liveThreads.add(idx);
           }
         }
 
+        // Remover fios que saíram da janela
+        Array.from(beadsContainer.querySelectorAll('.bt')).forEach(function(t) {
+          if (!liveThreads.has(parseInt(t.getAttribute('data-ti')))) beadsContainer.removeChild(t);
+        });
+
+        updateBeadCounter(centerId);
+      }
+
+      // Contagem discreta acima do terço: em que dezena estamos e em que conta
+      function beadCounterText(bead) {
+        if (!bead) return '';
+        if (bead.type === 'cruz') return 'Credo';
+        if (bead.type === 'sinal-da-cruz') return 'Sinal da Cruz';
+        if (bead.type === 'oferecimento') return 'Oferecimento';
+        if (bead.type === 'agradecimento') return 'Agradecimento';
+        if (bead.type === 'salve-rainha') return 'Salve-Rainha';
+        if (bead.type === 'pai-nosso' && bead.mysteryIndex === undefined) return 'Introdução · Pai-Nosso';
+        if (bead.type === 'ave-maria' && bead.introIndex !== undefined) return 'Introdução · ' + (bead.introIndex + 1) + '/3';
+        if (bead.type === 'misterio') return (bead.mysteryIndex + 1) + 'ª dezena · Pai-Nosso';
+        if (bead.type === 'ave-maria' && bead.mysteryIndex !== undefined) {
+          return (bead.mysteryIndex + 1) + 'ª dezena · ' + (bead.beadIndex + 1) + '/10';
+        }
+        if (isOracaoExtra(bead.type)) {
+          var extras = beadsList.filter(function(b) { return isOracaoExtra(b.type); });
+          if (extras.length > 1) return 'Oração final · ' + (extras.indexOf(bead) + 1) + '/' + extras.length;
+        }
+        return 'Oração final';
+      }
+
+      function updateBeadCounter(centerId) {
+        var el = document.getElementById('beadCounter');
+        if (!el) return;
+        var bead = beadsList.find(function(b) { return b.id === centerId; });
+        var txt = beadCounterText(bead);
+        if (el.textContent !== txt) el.textContent = txt;
       }
 
       function centerBead(id) { /* no-op */ }
@@ -3475,6 +3544,9 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         bc.style.position = 'fixed';
         bc.style.zIndex = '210';
         bc.style.pointerEvents = 'none';
+        // Sobre a imagem escura, a contagem precisa de um tom claro
+        const bcnt = document.getElementById('beadCounter');
+        if (bcnt) bcnt.style.color = 'rgba(255,214,170,0.72)';
         overlay.style.display = 'block';
         renderFullscreenImage();
         requestAnimationFrame(function() {
@@ -3496,6 +3568,8 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         bc.style.position = 'absolute';
         bc.style.zIndex = '30';
         bc.style.pointerEvents = '';
+        const bcnt = document.getElementById('beadCounter');
+        if (bcnt) bcnt.style.color = 'rgba(194,65,12,0.5)';
         const overlay = document.getElementById('imageFullscreenOverlay');
         overlay.style.opacity = '0';
         setTimeout(function() { overlay.style.display = 'none'; }, 310);
