@@ -2336,11 +2336,19 @@
       }
 
       // Renderizar Painel Devocional Central
-      function renderPanel() {
-        panelContent.classList.add('fade-out');
-        panelContent.classList.remove('fade-in');
+      let panelRenderTimer = null;
+      function renderPanel(instant) {
+        instant = !!instant;
+        if (panelRenderTimer) clearTimeout(panelRenderTimer);
+        if (instant) {
+          panelContent.classList.remove('fade-out');
+          panelContent.classList.add('fade-in');
+        } else {
+          panelContent.classList.add('fade-out');
+          panelContent.classList.remove('fade-in');
+        }
 
-        setTimeout(() => {
+        panelRenderTimer = setTimeout(() => {
           const mSet = MYSTERY_SETS[getMysterySetIdForDay(selectedDay)];
           const bead = beadsList[activeBeadId];
           const isMystery = bead.mysteryIndex !== undefined;
@@ -2764,7 +2772,8 @@
           panelContent.classList.remove('fade-out');
           panelContent.classList.add('fade-in');
           if (isImageFullscreen) renderFullscreenImage();
-        }, 300);
+          panelRenderTimer = null;
+        }, instant ? 0 : 300);
       }
 
       // Gerar/atualizar contas com transições suaves (DOM diff, sem limpar innerHTML)
@@ -3069,6 +3078,22 @@
         } catch (e) {}
       }
 
+      function navigateOneBead(direction) {
+        var currentIdx = beadsList.findIndex(function(item) { return item.id === activeBeadId; });
+        var targetIdx = currentIdx + direction;
+        if (targetIdx < 0 || targetIdx >= beadsList.length) return false;
+
+        var prevKey = getPanelKey(activeBeadId);
+        activeBeadId = beadsList[targetIdx].id;
+        hapticBeadChange('bead');
+        renderBeads(0, false);
+        if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
+        saveBeadState();
+        if (isImageFullscreen) renderFullscreenImage();
+        _checkRosaryComplete();
+        return true;
+      }
+
       function activeMysteryPosition() {
         var bead = beadsList.find(function(item) { return item.id === activeBeadId; });
         if (bead && typeof bead.mysteryIndex === 'number') return bead.mysteryIndex;
@@ -3094,7 +3119,7 @@
         });
       }
 
-      function navigateMysteryBySwipe(direction) {
+      function navigateMysteryBySwipe(direction, instantPanel) {
         var targetIdx = targetMysteryEntryIndex(direction);
         if (targetIdx < 0) return false;
 
@@ -3105,37 +3130,130 @@
         activeBeadId = newId;
         hapticBeadChange('mystery');
         renderBeads(0, false);
-        if (getPanelKey(activeBeadId) !== prevKey) renderPanel();
+        if (getPanelKey(activeBeadId) !== prevKey) renderPanel(!!instantPanel);
         saveBeadState();
         if (isImageFullscreen) renderFullscreenImage();
         _checkRosaryComplete();
         return true;
       }
 
-      // Arrastar horizontalmente troca o mistério inteiro; tocar numa conta
-      // continua selecionando apenas aquela oração.
+      // Toque curto: uma conta. Arrasto horizontal: um mistério inteiro,
+      // com a folha acompanhando o dedo como uma página de livro.
       function addSwipeNavigation() {
         var el = document.getElementById('mainWrapper');
         var panel = document.getElementById('mainContent');
-        var startX = 0, startY = 0, lastX = 0, lastT = 0;
+        var startX = 0, startY = 0, startT = 0, lastX = 0, lastT = 0;
         var velocityX = 0;
         var dragging = false;
+        var turning = false;
         var axis = '';
         var disabled = false;
+        var touchTarget = null;
+        var underlay = null;
 
         el.style.touchAction = 'pan-y';
+        el.style.perspective = '1200px';
+
+        function removeUnderlay(delay) {
+          var page = underlay;
+          underlay = null;
+          if (!page) return;
+          page.style.opacity = '0';
+          setTimeout(function() {
+            if (page.parentNode) page.parentNode.removeChild(page);
+          }, delay || 220);
+        }
+
+        function ensureUnderlay() {
+          if (underlay) return underlay;
+          underlay = document.createElement('div');
+          underlay.setAttribute('aria-hidden', 'true');
+          underlay.style.cssText = [
+            'position:absolute', 'inset:12px', 'z-index:8',
+            'border-radius:16px', 'overflow:hidden',
+            'background:#FAF6EE', 'border:1px solid #E9DFCB',
+            'box-shadow:inset 0 1px 3px rgba(255,255,255,.85),0 12px 28px -12px rgba(50,30,14,.22)',
+            'opacity:0', 'transform:scale(.985)',
+            'transition:opacity .12s ease,transform .12s ease',
+            'pointer-events:none'
+          ].join(';');
+          underlay.innerHTML = '<div style="position:absolute;inset:12px;border:1px solid rgba(231,222,204,.7);border-radius:12px"></div>';
+          el.insertBefore(underlay, panel);
+          requestAnimationFrame(function() {
+            if (underlay) underlay.style.opacity = '1';
+          });
+          return underlay;
+        }
+
+        function clearPanelMotion(delay) {
+          panel.style.transition = 'transform .28s cubic-bezier(.22,.75,.24,1), opacity .22s ease, filter .22s ease';
+          panel.style.transform = '';
+          panel.style.opacity = '';
+          panel.style.filter = '';
+          setTimeout(function() {
+            panel.style.transition = '';
+            panel.style.transformOrigin = '';
+            panel.style.willChange = '';
+          }, 300);
+          removeUnderlay(delay || 220);
+        }
+
+        function completePageTurn(direction) {
+          if (turning) return;
+          turning = true;
+
+          var exitX = (direction > 0 ? -1 : 1) * Math.max(window.innerWidth * 1.08, 420);
+          panel.style.transition = 'transform .22s cubic-bezier(.55,.05,.68,.53), opacity .2s ease';
+          panel.style.transformOrigin = direction > 0 ? 'left center' : 'right center';
+          panel.style.transform = 'translate3d(' + exitX + 'px,0,0) rotateY(' + (direction > 0 ? -5 : 5) + 'deg)';
+          panel.style.opacity = '.92';
+
+          setTimeout(function() {
+            var changed = navigateMysteryBySwipe(direction, true);
+            if (!changed) {
+              turning = false;
+              clearPanelMotion(180);
+              renderBeads(0, false);
+              return;
+            }
+
+            var enterX = (direction > 0 ? 1 : -1) * Math.max(window.innerWidth * .92, 360);
+            panel.style.transition = 'none';
+            panel.style.transformOrigin = direction > 0 ? 'right center' : 'left center';
+            panel.style.transform = 'translate3d(' + enterX + 'px,0,0) rotateY(' + (direction > 0 ? 4 : -4) + 'deg)';
+            panel.style.opacity = '.94';
+            panel.style.filter = 'drop-shadow(' + (direction > 0 ? '-18px' : '18px') + ' 10px 18px rgba(55,35,18,.14))';
+
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() {
+                panel.style.transition = 'transform .34s cubic-bezier(.22,.78,.24,1), opacity .25s ease, filter .3s ease';
+                panel.style.transform = '';
+                panel.style.opacity = '1';
+                panel.style.filter = '';
+              });
+            });
+
+            setTimeout(function() {
+              turning = false;
+              panel.style.transition = '';
+              panel.style.transformOrigin = '';
+              panel.style.willChange = '';
+              removeUnderlay(180);
+            }, 370);
+          }, 225);
+        }
 
         el.addEventListener('touchstart', function(e) {
-          if (e.touches.length !== 1) {
+          if (turning || e.touches.length !== 1) {
             disabled = true;
             return;
           }
 
-          var target = e.target;
-          disabled = !!(target && target.closest('button, a, input, select, textarea'));
+          touchTarget = e.target;
+          disabled = !!(touchTarget && touchTarget.closest('button, a, input, select, textarea'));
           startX = lastX = e.touches[0].clientX;
           startY = e.touches[0].clientY;
-          lastT = Date.now();
+          startT = lastT = Date.now();
           velocityX = 0;
           dragging = false;
           axis = '';
@@ -3143,7 +3261,7 @@
         }, { passive:true });
 
         el.addEventListener('touchmove', function(e) {
-          if (disabled || e.touches.length !== 1) return;
+          if (disabled || turning || e.touches.length !== 1) return;
 
           var cx = e.touches[0].clientX;
           var cy = e.touches[0].clientY;
@@ -3161,19 +3279,26 @@
           lastX = cx;
           lastT = now;
 
-          var preview = Math.max(-96, Math.min(96, dx));
-          renderBeads(preview * 0.18, true, activeBeadId);
-          panel.style.transition = 'none';
-          panel.style.transform = 'translateX(' + (preview * 0.12) + 'px)';
-          panel.style.opacity = String(1 - Math.min(0.08, Math.abs(preview) / 1200));
-        }, { passive:true });
+          var direction = dx < 0 ? 1 : -1;
+          var hasTarget = targetMysteryEntryIndex(direction) >= 0;
+          var pageDx = Math.max(-window.innerWidth * .92, Math.min(window.innerWidth * .92, dx));
+          if (!hasTarget) pageDx *= .22;
 
-        function restorePreview() {
-          panel.style.transition = 'transform .24s ease, opacity .24s ease';
-          panel.style.transform = '';
-          panel.style.opacity = '';
-          setTimeout(function() { panel.style.transition = ''; }, 250);
-        }
+          if (hasTarget) {
+            var pageUnder = ensureUnderlay();
+            var progress = Math.min(1, Math.abs(pageDx) / Math.max(1, window.innerWidth * .72));
+            pageUnder.style.transform = 'scale(' + (.985 + progress * .015) + ')';
+            pageUnder.style.opacity = String(.45 + progress * .55);
+          }
+
+          var angle = Math.min(5, Math.abs(pageDx) / Math.max(1, window.innerWidth) * 6);
+          panel.style.willChange = 'transform';
+          panel.style.transition = 'none';
+          panel.style.transformOrigin = pageDx < 0 ? 'left center' : 'right center';
+          panel.style.transform = 'translate3d(' + pageDx + 'px,0,0) rotateY(' + (pageDx < 0 ? -angle : angle) + 'deg)';
+          panel.style.filter = 'drop-shadow(' + (pageDx < 0 ? '-16px' : '16px') + ' 8px 16px rgba(55,35,18,.13))';
+          renderBeads(pageDx * .08, true, activeBeadId);
+        }, { passive:true });
 
         function onEnd(e) {
           if (disabled) {
@@ -3181,20 +3306,30 @@
             return;
           }
 
-          var endX = e.changedTouches && e.changedTouches[0]
-            ? e.changedTouches[0].clientX
-            : lastX;
+          var endX = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX : lastX;
+          var endY = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : startY;
           var dx = endX - startX;
-          var qualifies = dragging && (
-            Math.abs(dx) >= 48 ||
-            (Math.abs(dx) >= 22 && Math.abs(velocityX) >= 0.45)
+          var dy = endY - startY;
+          var elapsed = Date.now() - startT;
+          var isTap = !dragging && Math.abs(dx) < 10 && Math.abs(dy) < 10 && elapsed < 420;
+
+          if (isTap) {
+            var touchedBead = touchTarget && touchTarget.closest('.bw');
+            if (!touchedBead) navigateOneBead(endX < window.innerWidth / 2 ? -1 : 1);
+            axis = '';
+            return;
+          }
+
+          var direction = dx < 0 ? 1 : -1;
+          var qualifies = dragging && targetMysteryEntryIndex(direction) >= 0 && (
+            Math.abs(dx) >= Math.min(82, window.innerWidth * .2) ||
+            (Math.abs(dx) >= 28 && Math.abs(velocityX) >= .48)
           );
 
-          restorePreview();
-
           if (qualifies) {
-            navigateMysteryBySwipe(dx < 0 ? 1 : -1);
+            completePageTurn(direction);
           } else if (dragging) {
+            clearPanelMotion(180);
             renderBeads(0, false);
           }
 
@@ -3205,7 +3340,7 @@
         el.addEventListener('touchend', onEnd, { passive:true });
         el.addEventListener('touchcancel', function() {
           if (dragging) {
-            restorePreview();
+            clearPanelMotion(180);
             renderBeads(0, false);
           }
           dragging = false;
@@ -3473,11 +3608,12 @@
 
       function addFullscreenNavigation() {
         var overlay = document.getElementById('imageFullscreenOverlay');
-        var startX = 0, startY = 0, lastX = 0, lastT = 0;
+        var startX = 0, startY = 0, startT = 0, lastX = 0, lastT = 0;
         var velocityX = 0;
         var dragging = false;
         var axis = '';
         var disabled = false;
+        var touchTarget = null;
 
         overlay.style.touchAction = 'pan-y';
 
@@ -3488,9 +3624,10 @@
           }
 
           disabled = false;
+          touchTarget = e.target;
           startX = lastX = e.touches[0].clientX;
           startY = e.touches[0].clientY;
-          lastT = Date.now();
+          startT = lastT = Date.now();
           velocityX = 0;
           dragging = false;
           axis = '';
@@ -3528,7 +3665,21 @@
           var endX = e.changedTouches && e.changedTouches[0]
             ? e.changedTouches[0].clientX
             : lastX;
+          var endY = e.changedTouches && e.changedTouches[0]
+            ? e.changedTouches[0].clientY
+            : startY;
           var dx = endX - startX;
+          var dy = endY - startY;
+          var elapsed = Date.now() - startT;
+          var isTap = !dragging && Math.abs(dx) < 10 && Math.abs(dy) < 10 && elapsed < 420;
+
+          if (isTap) {
+            var touchedBead = touchTarget && touchTarget.closest('.bw');
+            if (!touchedBead) navigateOneBead(endX < window.innerWidth / 2 ? -1 : 1);
+            axis = '';
+            return;
+          }
+
           var qualifies = dragging && (
             Math.abs(dx) >= 48 ||
             (Math.abs(dx) >= 22 && Math.abs(velocityX) >= 0.45)
