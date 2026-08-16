@@ -4527,26 +4527,29 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         const streak = calcStreak();
         const totalRosas = rosasData.size;
 
-        // Card de sequência (streak)
+        // Card de total acumulado e sequência
         const streakCardEl = document.getElementById('habitsStreakCard');
         if (streakCardEl) {
+          const totalLabel = totalRosas === 1
+            ? 'rosa oferecida a Maria'
+            : 'rosas oferecidas a Maria';
           const streakLabel = streak.current === 0
-            ? 'Comece hoje'
-            : streak.current === 1
-              ? '1 dia seguido'
-              : streak.current + ' dias seguidos';
+            ? 'sem sequência'
+            : streak.current === 1 ? 'dia seguido' : 'dias seguidos';
+          const bestLabel = streak.best === 1 ? 'dia' : 'dias';
           streakCardEl.innerHTML = `
             <div style="display:flex;align-items:center;gap:14px;">
               <div style="flex-shrink:0;width:44px;height:44px;background:#BE123C;border-radius:14px;display:flex;align-items:center;justify-content:center;">
                 ${ROSE_TOP_SVG_LG}
               </div>
               <div style="flex:1;">
-                <div style="font-family:Outfit,serif;font-size:18px;font-weight:700;color:#1C0A00;line-height:1.1;">${streak.current === 0 ? '—' : streak.current}</div>
-                <div style="font-family:Outfit,serif;font-size:11px;color:#9F1239;font-weight:500;letter-spacing:0.04em;">${streakLabel}</div>
+                <div style="font-family:Outfit,serif;font-size:20px;font-weight:700;color:#1C0A00;line-height:1.1;">${totalRosas}</div>
+                <div style="font-family:Outfit,serif;font-size:11px;color:#9F1239;font-weight:500;letter-spacing:0.02em;">${totalLabel}</div>
               </div>
               <div style="text-align:right;">
-                <div style="font-family:Outfit,serif;font-size:13px;font-weight:600;color:#78716C;">${streak.best}</div>
-                <div style="font-family:Outfit,serif;font-size:10px;color:#A8A29E;letter-spacing:0.03em;">melhor</div>
+                <div style="font-family:Outfit,serif;font-size:15px;font-weight:700;color:#78716C;line-height:1.1;">${streak.current === 0 ? '—' : streak.current}</div>
+                <div style="font-family:Outfit,serif;font-size:10px;color:#A8A29E;letter-spacing:0.03em;">${streakLabel}</div>
+                <div style="font-family:Outfit,serif;font-size:9px;color:#C0B8B0;margin-top:3px;">melhor: ${streak.best} ${bestLabel}</div>
               </div>
             </div>`;
         }
@@ -4836,7 +4839,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
             </button>
           </div>
 
-          <!-- Card de sequência -->
+          <!-- Card de total acumulado e sequência -->
           <div id="habitsStreakCard" style="background:white;border-radius:18px;padding:14px 16px;margin:0 4px 14px;border:1px solid #EDE8E0;box-shadow:0 1px 4px rgba(0,0,0,0.06);"></div>
 
           <!-- Grade do calendário (injetada via JS) -->
