@@ -15,7 +15,7 @@
     <!-- Google Fonts: Inter & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&family=EB+Garamond:wght@600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS para estilização moderna e limpa -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -51,10 +51,6 @@
         -webkit-user-select: none;
         -webkit-touch-callout: none;
       }
-      /* Serif de livro, para os títulos do devocionário */
-      .font-book {
-        font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
-      }
       /* ————— Sumário do devocionário (estilo livro impresso) ————— */
       .toc-list {
         text-align: left;
@@ -73,8 +69,8 @@
         margin-top: 4px;
       }
       .toc-subtitle {
-        font-family: 'EB Garamond', Georgia, serif;
-        font-size: 11.5px;
+        font-family: Outfit, serif;
+        font-size: 10px;
         font-style: italic;
         letter-spacing: 0.02em;
         color: #B9AE9C;
@@ -4082,7 +4078,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         return `
           <div class="flex flex-col w-full flex-1 min-h-0">
             <div class="flex flex-col items-center pt-2 pb-1 flex-none">
-              <h2 class="font-book text-orange-950 text-3xl font-medium tracking-wide">Sumário</h2>
+              <h2 class="font-serif text-orange-950 text-2xl font-medium tracking-wide">Sumário</h2>
               <div class="text-orange-600/30 text-[9px] tracking-widest font-serif pt-2">✥  ✥  ✥</div>
             </div>
             <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
@@ -4222,8 +4218,8 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
               <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-2" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
                 <div class="space-y-4 pb-6">
                   <div class="px-2">
-                    <h3 class="text-sm font-book text-orange-900 font-semibold uppercase tracking-[0.12em]">${prayer.alt || prayer.title}</h3>
-                    ${prayer.alt ? `<p class="text-[11px] font-book italic text-stone-400 mt-1.5">${prayer.title}</p>` : ''}
+                    <h3 class="text-[13px] font-serif text-orange-900 font-medium uppercase tracking-widest">${prayer.alt || prayer.title}</h3>
+                    ${prayer.alt ? `<p class="text-[10px] font-serif italic text-stone-400 mt-1.5">${prayer.title}</p>` : ''}
                   </div>
                   <p class="text-base text-stone-700 font-serif font-light leading-relaxed whitespace-pre-line tracking-wide">${prayer.text}</p>
                   ${adicToggle}
