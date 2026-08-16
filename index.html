@@ -350,7 +350,7 @@
         z-index: 30;
         overflow: visible;
       ">
-        <!-- Contagem discreta: em que dezena estamos e qual conta -->
+        <!-- Contagem discreta da oração atual -->
         <div id="beadCounter" style="
           position: absolute;
           top: 0;
@@ -2528,7 +2528,9 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           const bead = beadsList[activeBeadId];
           const isMystery = bead.mysteryIndex !== undefined;
           const mystery = isMystery ? mSet.mysteries[bead.mysteryIndex] : null;
-          const fruit = (isMystery) ? mSet.fruits[bead.mysteryIndex] : '';
+          const fruit = isMystery
+            ? (mSet.fruits[bead.mysteryIndex] || '').toLocaleUpperCase('pt-BR')
+            : '';
 
           let layout = '';
 
@@ -2576,7 +2578,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                   <h3 class="text-base font-serif font-medium text-orange-950 tracking-wide">
                     ${mystery.title}
                   </h3>
-                  ${fruit ? `<span class="text-[11px] font-serif tracking-wider text-orange-850/70">Fruto — ${fruit}</span>` : ''}
+                  ${fruit ? `<span class="text-[11px] uppercase font-serif tracking-wider text-orange-850/70">FRUTO — ${fruit}</span>` : ''}
                 </div>
               </div>
             `;
@@ -2598,7 +2600,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                     <h3 class="text-2xl font-serif text-orange-950 font-medium leading-snug tracking-wide">
                       ${mystery.title}
                     </h3>
-                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">Fruto —<span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">FRUTO — <span class="font-semibold">${fruit}</span></div>` : ''}
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     <p class="text-base text-stone-600 font-serif font-light leading-relaxed">
                       "${mystery.curta}"
@@ -2668,7 +2670,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                 <div class="w-full my-auto space-y-5 px-4">
                   <span class="text-xs uppercase tracking-[0.2em] text-orange-650/70 font-semibold block">Contemplação</span>
                   <h3 class="text-2xl font-serif font-light text-stone-800 leading-snug">${mystery.title}</h3>
-                  ${fruit ? `<div class="text-[11px] tracking-wider text-orange-850/70 font-serif">Fruto do Mistério — ${fruit}</div>` : ''}
+                  ${fruit ? `<div class="text-[11px] uppercase tracking-wider text-orange-850/70 font-serif">FRUTO DO MISTÉRIO — ${fruit}</div>` : ''}
                   <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-4"></div>
                   <p class="text-base text-stone-500 font-serif leading-relaxed">${montfortMystery.paiNosso}</p>
                 </div>
@@ -2702,7 +2704,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                 <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
                   <div class="space-y-4 py-2 pb-6">
                     <h3 class="text-2xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
-                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">Fruto —<span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">FRUTO — <span class="font-semibold">${fruit}</span></div>` : ''}
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Sagrada Escritura</span>
@@ -2740,7 +2742,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                 <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
                   <div class="space-y-4 py-2 pb-6">
                     <h3 class="text-2xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
-                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">Fruto —<span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">FRUTO — <span class="font-semibold">${fruit}</span></div>` : ''}
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     <div class="space-y-2 text-center">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Sagrada Escritura</span>
@@ -2778,7 +2780,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                 <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
                   <div class="space-y-4 py-2 pb-6">
                     <h3 class="text-2xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
-                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">Fruto —<span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">FRUTO — <span class="font-semibold">${fruit}</span></div>` : ''}
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     <div class="space-y-2 text-left">
                       <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Sagrada Escritura</span>
@@ -2816,7 +2818,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                 <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
                   <div class="space-y-4 py-2 pb-6">
                     <h3 class="text-2xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
-                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">Fruto —<span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">FRUTO — <span class="font-semibold">${fruit}</span></div>` : ''}
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     ${escrivaMystery.evangelho ? `
                     <div class="space-y-2 text-center">
@@ -2845,7 +2847,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                 <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
                   <div class="space-y-4 py-2 pb-6">
                     <h3 class="text-2xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
-                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">Fruto —<span class="font-semibold lowercase first-letter:uppercase">${fruit}</span></div>` : ''}
+                    ${fruit ? `<div class="text-[11px] uppercase tracking-[0.08em] text-orange-800/80 font-serif">FRUTO — <span class="font-semibold">${fruit}</span></div>` : ''}
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     ${escrivaMystery.evangelho ? `
                     <div class="space-y-2 text-center">
@@ -2905,7 +2907,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
                   <h3 class="text-2xl font-serif font-light text-stone-800 leading-snug">
                     ${mystery.title}
                   </h3>
-                  ${fruit ? `<div class="text-[11px] tracking-wider text-orange-850/70 font-serif">Fruto do Mistério — ${fruit}</div>` : ''}
+                  ${fruit ? `<div class="text-[11px] uppercase tracking-wider text-orange-850/70 font-serif">FRUTO DO MISTÉRIO — ${fruit}</div>` : ''}
                   <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto my-4"></div>
                   <p class="text-base text-stone-500 font-serif leading-relaxed">
                     Pai Nosso, em honra e meditação a este santo mistério.
@@ -3267,7 +3269,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         updateBeadCounter(centerId);
       }
 
-      // Contagem discreta acima do terço: em que dezena estamos e em que conta
+      // Contagem discreta acima do terço, sem repetir o número do mistério
       function beadCounterText(bead) {
         if (!bead) return '';
         if (bead.type === 'cruz') return 'Credo';
@@ -3277,9 +3279,9 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         if (bead.type === 'salve-rainha') return 'Salve-Rainha';
         if (bead.type === 'pai-nosso' && bead.mysteryIndex === undefined) return 'Introdução · Pai-Nosso';
         if (bead.type === 'ave-maria' && bead.introIndex !== undefined) return 'Introdução · ' + (bead.introIndex + 1) + '/3';
-        if (bead.type === 'misterio') return (bead.mysteryIndex + 1) + 'ª dezena · Pai-Nosso';
+        if (bead.type === 'misterio') return 'Pai-Nosso';
         if (bead.type === 'ave-maria' && bead.mysteryIndex !== undefined) {
-          return (bead.mysteryIndex + 1) + 'ª dezena · ' + (bead.beadIndex + 1) + '/10';
+          return (bead.beadIndex + 1) + '/10';
         }
         if (isOracaoExtra(bead.type)) {
           var extras = beadsList.filter(function(b) { return isOracaoExtra(b.type); });
@@ -3525,7 +3527,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
           mysteryIdx = 0;
         }
         const mystery = mSet.mysteries[mysteryIdx];
-        const fruit = mSet.fruits[mysteryIdx] || '';
+        const fruit = (mSet.fruits[mysteryIdx] || '').toLocaleUpperCase('pt-BR');
         if (mysteryIdx !== _fullscreenMysteryIdx) {
           const imgEl = document.getElementById('fullscreenImg');
           const imgSrc = getMysteryImgSrc(mysteryIdx, mystery);
@@ -3554,7 +3556,7 @@ Senhor, que eu não volte a voar pegado à terra, que esteja sempre iluminado pe
         }
         document.getElementById('fullscreenMysteryNum').textContent = 'Mistério ' + (mysteryIdx + 1);
         document.getElementById('fullscreenTitle').textContent = mystery.title;
-        document.getElementById('fullscreenFruit').textContent = fruit ? 'Fruto — ' + fruit : '';
+        document.getElementById('fullscreenFruit').textContent = fruit ? 'FRUTO — ' + fruit : '';
       }
 
       // === Velocidade do movimento (pan) da imagem em tela cheia ===
