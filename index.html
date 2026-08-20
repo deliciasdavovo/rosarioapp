@@ -3152,7 +3152,10 @@
         var underlay = null;
 
         el.style.touchAction = 'pan-y';
-        el.style.perspective = '1200px';
+        // A perspectiva vai no transform da própria folha (perspective(...)):
+        // aplicá-la no #mainWrapper faria dele o bloco de contenção de tudo
+        // que é position:fixed dentro dele — e o terço, que sobe para cima da
+        // imagem em tela cheia, ficava preso (e escondido) atrás do overlay.
 
         function removeUnderlay(delay) {
           var page = underlay;
@@ -3205,7 +3208,7 @@
           var exitX = (direction > 0 ? -1 : 1) * Math.max(window.innerWidth * 1.08, 420);
           panel.style.transition = 'transform .22s cubic-bezier(.55,.05,.68,.53), opacity .2s ease';
           panel.style.transformOrigin = direction > 0 ? 'left center' : 'right center';
-          panel.style.transform = 'translate3d(' + exitX + 'px,0,0) rotateY(' + (direction > 0 ? -5 : 5) + 'deg)';
+          panel.style.transform = 'perspective(1200px) translate3d(' + exitX + 'px,0,0) rotateY(' + (direction > 0 ? -5 : 5) + 'deg)';
           panel.style.opacity = '.92';
 
           setTimeout(function() {
@@ -3220,7 +3223,7 @@
             var enterX = (direction > 0 ? 1 : -1) * Math.max(window.innerWidth * .92, 360);
             panel.style.transition = 'none';
             panel.style.transformOrigin = direction > 0 ? 'right center' : 'left center';
-            panel.style.transform = 'translate3d(' + enterX + 'px,0,0) rotateY(' + (direction > 0 ? 4 : -4) + 'deg)';
+            panel.style.transform = 'perspective(1200px) translate3d(' + enterX + 'px,0,0) rotateY(' + (direction > 0 ? 4 : -4) + 'deg)';
             panel.style.opacity = '.94';
             panel.style.filter = 'drop-shadow(' + (direction > 0 ? '-18px' : '18px') + ' 10px 18px rgba(55,35,18,.14))';
 
@@ -3295,7 +3298,7 @@
           panel.style.willChange = 'transform';
           panel.style.transition = 'none';
           panel.style.transformOrigin = pageDx < 0 ? 'left center' : 'right center';
-          panel.style.transform = 'translate3d(' + pageDx + 'px,0,0) rotateY(' + (pageDx < 0 ? -angle : angle) + 'deg)';
+          panel.style.transform = 'perspective(1200px) translate3d(' + pageDx + 'px,0,0) rotateY(' + (pageDx < 0 ? -angle : angle) + 'deg)';
           panel.style.filter = 'drop-shadow(' + (pageDx < 0 ? '-16px' : '16px') + ' 8px 16px rgba(55,35,18,.13))';
           renderBeads(pageDx * .08, true, activeBeadId);
         }, { passive:true });
