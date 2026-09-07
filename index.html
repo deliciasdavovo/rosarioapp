@@ -312,12 +312,21 @@
         <!-- Centro: Título -->
         <h1 class="text-2xl font-serif text-amber-950 font-bold tracking-wide text-center whitespace-nowrap cursor-pointer select-none active:opacity-60 transition-opacity" onclick="triggerRefresh()">meu rosário</h1>
 
-        <!-- Direita: Menu Hambúrguer -->
-        <button onclick="openSettingsMenu()" class="justify-self-end flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
-          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
-          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
-          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
-        </button>
+        <!-- Direita: Prefácio + Menu Hambúrguer -->
+        <div class="justify-self-end flex items-center gap-0.5">
+          <button onclick="openPrefacio()" class="flex items-center justify-center w-9 h-9 rounded-xl hover:bg-stone-100/60 active:bg-stone-100/80 transition-colors" aria-label="Prefácio">
+            <svg class="w-[18px] h-[18px] text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" stroke-width="1.7" />
+              <path stroke-linecap="round" stroke-width="2" d="M12 8h.01" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 11.5v5" />
+            </svg>
+          </button>
+          <button onclick="openSettingsMenu()" class="flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
+            <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
+            <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
+            <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -3771,6 +3780,28 @@
         }, { passive: true });
       })();
 
+      // --- Prefácio ---
+      function openPrefacio() {
+        const overlay = document.getElementById('prefacioOverlay');
+        const sheet = document.getElementById('prefacioSheet');
+        if (!overlay || !sheet) return;
+        overlay.style.display = 'flex';
+        sheet.scrollTop = 0;
+        requestAnimationFrame(() => {
+          sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+          sheet.style.transform = 'translateY(0)';
+        });
+      }
+
+      function closePrefacio() {
+        const overlay = document.getElementById('prefacioOverlay');
+        const sheet = document.getElementById('prefacioSheet');
+        if (!overlay || !sheet) return;
+        sheet.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 310);
+      }
+
       // --- Menu de Configurações ---
       function openSettingsMenu() {
         const overlay = document.getElementById('settingsOverlay');
@@ -4757,6 +4788,26 @@
           style="width:100%; padding:16px; border-radius:18px; background:#1C1917; color:white; font-family:Outfit,serif; font-size:13px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; border:none; cursor:pointer;">
           Fechar
         </button>
+      </div>
+    </div>
+
+    <!-- Modal: Prefácio -->
+    <div id="prefacioOverlay" style="display:none; position:fixed; inset:0; z-index:120; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="closePrefacio()">
+      <div id="prefacioSheet" style="transform:translateY(100%); max-height:88vh; overflow-y:auto;" class="bg-[#FAF6EE] rounded-t-3xl px-6 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60 hide-scrollbar" onclick="event.stopPropagation()">
+        <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
+        <h3 class="text-center font-serif text-orange-950 text-base font-medium tracking-[0.18em] uppercase mb-1">Prefácio</h3>
+        <div class="w-10 h-px bg-stone-300/70 mx-auto mb-5"></div>
+        <p class="font-serif text-[13.5px] leading-[1.85] text-stone-600 text-justify mb-4">
+          O rosário não é simplesmente uma série de orações para recitarmos: é uma série de pensamentos que devemos considerar e aprofundar, a fim de tirar aplicações para nossa vida cotidiana. O Rosário verdadeiramente rezado exige resultados visíveis, exige que todos os que terminam de rezá-lo comecem a viver uma vida nova.
+        </p>
+        <p class="font-serif text-[13.5px] leading-[1.85] text-stone-600 text-justify">
+          Durante anos desejei um livro sobre o rosário que não só fôsse &ldquo;prático&rdquo; no sentido que acabo de expor, mas igualmente belo. A Mãe de Deus, de sublime beleza, que é a figura central do Rosário, é digna da mais elevada homenagem literária jamais oferecida a alguma criatura.
+        </p>
+        <button onclick="closePrefacio()"
+          style="width:100%; margin-top:24px; padding:14px; border-radius:16px; border:none; font-family:Outfit,serif; font-size:13px; font-weight:600; color:#FFFFFF; background:#1C1917; cursor:pointer;">
+          Fechar
+        </button>
+        <div style="height: env(safe-area-inset-bottom, 8px); margin-top: 8px;"></div>
       </div>
     </div>
 
