@@ -2021,7 +2021,7 @@
       // Meditações do Monge M. Charles O.C.S.O. — um pensamento por mistério,
       // com a aplicação prática para o dia a dia. Grafia antiga do livro preservada.
       const CHARLES_DATA = {
-        gozosos: {
+        gozosos: [{
           tema: 'Amor a Deus',
           misterios: [
             {
@@ -2050,8 +2050,8 @@
               aplicacao: 'O Filho de Maria veio ao mundo procurar-me para que eu pudesse encontrá-lo. Encontro-o nos sacramentos, na missa, no meu próximo. Estarei atento, procurando Jesus de todo o coração, como Maria estava?'
             }
           ]
-        },
-        dolorosos: {
+        }],
+        dolorosos: [{
           tema: 'Sofrimento',
           misterios: [
             {
@@ -2080,8 +2080,8 @@
               aplicacao: 'A chave da porta do céu é uma cruz. Nossa cruz pode ser a chave para outro. Unir nossos sofrimentos aos de Cristo para a salvação das almas é a mais elevada forma de zelo apostólico.'
             }
           ]
-        },
-        gloriosos: {
+        }],
+        gloriosos: [{
           tema: 'Esperança',
           misterios: [
             {
@@ -2110,7 +2110,7 @@
               aplicacao: 'Enquanto há esperança, há vida. Maria era otimista, mesmo no Calvário, porque via em tudo a vontade de Deus. Um otimismo confiante é uma virtude que Deus espera de mim.'
             }
           ]
-        }
+        }]
       };
 
       function getMysterySetIdForDay(dayIndex) {
@@ -2130,6 +2130,21 @@
       let selectedDay = new Date().getDay();
       let activeMode = 'curta';
       let meditativoVariant = 'montfort'; // 'montfort' | 'fatima' | 'charles'
+      // Série temática do M. Charles escolhida em cada conjunto: { gozosos: 0, ... }
+      const charlesSerieIdx = {};
+
+      // Sufixo da chave do painel: sem ele, trocar de série reaproveitaria o cartão em cache.
+      function charlesSerieSufixo() {
+        if (meditativoVariant !== 'charles') return '';
+        return ':s' + (charlesSerieIdx[getMysterySetIdForDay(selectedDay)] || 0);
+      }
+
+      // Série ativa de um conjunto, protegida contra índice fora da lista.
+      function charlesSerieAtiva(setId) {
+        const series = CHARLES_DATA[setId];
+        if (!series || !series.length) return null;
+        return series[charlesSerieIdx[setId]] || series[0];
+      }
       let activeBeadId = 0;
       let beadsList = [];
       let oracoesAdicionaisEnabled = localStorage.getItem('oracoesAdicionais') === 'true'; // compat
@@ -2421,10 +2436,10 @@
             return 'meditativo:' + meditativoVariant + ':ave-intro:' + bead.introIndex;
           if (bead.type === 'ave-maria' && isMystery)
             return (meditativoVariant === 'fatima' || meditativoVariant === 'charles')
-              ? 'meditativo:' + meditativoVariant + ':ave:' + bead.mysteryIndex
+              ? 'meditativo:' + meditativoVariant + charlesSerieSufixo() + ':ave:' + bead.mysteryIndex
               : 'meditativo:' + meditativoVariant + ':ave:' + bead.mysteryIndex + ':' + bead.beadIndex;
           if (bead.type === 'misterio' && isMystery)
-            return 'meditativo:' + meditativoVariant + ':misterio:' + bead.mysteryIndex;
+            return 'meditativo:' + meditativoVariant + charlesSerieSufixo() + ':misterio:' + bead.mysteryIndex;
         }
         if (bead.type === 'pai-nosso' || bead.type === 'misterio') return 'fallback:pai-nosso';
         return 'fallback:' + bead.type;
@@ -2474,8 +2489,8 @@
 
           // Charles ainda não cobre todos os conjuntos; sem dados, cai no meditativo padrão.
           const isCharles = activeMode === 'meditativo' && meditativoVariant === 'charles';
-          const charlesSet = isCharles ? CHARLES_DATA[getMysterySetIdForDay(selectedDay)] : null;
-          const charlesMystery = (charlesSet && isMystery) ? charlesSet.misterios[bead.mysteryIndex] : null;
+          const charlesSerie = isCharles ? charlesSerieAtiva(getMysterySetIdForDay(selectedDay)) : null;
+          const charlesMystery = (charlesSerie && isMystery) ? charlesSerie.misterios[bead.mysteryIndex] : null;
 
           if (activeMode === 'imagem' && isMystery && mystery) {
             layout = `
@@ -2635,7 +2650,7 @@
                 <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
                   <div class="space-y-4 py-2 pb-6">
                     <h3 class="text-2xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
-                    <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${charlesSet.tema}</span>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${charlesSerie.tema}</span>
                     <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
                     <p class="text-base text-stone-500 font-serif font-light italic leading-relaxed px-2">${charlesMystery.epigrafe}</p>
                     <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
@@ -3562,6 +3577,30 @@
         closeMeditativoSelector();
       }
 
+      // Um chip por série temática do conjunto do dia; some quando só existe uma.
+      function renderCharlesTemas() {
+        const box = document.getElementById('charlesTemas');
+        if (!box) return;
+        const setId = getMysterySetIdForDay(selectedDay);
+        const series = CHARLES_DATA[setId] || [];
+        if (series.length < 2) { box.classList.add('hidden'); box.classList.remove('flex'); return; }
+        box.classList.remove('hidden');
+        box.classList.add('flex');
+        const ativa = charlesSerieIdx[setId] || 0;
+        box.innerHTML = '';
+        series.forEach((serie, i) => {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.innerText = serie.tema;
+          const escolhido = meditativoVariant === 'charles' && i === ativa;
+          chip.className = 'px-3 py-1.5 rounded-full border font-serif text-[11px] transition-colors ' +
+            (escolhido ? 'border-orange-300 bg-orange-50 text-orange-800'
+                       : 'border-stone-200 text-stone-500 hover:bg-stone-50');
+          chip.onclick = () => { charlesSerieIdx[setId] = i; selectMeditativoVariant('charles'); };
+          box.appendChild(chip);
+        });
+      }
+
       function updateMeditativoSelectorButtons() {
         const btns = [
           { el: document.getElementById('btnMeditativoMontfort'), variant: 'montfort' },
@@ -3578,6 +3617,7 @@
             el.classList.add('border-stone-100');
           }
         });
+        renderCharlesTemas();
       }
 
       // === Modo Imagem Tela Cheia ===
@@ -4783,6 +4823,9 @@
             <div class="text-[10px] font-serif text-orange-400/80 mt-1">Faltam apenas os Mistérios Luminosos</div>
           </div>
         </button>
+
+        <!-- Temas do M. Charles para os mistérios do dia (oculto quando há um só) -->
+        <div id="charlesTemas" class="hidden flex-wrap gap-2 px-1 pb-1 mb-2"></div>
 
         <div style="height: env(safe-area-inset-bottom, 8px);"></div>
       </div>
