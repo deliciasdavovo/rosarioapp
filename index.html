@@ -312,12 +312,21 @@
         <!-- Centro: Título -->
         <h1 class="text-2xl font-serif text-amber-950 font-bold tracking-wide text-center whitespace-nowrap cursor-pointer select-none active:opacity-60 transition-opacity" onclick="triggerRefresh()">meu rosário</h1>
 
-        <!-- Direita: Menu Hambúrguer -->
-        <button onclick="openSettingsMenu()" class="justify-self-end flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
-          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
-          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
-          <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
-        </button>
+        <!-- Direita: Prefácio + Menu Hambúrguer -->
+        <div class="justify-self-end flex items-center gap-0.5">
+          <button onclick="openPrefacio()" class="flex items-center justify-center w-9 h-9 rounded-xl hover:bg-stone-100/60 active:bg-stone-100/80 transition-colors" aria-label="Prefácio">
+            <svg class="w-[18px] h-[18px] text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" stroke-width="1.7" />
+              <path stroke-linecap="round" stroke-width="2" d="M12 8h.01" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 11.5v5" />
+            </svg>
+          </button>
+          <button onclick="openSettingsMenu()" class="flex flex-col justify-center gap-[5px] p-2 rounded-xl hover:bg-stone-100/60 transition-colors" aria-label="Menu">
+            <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
+            <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
+            <span class="block w-5 h-[2px] bg-stone-500 rounded-full"></span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -353,6 +362,7 @@
             <span class="text-[10px] font-medium tracking-wide uppercase">Meditativo</span>
             <span id="montfortBadge" class="hidden text-[8px] font-semibold tracking-wider text-orange-500 uppercase leading-none">Montfort</span>
             <span id="fatimaBadge" class="hidden text-[8px] font-semibold tracking-wider text-orange-500 uppercase leading-none">Fátima</span>
+            <span id="charlesBadge" class="hidden text-[8px] font-semibold tracking-wider text-orange-500 uppercase leading-none">M. Charles</span>
           </span>
         </button>
 
@@ -2008,6 +2018,41 @@
         return m.oracao;
       }
 
+      // Meditações do Monge M. Charles O.C.S.O. — um pensamento por mistério,
+      // com a aplicação prática para o dia a dia. Grafia antiga do livro preservada.
+      const CHARLES_DATA = {
+        gozosos: {
+          tema: 'Amor a Deus',
+          misterios: [
+            {
+              epigrafe: '“Ave, cheia de graça”.',
+              meditacao: 'Mais um dia começara na casinha de Nazaré: um calmo dia de março. Maria o havia passado como passara inúmeros outros, nos tranqüilos trabalhos caseiros. Uma môça comum, Maria, aos olhos do mundo; comum como os demais habitantes da aldeia, como José… De repente, um anjo está a seu lado: “Ave, cheia de graça!” Qualquer pessoa teria ficado bastante perturbada com semelhante visita e saudação. E Maria ficou? “Ela perturbou-se ao ouvir estas palavras”. O anjo dava a entender que Maria amava a Deus de todo o coração, de tôda a alma, com tôdas as fôrças; amava a Deus bastante para tornar-se sua Mãe.',
+              aplicacao: 'Amar a Deus de todo o coração? como Maria, justamente para isso é que fui criado. E o fato de ser eu uma pessoa “comum” não me impede de fazê-lo!'
+            },
+            {
+              epigrafe: 'Maria pôs-se a caminho e foi visitar a Isabel.',
+              meditacao: 'Porque Maria era uma pessoa comum, isto é, muito humana, generosa, com o coração cheio de ternura, êste mistério ensina-me algo muito importante sôbre o amor a Deus. Deus se havia tornado homem no seio de Maria. “Fica tranqüilamente em tua casa, Maria (poderíamos ter aconselhado), e ama-O, só a Êle.” Maria, porém, conhecia êste segrêdo sôbre o amor a Deus: Amar a Deus com exclusão dos outros é não amá-lo absolutamente. A visita de Maria a santa Isabel foi uma profecia inconsciente do mandamento de seu Filho: “Amai-vos uns aos outros.”',
+              aplicacao: 'Meu amor a Deus exige que eu ame a todos — mesmo aquêles que não me agradam. Como conseguir isto? Acostumando-me a ver Cristo nos outros e a agir conforme êsse sentimento. “O que fizerdes aos outros, a mim o fareis”. Cristo não falava em vão.'
+            },
+            {
+              epigrafe: '“Deitou-o numa manjedoura, porque não havia lugar para êles na hospedaria”.',
+              meditacao: 'Maria e José abrigaram-se numa das grutas das colinas de Belém. Ela apenas os resguardava um pouco do frio cortante daquela noite de inverno. O ar estava carregado da umidade das paredes de terra; o odor dos animais era sufocante. É impressionante a escuridão, apenas rasgada pelo pálido reflexo da luz da lanterna e da nesga do céu, sem estrelas. Sim, havia ali lugar para êles. E ali, Maria e José amaram a Deus como êle jamais havia sido amado na terra.',
+              aplicacao: 'Deus pode ser amado de todo o coração em qualquer lugar. Meu amor a Deus não depende da espécie de lugar onde estou. Depende da espécie de pessoa que sou.'
+            },
+            {
+              epigrafe: '“Minha alma glorifica o Senhor e meu coração exulta!”',
+              meditacao: 'Pensamos em Maria como sendo a mais sossegada das mulheres. As palavras dela que chegaram até nós são poucas; quando os outros falam, ela “medita suas palavras no coração”.\n\nPode-se ter a impressão de que passou uma vida monótona, tôda vivida no íntimo do coração. Não. Maria foi uma mulher perfeita, a obra-prima de Deus; e por isso cantou. Nem o sabiá ao amanhecer tem um canto mais belo do que o seu: “Minha alma glorifica o Senhor! exulta de alegria em Deus. Ele é o todo-poderoso e seu nome é santo!” Isto não é um sussurro saído de um cantinho escuro. O hino espontâneo de Maria, tão silenciosa, brotou de seu amor a Deus.',
+              aplicacao: 'O amor a Deus faz nosso coração cantar e abrir-se para acolher a todos.'
+            },
+            {
+              epigrafe: '“Êles o encontraram”.',
+              meditacao: 'Em três palavras êste mistério do rosário nos revela a verdadeira raiz do amor a Deus; ensina-nos exatamente o significado do amor a Deus. “Êles o encontraram” é a expressão perfeita do tema de nossa meditação. Amar a Deus não é outra coisa senão ter encontrado Jesus. A explicação é também muito simples: todo o meu amor a Deus provém de Cristo; foi êle que mereceu para nós as abundantes torrentes de graça que caem invisivelmente sôbre o mundo. Cada centelha de caridade divina, a mais fugaz, a mais brilhante, em tôdas as almas e em todos os tempos, brotou da Pedra Angular — o Cristo.',
+              aplicacao: 'O Filho de Maria veio ao mundo procurar-me para que eu pudesse encontrá-lo. Encontro-o nos sacramentos, na missa, no meu próximo. Estarei atento, procurando Jesus de todo o coração, como Maria estava?'
+            }
+          ]
+        }
+      };
+
       function getMysterySetIdForDay(dayIndex) {
         switch (dayIndex) {
           case 0: return 'gloriosos'; // Domingo
@@ -2024,7 +2069,7 @@
       // Estado Global da Aplicação
       let selectedDay = new Date().getDay();
       let activeMode = 'curta';
-      let meditativoVariant = 'montfort'; // 'montfort' | 'fatima'
+      let meditativoVariant = 'montfort'; // 'montfort' | 'fatima' | 'charles'
       let activeBeadId = 0;
       let beadsList = [];
       let oracoesAdicionaisEnabled = localStorage.getItem('oracoesAdicionais') === 'true'; // compat
@@ -2315,7 +2360,7 @@
           if (bead.type === 'ave-maria' && bead.introIndex !== undefined)
             return 'meditativo:' + meditativoVariant + ':ave-intro:' + bead.introIndex;
           if (bead.type === 'ave-maria' && isMystery)
-            return meditativoVariant === 'fatima'
+            return (meditativoVariant === 'fatima' || meditativoVariant === 'charles')
               ? 'meditativo:' + meditativoVariant + ':ave:' + bead.mysteryIndex
               : 'meditativo:' + meditativoVariant + ':ave:' + bead.mysteryIndex + ':' + bead.beadIndex;
           if (bead.type === 'misterio' && isMystery)
@@ -2366,6 +2411,11 @@
           const isFatima = activeMode === 'meditativo' && meditativoVariant === 'fatima';
           const fatimaSet = isFatima ? FATIMA_DATA[getMysterySetIdForDay(selectedDay)] : null;
           const fatimaMystery = (fatimaSet && isMystery) ? fatimaSet[bead.mysteryIndex] : null;
+
+          // Charles ainda não cobre todos os conjuntos; sem dados, cai no meditativo padrão.
+          const isCharles = activeMode === 'meditativo' && meditativoVariant === 'charles';
+          const charlesSet = isCharles ? CHARLES_DATA[getMysterySetIdForDay(selectedDay)] : null;
+          const charlesMystery = (charlesSet && isMystery) ? charlesSet.misterios[bead.mysteryIndex] : null;
 
           if (activeMode === 'imagem' && isMystery && mystery) {
             layout = `
@@ -2512,6 +2562,58 @@
                   <h3 class="text-xl font-serif font-light text-stone-800 leading-relaxed">Ave Maria, ${aveText}</h3>
                 </div>
                 <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50"></div>
+              </div>
+            `;
+          } else if (isCharles && charlesMystery && bead.type === 'misterio') {
+            layout = `
+              <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
+                <div class="flex flex-col items-center space-y-1 pt-4 pb-2">
+                  <span class="text-[9px] tracking-[0.3em] uppercase text-orange-955/50 font-serif">${mSet.name}</span>
+                  <h4 class="text-xs font-serif tracking-wide text-orange-600/85">${bead.mysteryIndex + 1}º Mistério</h4>
+                  <div class="text-orange-600/30 text-[9px] tracking-widest font-serif">✥  ✥  ✥</div>
+                </div>
+                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                  <div class="space-y-4 py-2 pb-6">
+                    <h3 class="text-2xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">${charlesSet.tema}</span>
+                    <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
+                    <p class="text-base text-stone-500 font-serif font-light italic leading-relaxed px-2">${charlesMystery.epigrafe}</p>
+                    <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
+                    <div class="space-y-2 text-left">
+                      <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Meditação</span>
+                      <p class="text-[15px] text-stone-600 font-serif font-light leading-relaxed whitespace-pre-line">${charlesMystery.meditacao}</p>
+                    </div>
+                    <div class="w-12 h-px bg-orange-200/40 mx-auto"></div>
+                    <div class="space-y-2 text-left">
+                      <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block text-center">Aplicação</span>
+                      <p class="text-base text-orange-950/80 font-serif leading-relaxed">${charlesMystery.aplicacao}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-[10px] text-orange-700/60 font-serif tracking-[0.15em] uppercase py-3">Pai Nosso</div>
+              </div>
+            `;
+          } else if (isCharles && charlesMystery && bead.type === 'ave-maria' && isMystery) {
+            layout = `
+              <div class="flex flex-col items-center w-full flex-1 min-h-0 text-center">
+                <div class="flex flex-col items-center space-y-1 pt-4 pb-2">
+                  <span class="text-[9px] tracking-[0.3em] uppercase text-orange-955/50 font-serif">${mSet.name}</span>
+                  <h4 class="text-xs font-serif tracking-wide text-orange-600/85">${bead.mysteryIndex + 1}º Mistério · ${bead.beadIndex + 1}ª Ave Maria</h4>
+                  <div class="text-orange-600/20 text-[9px] tracking-widest font-serif">✧  ✧  ✧</div>
+                </div>
+                <div class="w-full flex-1 min-h-0 overflow-y-scroll hide-scrollbar px-4 flex flex-col" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+                  <div class="space-y-5 py-2 pb-6 m-auto">
+                    <h3 class="text-xl font-serif font-medium text-orange-950 leading-snug tracking-wide">${mystery.title}</h3>
+                    ${fruitLabelMarkup(fruit)}
+                    <div class="w-16 h-px bg-gradient-to-r from-transparent via-orange-300/40 to-transparent mx-auto"></div>
+                    <p class="text-base text-stone-500 font-serif font-light italic leading-relaxed px-2">${charlesMystery.epigrafe}</p>
+                    <div class="space-y-2">
+                      <span class="text-[10px] uppercase tracking-[0.2em] text-orange-700/60 font-semibold block">Aplicação</span>
+                      <p class="text-base text-orange-950/80 font-serif leading-relaxed">${charlesMystery.aplicacao}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="w-1.5 h-1.5 rounded-full border border-orange-300/40 bg-orange-50 mb-3"></div>
               </div>
             `;
           } else if (isFatima && fatimaMystery && bead.type === 'misterio') {
@@ -3388,6 +3490,8 @@
         if (badge) badge.classList.toggle('hidden', variant !== 'montfort');
         const fatimaBadge = document.getElementById('fatimaBadge');
         if (fatimaBadge) fatimaBadge.classList.toggle('hidden', variant !== 'fatima');
+        const charlesBadge = document.getElementById('charlesBadge');
+        if (charlesBadge) charlesBadge.classList.toggle('hidden', variant !== 'charles');
         setMode('meditativo');
         closeMeditativoSelector();
       }
@@ -3395,7 +3499,8 @@
       function updateMeditativoSelectorButtons() {
         const btns = [
           { el: document.getElementById('btnMeditativoMontfort'), variant: 'montfort' },
-          { el: document.getElementById('btnMeditativoFatima'),   variant: 'fatima'   }
+          { el: document.getElementById('btnMeditativoFatima'),   variant: 'fatima'   },
+          { el: document.getElementById('btnMeditativoCharles'),  variant: 'charles'  }
         ];
         btns.forEach(({ el, variant }) => {
           if (!el) return;
@@ -3770,6 +3875,28 @@
           }
         }, { passive: true });
       })();
+
+      // --- Prefácio ---
+      function openPrefacio() {
+        const overlay = document.getElementById('prefacioOverlay');
+        const sheet = document.getElementById('prefacioSheet');
+        if (!overlay || !sheet) return;
+        overlay.style.display = 'flex';
+        sheet.scrollTop = 0;
+        requestAnimationFrame(() => {
+          sheet.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
+          sheet.style.transform = 'translateY(0)';
+        });
+      }
+
+      function closePrefacio() {
+        const overlay = document.getElementById('prefacioOverlay');
+        const sheet = document.getElementById('prefacioSheet');
+        if (!overlay || !sheet) return;
+        sheet.style.transition = 'transform 0.3s cubic-bezier(0.55,0,1,0.45)';
+        sheet.style.transform = 'translateY(100%)';
+        setTimeout(() => { overlay.style.display = 'none'; }, 310);
+      }
 
       // --- Menu de Configurações ---
       function openSettingsMenu() {
@@ -4576,10 +4703,18 @@
           </div>
         </button>
 
-        <button id="btnMeditativoFatima" onclick="selectMeditativoVariant('fatima')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-2 transition-all text-left">
+        <button id="btnMeditativoFatima" onclick="selectMeditativoVariant('fatima')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-3 transition-all text-left">
           <div>
             <div class="font-serif text-orange-950 text-sm font-medium">Santuário de Fátima</div>
             <div class="text-[11px] font-serif text-stone-400 mt-0.5">Meditações com Escritura, reflexão e oração</div>
+          </div>
+        </button>
+
+        <button id="btnMeditativoCharles" onclick="selectMeditativoVariant('charles')" class="w-full flex items-center gap-4 p-4 rounded-2xl border border-stone-100 mb-2 transition-all text-left">
+          <div>
+            <div class="font-serif text-orange-950 text-sm font-medium">Monge M. Charles O.C.S.O.</div>
+            <div class="text-[11px] font-serif text-stone-400 mt-0.5">Meditação e aplicação para o dia a dia</div>
+            <div class="text-[10px] font-serif text-orange-400/80 mt-1">Por ora, apenas os Mistérios Gozosos</div>
           </div>
         </button>
 
@@ -4757,6 +4892,26 @@
           style="width:100%; padding:16px; border-radius:18px; background:#1C1917; color:white; font-family:Outfit,serif; font-size:13px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; border:none; cursor:pointer;">
           Fechar
         </button>
+      </div>
+    </div>
+
+    <!-- Modal: Prefácio -->
+    <div id="prefacioOverlay" style="display:none; position:fixed; inset:0; z-index:120; flex-direction:column; justify-content:flex-end; background:rgba(41,29,20,0.45);" onclick="closePrefacio()">
+      <div id="prefacioSheet" style="transform:translateY(100%); max-height:88vh; overflow-y:auto;" class="bg-[#FAF6EE] rounded-t-3xl px-6 pt-6 pb-8 max-w-xl mx-auto w-full border-t border-stone-200/60 hide-scrollbar" onclick="event.stopPropagation()">
+        <div class="w-8 h-1 bg-stone-300/70 rounded-full mx-auto mb-5"></div>
+        <h3 class="text-center font-serif text-orange-950 text-base font-medium tracking-[0.18em] uppercase mb-1">Prefácio</h3>
+        <div class="w-10 h-px bg-stone-300/70 mx-auto mb-5"></div>
+        <p class="font-serif text-[13.5px] leading-[1.85] text-stone-600 text-justify mb-4">
+          O rosário não é simplesmente uma série de orações para recitarmos: é uma série de pensamentos que devemos considerar e aprofundar, a fim de tirar aplicações para nossa vida cotidiana. O Rosário verdadeiramente rezado exige resultados visíveis, exige que todos os que terminam de rezá-lo comecem a viver uma vida nova.
+        </p>
+        <p class="font-serif text-[13.5px] leading-[1.85] text-stone-600 text-justify">
+          Durante anos desejei um livro sobre o rosário que não só fôsse &ldquo;prático&rdquo; no sentido que acabo de expor, mas igualmente belo. A Mãe de Deus, de sublime beleza, que é a figura central do Rosário, é digna da mais elevada homenagem literária jamais oferecida a alguma criatura.
+        </p>
+        <button onclick="closePrefacio()"
+          style="width:100%; margin-top:24px; padding:14px; border-radius:16px; border:none; font-family:Outfit,serif; font-size:13px; font-weight:600; color:#FFFFFF; background:#1C1917; cursor:pointer;">
+          Fechar
+        </button>
+        <div style="height: env(safe-area-inset-bottom, 8px); margin-top: 8px;"></div>
       </div>
     </div>
 
