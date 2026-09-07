@@ -2189,13 +2189,28 @@
       // Estado Global da Aplicação
       let selectedDay = new Date().getDay();
       let activeMode = 'curta';
-      let meditativoVariant = 'montfort'; // 'montfort' | 'fatima' | 'charles'
+      let meditativoVariant = 'charles'; // 'charles' | 'montfort' | 'fatima'
       // Série temática do M. Charles escolhida em cada conjunto: { gozosos: 0, ... }
       const charlesSerieIdx = {};
 
+      // Há texto do M. Charles para o conjunto de mistérios deste dia?
+      function charlesTemDados(setId) {
+        const series = CHARLES_DATA[setId];
+        return !!(series && series.length);
+      }
+
+      // Variante realmente usada: nos conjuntos sem texto do M. Charles (Luminosos),
+      // a reza segue pelo Montfort em vez de cair num meditativo genérico.
+      function variantMeditativoEfetiva() {
+        if (meditativoVariant === 'charles' && !charlesTemDados(getMysterySetIdForDay(selectedDay))) {
+          return 'montfort';
+        }
+        return meditativoVariant;
+      }
+
       // Sufixo da chave do painel: sem ele, trocar de série reaproveitaria o cartão em cache.
       function charlesSerieSufixo() {
-        if (meditativoVariant !== 'charles') return '';
+        if (variantMeditativoEfetiva() !== 'charles') return '';
         return ':s' + (charlesSerieIdx[getMysterySetIdForDay(selectedDay)] || 0);
       }
 
@@ -2444,6 +2459,7 @@
             selectedDay = idx;
             _mystImgCache = {};
             currentDayLabel.innerText = day;
+            atualizarBadgeMeditativo();
             renderPanel();
             renderDayDropdown();
             closeDropdown();
@@ -2455,6 +2471,7 @@
 
       currentDayLabel.innerText = DAYS_OF_WEEK[selectedDay];
       renderDayDropdown(); // atualiza label e dropdown com o dia restaurado (pode ser de localStorage)
+      atualizarBadgeMeditativo(); // o app já abre no M. Charles, então o badge nasce preenchido
 
       // Mudança de Abas / Modos
       function setMode(mode) {
@@ -2492,14 +2509,17 @@
           return activeMode + ':' + bead.mysteryIndex;
         }
         if (activeMode === 'meditativo') {
+          // A variante efetiva, não a escolhida: nos Luminosos o Charles reza pelo Montfort,
+          // que tem texto próprio em cada Ave-Maria e não pode agrupar a dezena.
+          const variante = variantMeditativoEfetiva();
           if (bead.type === 'ave-maria' && bead.introIndex !== undefined)
-            return 'meditativo:' + meditativoVariant + ':ave-intro:' + bead.introIndex;
+            return 'meditativo:' + variante + ':ave-intro:' + bead.introIndex;
           if (bead.type === 'ave-maria' && isMystery)
-            return (meditativoVariant === 'fatima' || meditativoVariant === 'charles')
-              ? 'meditativo:' + meditativoVariant + charlesSerieSufixo() + ':ave:' + bead.mysteryIndex
-              : 'meditativo:' + meditativoVariant + ':ave:' + bead.mysteryIndex + ':' + bead.beadIndex;
+            return (variante === 'fatima' || variante === 'charles')
+              ? 'meditativo:' + variante + charlesSerieSufixo() + ':ave:' + bead.mysteryIndex
+              : 'meditativo:' + variante + ':ave:' + bead.mysteryIndex + ':' + bead.beadIndex;
           if (bead.type === 'misterio' && isMystery)
-            return 'meditativo:' + meditativoVariant + charlesSerieSufixo() + ':misterio:' + bead.mysteryIndex;
+            return 'meditativo:' + variante + charlesSerieSufixo() + ':misterio:' + bead.mysteryIndex;
         }
         if (bead.type === 'pai-nosso' || bead.type === 'misterio') return 'fallback:pai-nosso';
         return 'fallback:' + bead.type;
@@ -2539,16 +2559,17 @@
 
           let layout = '';
 
-          const isMontfort = activeMode === 'meditativo' && meditativoVariant === 'montfort';
+          const variante = variantMeditativoEfetiva();
+          const isMontfort = activeMode === 'meditativo' && variante === 'montfort';
           const montfortSet = isMontfort ? MONTFORT_DATA[getMysterySetIdForDay(selectedDay)] : null;
           const montfortMystery = (montfortSet && isMystery) ? montfortSet[bead.mysteryIndex] : null;
 
-          const isFatima = activeMode === 'meditativo' && meditativoVariant === 'fatima';
+          const isFatima = activeMode === 'meditativo' && variante === 'fatima';
           const fatimaSet = isFatima ? FATIMA_DATA[getMysterySetIdForDay(selectedDay)] : null;
           const fatimaMystery = (fatimaSet && isMystery) ? fatimaSet[bead.mysteryIndex] : null;
 
           // Charles ainda não cobre todos os conjuntos; sem dados, cai no meditativo padrão.
-          const isCharles = activeMode === 'meditativo' && meditativoVariant === 'charles';
+          const isCharles = activeMode === 'meditativo' && variante === 'charles';
           const charlesSerie = isCharles ? charlesSerieAtiva(getMysterySetIdForDay(selectedDay)) : null;
           const charlesMystery = (charlesSerie && isMystery) ? charlesSerie.misterios[bead.mysteryIndex] : null;
 
@@ -3625,14 +3646,19 @@
         setTimeout(() => { overlay.style.display = 'none'; }, 310);
       }
 
+      // O badge mostra a variante efetiva, então acompanha a troca de dia.
+      function atualizarBadgeMeditativo() {
+        const efetiva = variantMeditativoEfetiva();
+        [['montfortBadge','montfort'], ['fatimaBadge','fatima'], ['charlesBadge','charles']]
+          .forEach(([id, v]) => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('hidden', efetiva !== v);
+          });
+      }
+
       function selectMeditativoVariant(variant) {
         meditativoVariant = variant;
-        const badge = document.getElementById('montfortBadge');
-        if (badge) badge.classList.toggle('hidden', variant !== 'montfort');
-        const fatimaBadge = document.getElementById('fatimaBadge');
-        if (fatimaBadge) fatimaBadge.classList.toggle('hidden', variant !== 'fatima');
-        const charlesBadge = document.getElementById('charlesBadge');
-        if (charlesBadge) charlesBadge.classList.toggle('hidden', variant !== 'charles');
+        atualizarBadgeMeditativo();
         setMode('meditativo');
         closeMeditativoSelector();
       }
@@ -3662,14 +3688,20 @@
       }
 
       function updateMeditativoSelectorButtons() {
+        // Sem texto do M. Charles para os mistérios do dia, a opção nem aparece.
+        const temCharles = charlesTemDados(getMysterySetIdForDay(selectedDay));
+        const btnCharles = document.getElementById('btnMeditativoCharles');
+        if (btnCharles) btnCharles.classList.toggle('hidden', !temCharles);
+
         const btns = [
           { el: document.getElementById('btnMeditativoMontfort'), variant: 'montfort' },
           { el: document.getElementById('btnMeditativoFatima'),   variant: 'fatima'   },
           { el: document.getElementById('btnMeditativoCharles'),  variant: 'charles'  }
         ];
+        const efetiva = variantMeditativoEfetiva();
         btns.forEach(({ el, variant }) => {
           if (!el) return;
-          if (meditativoVariant === variant) {
+          if (efetiva === variant) {
             el.classList.add('border-orange-300', 'bg-orange-50/50');
             el.classList.remove('border-stone-100', 'bg-transparent');
           } else {
