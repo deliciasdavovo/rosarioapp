@@ -594,6 +594,7 @@
                 'https://cdn.jsdelivr.net/gh/deliciasdavovo/rosarioapp@main/images/transfiguracao/IMG_0937.jpg',
                 'https://cdn.jsdelivr.net/gh/deliciasdavovo/rosarioapp@main/images/transfiguracao/IMG_0961.jpg',
               ],
+              landscapeImageUrl: 'images/transfiguracao/transfiguracao-horizontal.webp',
               meditativo: Array.from({ length: 10 }).map((_, i) => `Ave Maria, em honra à glória irradiada no Monte Tabor. (${i + 1}/10)`)
             },
             {
@@ -3825,7 +3826,15 @@
         const fruit = (mSet.fruits[mysteryIdx] || '').toLocaleUpperCase('pt-BR');
         if (mysteryIdx !== _fullscreenMysteryIdx) {
           const imgEl = document.getElementById('fullscreenImg');
-          const imgSrc = getMysteryImgSrc(mysteryIdx, mystery);
+          // Somente no celular deitado, usa a pintura horizontal dedicada.
+          // Nos demais formatos permanece a seleção habitual de imagens.
+          const landscapeUrl = isMobileLandscape() && mystery.landscapeImageUrl
+            ? new URL(mystery.landscapeImageUrl, document.baseURI).href
+            : null;
+          const imgSrc = landscapeUrl || getMysteryImgSrc(mysteryIdx, mystery);
+          const imageAlternatives = landscapeUrl
+            ? [landscapeUrl, ...getMysteryImgList(mystery)]
+            : getMysteryImgList(mystery);
           if (imgEl.src !== imgSrc) {
             imgEl.style.transition = '';
             imgEl.style.opacity = '0';
@@ -3835,8 +3844,8 @@
             // imagem nova entraria sem recorte e sem sobra para deslizar.
             imgEl.style.objectFit = 'cover';
             imgEl.setAttribute('data-cur', imgSrc);
-            imgEl.setAttribute('data-urls', JSON.stringify(getMysteryImgList(mystery)));
-            imgEl.setAttribute('data-cachekey', getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx);
+            imgEl.setAttribute('data-urls', JSON.stringify(imageAlternatives));
+            imgEl.setAttribute('data-cachekey', landscapeUrl ? '' : getMysterySetIdForDay(selectedDay) + ':' + mysteryIdx);
             imgEl.onerror = function() { handleImgError(imgEl); };
             imgEl.src = imgSrc;
             imgEl.onload = function() {
@@ -3998,7 +4007,12 @@
       // a sobra do recorte muda junto, então a duração é recalculada.
       function onFsViewportChange() {
         applyLandscapeFullscreen();
-        if (isImageFullscreen) updateFsPanTiming();
+        if (isImageFullscreen) {
+          // Girar com a tela cheia já aberta também troca a imagem apropriada.
+          _fullscreenMysteryIdx = null;
+          renderFullscreenImage();
+          updateFsPanTiming();
+        }
       }
       window.addEventListener('resize', onFsViewportChange);
       window.addEventListener('orientationchange', function() {
