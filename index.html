@@ -262,9 +262,9 @@
       /* Paisagem: pintura completa sobre a mesma pintura desfocada. */
       #fullscreenBg { display:none; }
       @media (orientation:landscape) and (max-height:560px) {
-        #imageFullscreenOverlay #fullscreenBg { display:block; position:absolute; inset:-24px; width:calc(100% + 48px); height:calc(100% + 48px); object-fit:cover; filter:blur(22px) brightness(.48); opacity:.9; pointer-events:none; }
-        #imageFullscreenOverlay #fullscreenImg { left:96px !important; right:12px !important; top:8px !important; bottom:8px !important; width:calc(100% - 108px) !important; height:calc(100% - 16px) !important; object-fit:contain !important; animation:none !important; filter:none !important; }
-        #beadsContainer { left:calc(43px - (100dvh - 16px) / 2) !important; right:auto !important; top:calc(50% - 42px) !important; bottom:auto !important; width:calc(100dvh - 16px) !important; height:84px !important; transform:rotate(-90deg); transform-origin:center center; }
+        #imageFullscreenOverlay #fullscreenBg { display:block; position:absolute; inset:-24px; width:calc(100% + 48px); height:calc(100% + 48px); object-fit:cover; filter:blur(48px) brightness(.32) saturate(.7); opacity:1; pointer-events:none; }
+        #imageFullscreenOverlay #fullscreenImg { left:12px !important; right:96px !important; top:8px !important; bottom:8px !important; width:calc(100% - 108px) !important; height:calc(100% - 16px) !important; object-fit:contain !important; animation:none !important; filter:none !important; }
+        #beadsContainer { left:calc(100vw - 43px - (100dvh - 16px) / 2) !important; right:auto !important; top:calc(50% - 42px) !important; bottom:auto !important; width:calc(100dvh - 16px) !important; height:84px !important; transform:rotate(-90deg); transform-origin:center center; }
         #beadCounter { transform:rotate(90deg); transform-origin:center center; }
         #imageFullscreenOverlay #fullscreenTitle { font-size:14px !important; }
         #imageFullscreenOverlay #fullscreenFruit { font-size:10px !important; }
