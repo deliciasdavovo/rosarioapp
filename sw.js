@@ -1,4 +1,4 @@
-const CACHE = 'meu-terco-v33';
+const CACHE = 'meu-terco-v34';
 const PRECACHE = ['./', './index.html', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -17,6 +17,15 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
+
+  // Always refresh navigation HTML so layout updates are not trapped in an old PWA cache.
+  if (e.request.mode === 'navigate') {
+    e.respondWith(fetch(e.request).then((res) => {
+      if (res.ok) caches.open(CACHE).then((c) => c.put('./index.html', res.clone()));
+      return res;
+    }).catch(() => caches.match('./index.html')));
+    return;
+  }
 
   // Cache-first for same-origin assets (app shell)
   if (url.origin === self.location.origin) {
